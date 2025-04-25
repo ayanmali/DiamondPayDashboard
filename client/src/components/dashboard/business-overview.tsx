@@ -74,51 +74,24 @@ export default function BusinessOverview() {
     <Card className="mb-8">
       <CardHeader className="px-6 py-5 border-b">
         <div className="flex flex-col md:flex-row md:items-center md:justify-between">
-          <CardTitle>Your overview</CardTitle>
-          
-          <div className="mt-3 md:mt-0 flex flex-wrap items-center gap-4">
-            <div className="flex items-center space-x-2">
-              <span className="text-sm text-muted-foreground">Last 7 days</span>
-              <div className="flex items-center">
-                <span className="text-sm text-muted-foreground">compared to</span>
-                <Select 
-                  defaultValue="previous" 
-                  onValueChange={(val) => setComparison(val as ComparisonType)}
-                >
-                  <SelectTrigger className="ml-1 border-none shadow-none h-auto p-0 text-sm">
-                    <SelectValue placeholder="Previous period" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="previous">Previous period</SelectItem>
-                    <SelectItem value="same_previous_year">Same period last year</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
-            <div className="flex items-center space-x-1">
+            <CardTitle>Your Overview</CardTitle>
+            <div className="mt-3 md:mt-0">
               <Select 
-                defaultValue="daily"
-                onValueChange={(val) => setInterval(val as 'daily' | 'weekly' | 'monthly')}
+                defaultValue="week"
+                onValueChange={(val) => setPeriod(val as TimePeriod)}
               >
-                <SelectTrigger className="h-9">
-                  <SelectValue placeholder="Daily" />
+                <SelectTrigger className="w-[140px]">
+                  <SelectValue placeholder="Select period" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="daily">Daily</SelectItem>
-                  <SelectItem value="weekly">Weekly</SelectItem>
-                  <SelectItem value="monthly">Monthly</SelectItem>
+                  <SelectItem value="day">Last day</SelectItem>
+                  <SelectItem value="week">Last week</SelectItem>
+                  <SelectItem value="month">Last month</SelectItem>
+                  <SelectItem value="year">Last year</SelectItem>
                 </SelectContent>
               </Select>
-              <Button variant="outline" size="icon" className="h-9 w-9">
-                <PlusIcon className="h-4 w-4" />
-              </Button>
-              <Button variant="outline" size="icon" className="h-9 w-9">
-                <PencilIcon className="h-4 w-4" />
-              </Button>
             </div>
           </div>
-        </div>
       </CardHeader>
       
       <CardContent className="p-6">
