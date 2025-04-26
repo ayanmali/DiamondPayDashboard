@@ -268,7 +268,7 @@ export default function BusinessOverview() {
               <div className="flex items-center justify-between py-2">
                 <div>
                   <p className="text-sm font-medium">Jesse</p>
-                  <p className="text-xs text-muted-foreground">jesse@yeab!tch.com</p>
+                  <p className="text-xs text-muted-foreground">jesse@capncook.com</p>
                 </div>
                 <p className="text-sm font-medium">{formatCurrency(69)}</p>
               </div>

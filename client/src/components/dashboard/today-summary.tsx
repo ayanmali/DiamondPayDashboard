@@ -101,7 +101,7 @@ export default function TodaySummary() {
 
               {/* Currency Selector */}
               <Select
-                defaultValue="USD"
+                defaultValue="Total"
                 onValueChange={(val) => setCurrency(val as Currency)}
               >
                 <SelectTrigger className="ml-1 border-none shadow-none h-auto w-40 p-0 pl-2 justify-right min-w-0">
