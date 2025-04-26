@@ -23,6 +23,7 @@ import {
   LogOut,
   PlusIcon,
 } from "lucide-react";
+import { Link } from "wouter";
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -79,6 +80,10 @@ export default function Header({ toggleSidebar }: HeaderProps) {
                 <FileText className="mr-3 h-5 w-5 text-muted-foreground" />
                 <span>Invoice</span>
               </DropdownMenuItem>
+              <DropdownMenuItem className="cursor-pointer">
+                <FileText className="mr-3 h-5 w-5 text-muted-foreground" />
+                <span>Donation</span>
+              </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
 
@@ -104,19 +109,26 @@ export default function Header({ toggleSidebar }: HeaderProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem className="cursor-pointer">
-                <Settings className="mr-3 h-5 w-5 text-muted-foreground" />
-                <span>Settings</span>
-              </DropdownMenuItem>
+              <Link to="/settings">
+                <DropdownMenuItem  className="cursor-pointer">
+                  <Settings className="mr-3 h-5 w-5 text-muted-foreground" />
+                  <span>Settings</span>
+                </DropdownMenuItem>
+              </Link>
+              <Link to="/account">
               <DropdownMenuItem className="cursor-pointer">
                 <User className="mr-3 h-5 w-5 text-muted-foreground" />
                 <span>My Account</span>
               </DropdownMenuItem>
+              </Link>
+              
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="cursor-pointer">
-                <LogOut className="mr-3 h-5 w-5 text-muted-foreground" />
-                <span>Sign Out</span>
-              </DropdownMenuItem>
+              <Link to="/signout">
+                <DropdownMenuItem className="cursor-pointer">
+                  <LogOut className="mr-3 h-5 w-5 text-muted-foreground" />
+                  <span>Sign Out</span>
+                </DropdownMenuItem>
+              </Link>
             </DropdownMenuContent>
           </DropdownMenu>
         </div>

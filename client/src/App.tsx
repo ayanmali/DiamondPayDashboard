@@ -11,14 +11,24 @@ import Transactions from "@/pages/transactions";
 import Wallets from "@/pages/wallets";
 import Customers from "@/pages/customers";
 import { useMobile } from "@/hooks/use-mobile";
+import { LandingPage } from "./pages/lander";
+import Login from "./pages/login";
 
 function Router() {
   return (
     <Switch>
-      <Route path="/" component={Dashboard} />
+      <Route path="/" component={LandingPage}/>
+      <Route path="/login" component={Login} />
+      <Route path="/dashboard" component={Dashboard} />
       <Route path="/transactions" component={Transactions} />
       <Route path="/wallets" component={Wallets} />
       <Route path="/customers" component={Customers} />
+      {/* <Route path="/token-transfers" component={} /> */}
+
+      {/* <Route path="/links" component={} />
+      <Route path="/checkouts" component={} />
+      <Route path="/invoices" component={} />
+      <Route path="/donations" component={} /> */}
       <Route component={NotFound} />
     </Switch>
   );
@@ -45,8 +55,6 @@ function AppLayout() {
           </div>
         </main>
       </div>
-      
-      <Toaster />
     </div>
   );
 }
@@ -54,7 +62,14 @@ function AppLayout() {
 function App() {
   return (
     <QueryClientProvider client={queryClient}>
-      <AppLayout />
+      <Switch>
+        <Route path="/" component={LandingPage} />
+        <Route path="/login" component={Login} />
+        <Route path="*">
+          <AppLayout />
+        </Route>
+      </Switch>
+      <Toaster />
     </QueryClientProvider>
   );
 }

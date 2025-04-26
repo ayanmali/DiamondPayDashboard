@@ -113,7 +113,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             <div className="h-8 w-8 bg-primary rounded-md flex items-center justify-center">
               <BoltIcon className="h-5 w-5 text-white" />
             </div>
-            <h1 className="text-xl font-semibold">CryptoFlow</h1>
+            <h1 className="text-xl font-semibold">DiamondPay</h1>
           </div>
           {isMobile && (
             <Button 
@@ -150,7 +150,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           <div className="pt-4 pb-2">
             <div className="flex items-center px-4">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-medium">
-                Payment Tools
+                Payments
               </h3>
             </div>
           </div>
@@ -172,7 +172,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           </SidebarItem>
         </nav>
         
-        <div className="p-4 border-t border-border">
+        {/* <div className="p-4 border-t border-border">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-gray-dark dark:text-gray-medium">
               Dark Mode
@@ -182,7 +182,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
               onCheckedChange={toggleTheme}
             />
           </div>
-        </div>
+        </div> */}
       </aside>
     </>
   );
