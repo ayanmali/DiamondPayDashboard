@@ -1,24 +1,31 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "../ui/checkbox";
 import { Transaction } from "@/pages/transactions";
-import { ArrowUpDown, Check, CopyIcon, MoreHorizontal, XIcon } from "lucide-react";
+import { ArrowUpDown, Check, CopyIcon, DollarSignIcon, EuroIcon, MoreHorizontal, XIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import { formatCurrency, formatDate, truncateAddress } from "@/lib/utils";
-import { SiCheckmarx, SiEthereum } from "react-icons/si";
+import { SiCheckmarx, SiEthereum, SiPolygon, SiTether } from "react-icons/si";
 import { IoTime, IoTimeOutline } from "react-icons/io5";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
+import { TbCurrencyEthereum } from "react-icons/tb";
+import { InfoTooltip } from "../tooltips/info-tooltip";
+import { Label } from "../ui/label";
+import { Input } from "../ui/input";
+import { useState } from "react";
+import { ToastAction } from "../ui/toast";
 // import { EditDescriptionForm } from "./EditDescription";
 // import { ViewAllPaymentMethodsData } from "./all-payment-methods";
 
 // Create a context for customer dialogs
 interface CustomerDialogsContextType {
-    editDescDialogOpen: boolean;
-    setEditDescDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    sendReceiptDialogOpen: boolean;
+    setSendReceiptDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
     paymentMethodsDialogOpen: boolean;
     setPaymentMethodsDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
     currentTransaction: Transaction | null;
     setCurrentTransaction: React.Dispatch<React.SetStateAction<Transaction | null>>;
+    toast: (opts: { title?: string; description?: string; action?: React.ReactNode }) => void;
 }
 
 // Table columns
@@ -46,7 +53,7 @@ export const createColumns = (dialogContext: CustomerDialogsContextType): Column
         enableHiding: false,
     },
     {
-        id: "amountWithCurrency",
+        id: "amount",
         header: "Amount",
         cell: ({ row }) => {
             const { amount, currency } = row.original as { amount: number; currency: string };
@@ -101,9 +108,32 @@ export const createColumns = (dialogContext: CustomerDialogsContextType): Column
             <div className="flex items-center gap-x-2 truncate">
                 <SiEthereum />
                 {truncateAddress(row.getValue("paymentMethod"))}
-                <Button variant="ghost" size="icon" className="ml-1">
+                <Button variant="ghost" size="icon" className="ml-1" onClick={() => navigator.clipboard.writeText(row.getValue("paymentMethod"))}>
                     <CopyIcon className="h-3 w-3" />
                 </Button>
+            </div>
+        ),
+    },
+    {
+        accessorKey: "customerCurrencyUsed",
+        header: ({ column }) => (
+            <div className="flex items-center">
+                Currency Used
+                <InfoTooltip text="The currency the customer used to make the payment." />
+            </div>
+        ),
+        cell: ({ row }) => (
+            <div className="flex items-center gap-x-2">
+                {(row.getValue("customerCurrencyUsed") as string).toLowerCase() === "usdc" ? <DollarSignIcon className="h-4 w-4" />
+                    : (row.getValue("customerCurrencyUsed") as string).toLowerCase() === "usdt" ? <SiTether className="h-4 w-4" />
+                        : (row.getValue("customerCurrencyUsed") as string).toLowerCase() === "eurc" ? <EuroIcon className="h-4 w-4" />
+                            : (row.getValue("customerCurrencyUsed") as string).toLowerCase() === "base eth" ? <TbCurrencyEthereum className="h-4 w-4" />
+                                : (row.getValue("customerCurrencyUsed") as string).toLowerCase() === "polygon eth"
+                                    || (row.getValue("customerCurrencyUsed") as string).toLowerCase() === "matic"
+                                    ? <SiPolygon className="h-4 w-4" /> : <div></div>
+                }
+                {row.getValue("customerCurrencyUsed")}
+
             </div>
         ),
     },
@@ -128,67 +158,123 @@ export const createColumns = (dialogContext: CustomerDialogsContextType): Column
         cell: ({ row }) => {
             const transaction = row.original
             const {
-                editDescDialogOpen,
-                setEditDescDialogOpen,
+                sendReceiptDialogOpen,
+                setSendReceiptDialogOpen,
                 paymentMethodsDialogOpen,
                 setPaymentMethodsDialogOpen,
                 currentTransaction,
-                setCurrentTransaction
+                setCurrentTransaction,
+                toast
             } = dialogContext;
+
+            const [emailInput, setEmailInput] = useState(currentTransaction?.customerEmail as string);
+
+            function isValidEmailList(input: string) {
+                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                return input
+                    .split(",")
+                    .map(e => e.trim())
+                    .filter(e => e.length > 0)
+                    .every(email => emailRegex.test(email));
+            }
 
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
-                            <span className="sr-only">Open menu</span>
+                            {/* <span className="sr-only">Open menu</span> */}
                             <MoreHorizontal />
                         </Button>
                     </DropdownMenuTrigger>
                     <DropdownMenuContent align="end">
-                        {/* <DropdownMenuLabel>Actions</DropdownMenuLabel> */}
+                        <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem
-                onClick={() => navigator.clipboard.writeText(transaction.id)}
-              >
-                Copy transaction ID
-              </DropdownMenuItem>
+                            onClick={() => navigator.clipboard.writeText(transaction.id)}
+                        >
+                            Copy transaction ID
+                        </DropdownMenuItem>
 
-                        <DropdownMenuItem>Create invoice</DropdownMenuItem>
+                        <DropdownMenuItem onSelect={(e) => {
+                            e.preventDefault(); // Prevent dropdown from closing dialog immediately
+                            setCurrentTransaction(transaction);
+                            setSendReceiptDialogOpen(true);
+                        }}>
+                            Send receipt
+                        </DropdownMenuItem>
                         {/* <DropdownMenuItem>Create subscription</DropdownMenuItem> */}
                         <DropdownMenuSeparator />
-                        <DropdownMenuItem onSelect={(e) => {
+                        <DropdownMenuLabel>Connections</DropdownMenuLabel>
+                        {/* <DropdownMenuItem onSelect={(e) => {
                             e.preventDefault(); // Prevent dropdown from closing dialog immediately
                             setCurrentTransaction(transaction);
                             setPaymentMethodsDialogOpen(true);
                         }}>
-                            View payment methods
+                            View customer
+                        </DropdownMenuItem> */}
+                        <DropdownMenuItem>
+                            View customer
                         </DropdownMenuItem>
-                        <DropdownMenuItem onSelect={(e) => {
+                        {/* <DropdownMenuItem onSelect={(e) => {
                             e.preventDefault(); // Prevent dropdown from closing dialog immediately
                             setCurrentTransaction(transaction);
                             setEditDescDialogOpen(true);
                         }}>
-                            Edit description
+                            View payment details
+                        </DropdownMenuItem> */}
+                        <DropdownMenuItem>
+                            View payment details
                         </DropdownMenuItem>
                     </DropdownMenuContent>
-                    {/* Edit Customer Description Dialog */}
-                    <Dialog open={editDescDialogOpen} onOpenChange={setEditDescDialogOpen}>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>Edit customer description</DialogTitle>
-                                <div className="flex items-center gap-x-10">
-                                    {/* <DialogTitle className="text-md">
-                      {currentTransaction?.name}
-                    </DialogTitle> */}
-                                    {/* <DialogTitle className="text-sm font-normal text-muted-foreground">
-                      {currentCustomer?.email}
-                    </DialogTitle> */}
-                                </div>
 
-                                {/* <DialogDescription className="pt-5">
-                    <EditDescriptionForm onSuccessfulSubmit={() => setEditDescDialogOpen(false)}
-                    />
-                  </DialogDescription> */}
+                    {/* Send receipt Dialog */}
+                    <Dialog open={sendReceiptDialogOpen} onOpenChange={setSendReceiptDialogOpen}>
+                        <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                                <DialogTitle>Send receipt</DialogTitle>
+                                
                             </DialogHeader>
+                            <div className="grid gap-4 py-4">
+                                <div className="grid grid-cols-4 items-center gap-4">
+                                    <Label htmlFor="name" className="text-right">
+                                        Deliver to
+                                    </Label>
+                                    <Input
+                                        id="name"
+                                        value={emailInput}
+                                        onChange={e => setEmailInput(e.target.value)}
+                                        className="col-span-3"
+                                    />
+                                </div>
+                                <span className="text-muted-foreground text-sm text-center">Separate multiple email addresses with commas.</span>
+                                
+                            </div>
+                            <DialogFooter>
+                                <Button
+                                    type="button"
+                                    onClick={() => {
+                                        if (isValidEmailList(emailInput)) {
+                                            setSendReceiptDialogOpen(false);
+                                            const recipients = []
+                                            for (const email of emailInput.split(',')) {
+                                                recipients.push(email);
+                                            }
+
+                                            // ...send logic here...
+                                            toast({
+                                                title: "Receipt sent",
+                                                description: "Sent receipt to " + recipients.toString(),
+                                                action: (
+                                                    <ToastAction altText="View receipt in email">View</ToastAction>
+                                                ),
+                                            })
+                                        } else {
+                                            alert("Please enter only valid email addresses.");
+                                        }
+                                    }}
+                                >
+                                    Send
+                                </Button>
+                            </DialogFooter>
                         </DialogContent>
                     </Dialog>
 

@@ -3,6 +3,7 @@ import { CopyIcon } from "lucide-react";
 import { formatDate, truncateAddress } from "@/lib/utils";
 import { DialogDescription } from "../ui/dialog";
 import { UUID } from "crypto";
+import { Button } from "../ui/button";
 
 const walletsData = [
   {
@@ -49,7 +50,9 @@ export function ViewAllPaymentMethodsData({ customerId }: customerProps) {
             <div className="flex items-center gap-x-2">
               <SiEthereum className="text-muted-foreground" />
               <span>{truncateAddress(wallet.walletAddress)}</span>
-              <CopyIcon className="h-4 w-4 text-muted-foreground cursor-pointer" />
+              <Button variant="ghost" size="icon" className="ml-1" onClick={() => navigator.clipboard.writeText(wallet.walletAddress)}>
+                <CopyIcon className="h-4 w-4 text-muted-foreground cursor-pointer" />
+              </Button>
             </div>
             <span className="text-muted-foreground text-sm">
               {formatDate(wallet.lastPaid)}

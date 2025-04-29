@@ -172,7 +172,7 @@ export default function Customers() {
           </Button> */}
           <Button className="flex items-center" onClick={() => setNewCustomerDialogOpen(true)}>
             <PlusIcon className="mr-2 h-4 w-4" />
-            Add Customer
+            Add customer
           </Button>
           <AddNewCustomer open={newCustomerDialogOpen} onOpenChange={setNewCustomerDialogOpen}/>
         </div>
@@ -196,11 +196,11 @@ export default function Customers() {
               <SelectValue placeholder="Sort by" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="newest">Newest First</SelectItem>
-              <SelectItem value="oldest">Oldest First</SelectItem>
-              <SelectItem value="highest-spend">Highest Spend</SelectItem>
-              <SelectItem value="lowest-spend">Lowest Spend</SelectItem>
-              <SelectItem value="last-paid">Last Paid</SelectItem>
+              <SelectItem value="newest">Newest first</SelectItem>
+              <SelectItem value="oldest">Oldest first</SelectItem>
+              <SelectItem value="highest-spend">Highest spend</SelectItem>
+              <SelectItem value="lowest-spend">Lowest spend</SelectItem>
+              <SelectItem value="last-paid">Last paid</SelectItem>
             </SelectContent>
           </Select>
 

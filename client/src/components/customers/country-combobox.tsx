@@ -47,9 +47,10 @@ export function CountryCombobox({ value, onChange }: CountryComboboxProps) {
       <PopoverContent className="w-[250px] p-0">
         <Command>
           <CommandInput placeholder="Search country..." />
-          <CommandList className="max-h-60 overflow-y-auto">
+          <CommandList className=" max-h-60 overflow-auto pointer-events-auto">
             <CommandEmpty>No country found.</CommandEmpty>
-            <CommandGroup>
+            
+            <CommandGroup className="overflow-auto max-h-60">
               {countries.map((country) => (
                 <CommandItem
                   key={country.value}

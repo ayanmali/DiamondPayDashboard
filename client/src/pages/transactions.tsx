@@ -37,6 +37,7 @@ import { useState } from "react"
 import { createColumns } from "@/components/transactions/create-columns"
 
 import { camelCaseToRegular } from "@/lib/utils"
+import { useToast } from "@/hooks/use-toast"
 
 export type Transaction = {
     id: string
@@ -71,7 +72,7 @@ const data: Transaction[] = [
     currency: "USDT",
     status: "Failed",
     description: "b!tch",
-    customerCurrencyUsed: "USDC"
+    customerCurrencyUsed: "USDT"
   },
   {
     id: "id",
@@ -117,18 +118,20 @@ export default function Transactions() {
     React.useState<VisibilityState>({})
   const [rowSelection, setRowSelection] = React.useState({})
 
-  const [editDescDialogOpen, setEditDescDialogOpen] = useState(false);
+  const [sendReceiptDialogOpen, setSendReceiptDialogOpen] = useState(false);
   const [paymentMethodsDialogOpen, setPaymentMethodsDialogOpen] = useState(false);
   const [currentTransaction, setCurrentTransaction] = useState<Transaction | null>(null);
+  const { toast } = useToast()
 
   // Create the context value
   const dialogContextValue = {
-    editDescDialogOpen,
-    setEditDescDialogOpen,
+    sendReceiptDialogOpen,
+    setSendReceiptDialogOpen,
     paymentMethodsDialogOpen,
     setPaymentMethodsDialogOpen,
     currentTransaction,
-    setCurrentTransaction
+    setCurrentTransaction,
+    toast
   };
 
   // Create columns with the context

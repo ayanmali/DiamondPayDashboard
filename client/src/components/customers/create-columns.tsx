@@ -80,7 +80,7 @@ export const createColumns = (dialogContext: CustomerDialogsContextType): Column
         <div className="flex items-center gap-x-2 truncate">
           <SiEthereum />
           {truncateAddress(row.getValue("paymentMethod"))}
-          <Button variant="ghost" size="icon" className="ml-1">
+          <Button variant="ghost" size="icon" className="ml-1" onClick={() => navigator.clipboard.writeText(row.getValue("paymentMethod"))}>
             <CopyIcon className="h-3 w-3" />
           </Button>
         </div>

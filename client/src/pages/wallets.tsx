@@ -271,7 +271,7 @@ export default function Wallets() {
                       {/* Address */}
                       <div className="flex items-center text-sm text-muted-foreground justify-center pb-5">
                         <span className="truncate">{truncateAddress(wallet.address)}</span>
-                        <Button variant="ghost" size="icon" className="h-6 w-6 ml-1">
+                        <Button variant="ghost" size="icon" className="h-6 w-6 ml-1" onClick={() => navigator.clipboard.writeText(wallet.address)}>
                           <CopyIcon className="h-3 w-3" />
                         </Button>
                       </div>
