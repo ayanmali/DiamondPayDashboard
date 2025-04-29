@@ -10,6 +10,7 @@ import {
 import { Input } from "@/components/ui/input"
 import { Label } from "@/components/ui/label"
 import { FaGithub, FaGoogle } from "react-icons/fa"
+import { Link } from "wouter"
 
 export function LoginForm({
     className,
@@ -70,9 +71,9 @@ export function LoginForm({
 
                     <div className="mt-4 text-center text-sm">
                         Don&apos;t have an account?{" "}
-                        <a href="#" className="underline underline-offset-4">
+                        <Link href="/signup" className="underline underline-offset-4">
                             Sign up
-                        </a>
+                        </Link>
                     </div>
                 </CardContent>
             </Card>

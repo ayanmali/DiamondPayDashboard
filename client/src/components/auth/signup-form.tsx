@@ -19,9 +19,9 @@ export function SignupForm({
         <div className={cn("flex flex-col gap-6", className)} {...props}>
             <Card>
                 <CardHeader>
-                    <CardTitle className="text-2xl">Login</CardTitle>
+                    <CardTitle className="text-2xl">Sign up</CardTitle>
                     <CardDescription>
-                        Enter your email below to login to your account
+                        Create your account
                     </CardDescription>
                 </CardHeader>
                 <CardContent>
@@ -39,17 +39,17 @@ export function SignupForm({
                             <div className="grid gap-2">
                                 <div className="flex items-center">
                                     <Label htmlFor="password">Password</Label>
-                                    <a
+                                    {/* <a
                                         href="#"
                                         className="ml-auto inline-block text-sm underline-offset-4 hover:underline"
                                     >
                                         Forgot your password?
-                                    </a>
+                                    </a> */}
                                 </div>
                                 <Input id="password" type="password" required />
                             </div>
                             <Button type="submit" className="w-full">
-                                Login
+                                Sign up
                             </Button>
                         </div>
                     </form>
@@ -68,12 +68,12 @@ export function SignupForm({
                         </div>
                     </div>
 
-                    <div className="mt-4 text-center text-sm">
+                    {/* <div className="mt-4 text-center text-sm">
                         Don&apos;t have an account?{" "}
                         <a href="#" className="underline underline-offset-4">
                             Sign up
                         </a>
-                    </div>
+                    </div> */}
                 </CardContent>
             </Card>
         </div>
