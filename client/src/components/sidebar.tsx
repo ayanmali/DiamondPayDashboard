@@ -127,7 +127,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         </div>
         
         <nav className="flex-1 px-3 py-4 space-y-1">
-          <SidebarItem href="/" icon={<HomeIcon />} onClick={handleItemClick}>
+          <SidebarItem href="/dashboard" icon={<HomeIcon />} onClick={handleItemClick}>
             Dashboard
           </SidebarItem>
           
@@ -159,20 +159,20 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             Payment Links
           </SidebarItem>
           
-          <SidebarItem href="/checkout-integrations" icon={<ShoppingCartIcon />} onClick={handleItemClick}>
+          {/* <SidebarItem href="/checkout-integrations" icon={<ShoppingCartIcon />} onClick={handleItemClick}>
             Checkout Integrations
-          </SidebarItem>
+          </SidebarItem> */}
           
           <SidebarItem href="/invoices" icon={<FileTextIcon />} onClick={handleItemClick}>
             Invoices
           </SidebarItem>
           
-          <SidebarItem href="/donations" icon={<GiftIcon />} onClick={handleItemClick}>
+          {/* <SidebarItem href="/donations" icon={<GiftIcon />} onClick={handleItemClick}>
             Donations
-          </SidebarItem>
+          </SidebarItem> */}
         </nav>
         
-        {/* <div className="p-4 border-t border-border">
+        <div className="p-4 border-t border-border">
           <div className="flex items-center justify-between">
             <span className="text-sm font-medium text-gray-dark dark:text-gray-medium">
               Dark Mode
@@ -182,7 +182,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
               onCheckedChange={toggleTheme}
             />
           </div>
-        </div> */}
+        </div>
       </aside>
     </>
   );

@@ -13,12 +13,14 @@ import Customers from "@/pages/customers";
 import { useMobile } from "@/hooks/use-mobile";
 import { LandingPage } from "./pages/lander";
 import Login from "./pages/login";
+import Signup from "./pages/signup";
 
 function Router() {
   return (
     <Switch>
       <Route path="/" component={LandingPage}/>
       <Route path="/login" component={Login} />
+      <Route path="/signup" component={Signup} />
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/transactions" component={Transactions} />
       <Route path="/wallets" component={Wallets} />
@@ -65,6 +67,8 @@ function App() {
       <Switch>
         <Route path="/" component={LandingPage} />
         <Route path="/login" component={Login} />
+        {/* <Route path="/settings" component={Login} />
+        <Route path="/account" component={Login} /> */}
         <Route path="*">
           <AppLayout />
         </Route>

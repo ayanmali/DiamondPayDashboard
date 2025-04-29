@@ -120,3 +120,37 @@ export function getCryptoIcon(symbol: string): string {
   
   return icons[symbol] || "cryptocurrency";
 }
+
+export function camelCaseToRegular(str: string): string {
+  let res = "";
+  let indices = new Array();
+
+  for (let i = 0; i < str.length; i++) {
+    if (str[i].toUpperCase() === str[i]) {
+      indices.push(i);
+    }
+  }
+
+  if (indices.length == 0) {
+    return capitalize(str);
+  }
+
+  let startIndex = 0;
+  let endIndex = 0;
+  for (let j = 0; j < indices.length; j++) {
+    endIndex = indices[j];
+    res = res.concat(" ", capitalize(str.substring(startIndex, endIndex)));
+    startIndex = endIndex;
+  }
+  res = res.concat(" ", capitalize(str.substring(endIndex)))
+
+  return res;
+
+}
+
+function capitalize(str: string): string {
+  if (str.length <= 1) {
+    return str;
+  }
+  return str[0].toUpperCase() + str.substring(1);
+}

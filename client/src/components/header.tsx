@@ -72,18 +72,18 @@ export default function Header({ toggleSidebar }: HeaderProps) {
                 <LinkIcon className="mr-3 h-5 w-5 text-muted-foreground" />
                 <span>Payment Link</span>
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
+              {/* <DropdownMenuItem className="cursor-pointer">
                 <ShoppingCart className="mr-3 h-5 w-5 text-muted-foreground" />
                 <span>Checkout Integration</span>
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
               <DropdownMenuItem className="cursor-pointer">
                 <FileText className="mr-3 h-5 w-5 text-muted-foreground" />
                 <span>Invoice</span>
               </DropdownMenuItem>
-              <DropdownMenuItem className="cursor-pointer">
+              {/* <DropdownMenuItem className="cursor-pointer">
                 <FileText className="mr-3 h-5 w-5 text-muted-foreground" />
                 <span>Donation</span>
-              </DropdownMenuItem>
+              </DropdownMenuItem> */}
             </DropdownMenuContent>
           </DropdownMenu>
 
