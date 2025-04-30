@@ -34,76 +34,43 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 import { useState } from "react"
 
-import { createColumns } from "@/components/invoices/create-columns"
+import { createColumns } from "@/components/payment-links/create-columns"
 
 import { camelCaseToRegular } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
 
-export type Invoice = {
-    invoiceNumber: string
+export type PaymentLink = {
+    name: string
     amount: number,
     currency: string
-    status: string,
-    customerName: string,
-    customerEmail: string,
-    dueDate: Date,
+    status: string, // active or deactivated
     createdDate: Date,
-    datePaid: Date
     description: string,
+    url: string
 }
 
-const data: Invoice[] = [
+const data: PaymentLink[] = [
     {
-        invoiceNumber: "id",
-        customerName: "Waltuh",
-        customerEmail: "walter@heisenberg.com",
-        createdDate: new Date(2025, 1, 8),
-        datePaid: new Date(2025, 1, 30),
-        dueDate: new Date(2025, 1, 9),
+        name: "Blue Sky",
         amount: 911.00,
         currency: "USDC",
-        status: "Paid",
+        createdDate: new Date(2025, 1, 8),
+        status: "Active",
+        url: "www.ww.com",
         description: "say my name.",
     },
     {
-        invoiceNumber: "id",
-        customerName: "Jesse",
-        customerEmail: "jesse@capncook.com",
-        createdDate: new Date(2025, 1, 8),
-        datePaid: new Date(),
-        dueDate: new Date(2025, 1, 9),
+        name: "Grass",
         amount: 420.00,
-        currency: "EURC",
-        status: "Draft",
-        description: "yeah mr white yeah science",
-    },
-    {
-        invoiceNumber: "id",
-        customerName: "Saul",
-        customerEmail: "saul@sgassociates.com",
-        createdDate: new Date(2025, 1, 8),
-        datePaid: new Date(2025, 1, 30),
-        dueDate: new Date(2025, 1, 9),
-        amount: 911.00,
         currency: "USDC",
-        status: "Outstanding",
-        description: "don't drink and drive... but if you do, call me",
-    },
-    {
-        invoiceNumber: "id",
-        customerName: "Gus",
-        customerEmail: "gus@lospollos.com",
         createdDate: new Date(2025, 1, 8),
-        datePaid: new Date(),
-        dueDate: new Date(2025, 1, 9),
-        amount: 420.00,
-        currency: "USDT",
-        status: "Overdue",
-        description: "look at me hector",
+        status: "Deactivated",
+        url: "www.ww.com",
+        description: "1 to the 2 to the 3, ABQ what up biatch, leave it at the tone",
     },
 ]
 
-export default function Invoices() {
+export default function PaymentLinks() {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
         []
@@ -112,18 +79,21 @@ export default function Invoices() {
         React.useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = React.useState({})
 
-    const [deleteInvoiceDialogOpen, setDeleteInvoiceDialogOpen] = useState(false);
-    const [currentInvoice, setCurrentInvoice] = useState<Invoice | null>(null);
+    const [deactivatePLDialogOpen, setDeactivatePLDialogOpen] = useState(false);
+    const [changeNameDialogOpen, setChangeNameDialogOpen] = useState(false);
+    const [currentPl, setCurrentPl] = useState<PaymentLink | null>(null);
     const { toast } = useToast()
 
-    const [selectedStatus, setSelectedStatus] = useState<"all" | "paid" | "draft" | "outstanding" | "overdue">("all");
+    const [selectedStatus, setSelectedStatus] = useState<"all" | "active" | "deactivated">("all");
 
     // Create the context value
     const dialogContextValue = {
-        deleteInvoiceDialogOpen,
-        setDeleteInvoiceDialogOpen,
-        currentInvoice,
-        setCurrentInvoice,
+        deactivatePLDialogOpen,
+        setDeactivatePLDialogOpen,
+        changeNameDialogOpen,
+        setChangeNameDialogOpen,
+        currentPl,
+        setCurrentPl,
         toast
     };
 
@@ -153,9 +123,9 @@ export default function Invoices() {
         <div className="w-full">
             <div className="md:flex md:items-center md:justify-between mb-8">
                 <div className="flex-1 min-w-0">
-                    <h1 className="text-2xl font-semibold leading-tight">Invoices</h1>
+                    <h1 className="text-2xl font-semibold leading-tight">Payment Links</h1>
                     <p className="mt-1 text-sm text-muted-foreground">
-                        View and manage your invoices
+                        View and manage your payment links
                     </p>
                 </div>
                 <div className="mt-4 flex md:mt-0 md:ml-4">
@@ -170,7 +140,8 @@ export default function Invoices() {
                     {/* <AddNewCustomer open={newCustomerDialogOpen} onOpenChange={setNewCustomerDialogOpen}/> */}
                 </div>
             </div>
-
+            
+            {/* Filter Cards */}
             <div className="flex items-center justify-center space-x-5 pb-4">
                 {/* All */}
                 <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${
@@ -181,45 +152,23 @@ export default function Invoices() {
                     <div className="text-lg pb-2">911</div>
                 </div>
                 
-                {/* Draft */}
+                {/* Active */}
                 <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${
-                        selectedStatus === "draft" ? "border-2 border-primary" : "border"
+                        selectedStatus === "active" ? "border-2 border-primary" : "border"
                     }`}
-                onClick={() => setSelectedStatus("draft")}>
-                    <div className="text-base font-semibold pt-2 text-muted-foreground">Draft</div>
+                onClick={() => setSelectedStatus("active")}>
+                    <div className="text-base font-semibold pt-2 text-muted-foreground">Active</div>
                     <div className="text-lg pb-2">420</div>
                 </div>
                 
-                {/* Open */}
+                {/* Deactivated */}
                 <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${
-                        selectedStatus === "outstanding" ? "border-2 border-primary" : "border"
+                        selectedStatus === "deactivated" ? "border-2 border-primary" : "border"
                     }`}
-                onClick={() => setSelectedStatus("outstanding")}>
-                    <div className="text-base font-semibold pt-2 text-muted-foreground">Outstanding</div>
+                onClick={() => setSelectedStatus("deactivated")}>
+                    <div className="text-base font-semibold pt-2 text-muted-foreground">Deactivated</div>
                     <div className="text-lg pb-2">69</div>
                 </div>
-
-                {/* Open */}
-                <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${
-                        selectedStatus === "overdue" ? "border-2 border-primary" : "border"
-                    }`}
-                onClick={() => setSelectedStatus("overdue")}>
-                    <div className="text-base font-semibold pt-2 text-muted-foreground">Overdue</div>
-                    <div className="text-lg pb-2">69</div>
-                </div>
-
-                {/* Paid */}
-                <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${
-                        selectedStatus === "paid" ? "border-2 border-primary" : "border"
-                    }`}
-                onClick={() => setSelectedStatus("paid")}>
-                    <div className="text-base font-semibold pt-2 text-muted-foreground">Paid</div>
-                    <div className="text-lg pb-2">69</div>
-                </div>
-                
-                {/* <Toggle className="rounded-3xl border border-solid font-medium">First time customers</Toggle>
-        <Toggle className="rounded-3xl border border-solid font-medium">Repeat customers</Toggle>
-        <Toggle className="rounded-3xl border border-solid font-medium">Recent customers</Toggle> */}
             </div>
 
             <div className="flex items-center py-4">
@@ -235,19 +184,15 @@ export default function Invoices() {
                 {/* Buttons aligned to the right */}
                 <div className="ml-auto flex gap-x-3">
                     {/* Sorting */}
-                    <Select defaultValue="newest-creation">
+                    <Select defaultValue="newest">
                         <SelectTrigger className="w-full md:w-[220px] ml-auto">
                             <SelectValue placeholder="Sort by" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="newest-creation">Latest creation date first</SelectItem>
-                            <SelectItem value="oldest-creation">Oldest creation date first</SelectItem>
-                            <SelectItem value="newest-due">Latest due date first</SelectItem>
-                            <SelectItem value="oldest-due">Oldest due date first</SelectItem>
-                            <SelectItem value="newest-paid">Latest paid first</SelectItem>
-                            <SelectItem value="oldest-paid">Oldest paid first</SelectItem>
-                            <SelectItem value="highest-amount">Highest amount</SelectItem>
-                            <SelectItem value="lowest-amount">Lowest amount</SelectItem>
+                            <SelectItem value="newest">Newest first</SelectItem>
+                            <SelectItem value="oldest">Oldest first</SelectItem>
+                            <SelectItem value="highest">Highest amount</SelectItem>
+                            <SelectItem value="lowest">Lowest amount</SelectItem>
                         </SelectContent>
                     </Select>
 

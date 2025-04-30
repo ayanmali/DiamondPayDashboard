@@ -1,22 +1,14 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "../ui/checkbox";
 import { Invoice } from "@/pages/invoices";
-import { ArrowUpDown, Check, Copy, CopyIcon, DollarSignIcon, EuroIcon, MoreHorizontal, XIcon } from "lucide-react";
+import { ArrowUpDown, Check, CopyIcon, MoreHorizontal } from "lucide-react";
 import { Button } from "../ui/button";
-import { formatDate, truncateAddress } from "@/lib/utils";
-import { SiEthereum, SiPolygon, SiTether } from "react-icons/si";
+import { formatDate } from "@/lib/utils";
 import { IoTimeOutline } from "react-icons/io5";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
-import { TbCurrencyEthereum } from "react-icons/tb";
-import { InfoTooltip } from "../tooltips/info-tooltip";
-import { Label } from "../ui/label";
-import { Input } from "../ui/input";
-import { useState } from "react";
-import { ToastAction } from "../ui/toast";
 import { toast } from "@/hooks/use-toast";
 import { LiaEnvelopeOpenTextSolid } from "react-icons/lia";
-import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "../ui/alert-dialog";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../ui/alert-dialog";
 
 // Create a context for customer dialogs
 interface CustomerDialogsContextType {
@@ -89,13 +81,13 @@ export const createColumns = (dialogContext: CustomerDialogsContextType): Column
         ),
     },
     {
-        accessorKey: "invNumber",
+        accessorKey: "invoiceNumber",
         header: "Invoice Number",
         cell: ({ row }) => (
             <div className="flex items-center">
-                {row.getValue("invNumber")}
+                {row.getValue("invoiceNumber")}
                 <Button variant="ghost" size="icon" className="ml-1">
-                    <CopyIcon className="h-4 w-4" onClick={() => navigator.clipboard.writeText(row.getValue("invNumber") as string)} />
+                    <CopyIcon className="h-4 w-4" onClick={() => navigator.clipboard.writeText(row.getValue("invoiceNumber") as string)} />
                 </Button>
             </div>
         ),
@@ -124,7 +116,7 @@ export const createColumns = (dialogContext: CustomerDialogsContextType): Column
         accessorKey: "dueDate",
         header: "Due Date",
         cell: ({ row }) => (
-            <div className="capitalize">{row.getValue("datePaid") ? formatDate(row.getValue("datePaid")) : ""}</div>
+            <div className="capitalize">{row.getValue("dueDate") ? formatDate(row.getValue("dueDate")) : ""}</div>
         ),
     },
     {

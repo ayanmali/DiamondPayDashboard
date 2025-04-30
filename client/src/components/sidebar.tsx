@@ -9,15 +9,15 @@ import {
   HomeIcon, 
   WalletIcon, 
   ArrowLeftRightIcon, 
-  ThumbsUp, 
   UsersIcon, 
-  LinkIcon, 
-  ShoppingCartIcon, 
+  LinkIcon,  
   FileTextIcon, 
-  GiftIcon, 
   BoltIcon,
   XIcon
 } from "lucide-react";
+import {
+  PiHandCoins
+} from "react-icons/pi"
 
 interface SidebarProps {
   isOpen: boolean;
@@ -139,7 +139,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             Transactions
           </SidebarItem>
           
-          <SidebarItem href="/token-transfers" icon={<ThumbsUp />} onClick={handleItemClick}>
+          <SidebarItem href="/token-transfers" icon={<PiHandCoins className="h-6 w-6"/>} onClick={handleItemClick}>
             Token Transfers
           </SidebarItem>
           
