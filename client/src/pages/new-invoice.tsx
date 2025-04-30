@@ -11,6 +11,7 @@ import { Button } from "@/components/ui/button";
 import { CustomerCombobox } from "../components/invoices/customer-combobox";
 import { Customer } from "@/pages/customers";
 import { formatDate } from "@/lib/utils";
+import { Link } from "wouter";
 
 // Types
 interface LineItem {
@@ -117,8 +118,16 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
 
     return (
         <div className="p-6 bg-white rounded shadow w-full">
-            <h2 className="text-2xl font-bold mb-4">Invoice Preview</h2>
+            <h2 className="text-2xl font-bold mb-4">Invoice</h2>
             <div className="mb-4">
+                {/* Invoice Number */}
+                <div className="flex items-center gap-x-1">
+                        <span className="font-semibold">Invoice number:</span>
+                        <span>EXAMPLE-0001</span>
+                        {/* {formatDate(new Date()) || " —"} */}
+                </div>
+
+                {/* Vendor and customer info */}
                 <div className="flex justify-between mt-8">
                     {/* Vendor Info */}
                     <div className="flex flex-col space-y-1">
@@ -186,6 +195,42 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
         </div>
     );
 };
+
+function InvoiceHeader() {
+    return (
+        <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 h-14 border-b bg-background">
+            {/* Left section with close button and title */}
+            <div className="flex items-center gap-3">
+                <Link href="/invoices">
+                    <button className="p-2 hover:bg-gray-100 rounded-md">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M12.5 3.5L3.5 12.5M3.5 3.5L12.5 12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                    </button>
+                </Link>
+                <h1 className="text-base font-normal">Create invoice</h1>
+            </div>
+
+            {/* Right section with actions */}
+            <div className="flex items-center gap-3">
+                {/* <button className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-md">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M8 3V13M3 8H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                    Feedback?
+                </button> */}
+
+                <button className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-md border border-solid">
+                    Hide preview
+                </button>
+
+                <button className="px-4 py-1.5 bg-[#7C3AED] text-white rounded-md text-sm font-medium hover:bg-[#6D28D9]">
+                    Send invoice
+                </button>
+            </div>
+        </header>
+    );
+}
 
 // Main Invoice Page
 const NewInvoicePage: React.FC = () => {
@@ -275,7 +320,9 @@ const NewInvoicePage: React.FC = () => {
     };
 
     return (
-        <div className="flex gap-8">
+        <>
+        <InvoiceHeader/>
+        <div className="flex gap-8 pl-5 pt-20 pr-5">
             {/* Left form */}
             <div className="w-1/2 bg-gray-50 p-6 rounded">
                 <h1 className="text-2xl font-bold mb-4">Create Invoice</h1>
@@ -462,7 +509,7 @@ const NewInvoicePage: React.FC = () => {
                 </div>
 
                 {/* Save */}
-                <Button className="w-full mt-4">Save Invoice</Button>
+                <Button className="w-full mt-4">Send invoice</Button>
             </div>
 
             {/* Preview */}
@@ -477,6 +524,7 @@ const NewInvoicePage: React.FC = () => {
                 />
             </div>
         </div>
+        </>
     );
 };
 

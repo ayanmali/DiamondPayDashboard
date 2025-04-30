@@ -74,6 +74,7 @@ function App() {
         <Route path="/" component={LandingPage} />
         <Route path="/login" component={Login} />
         <Route path="signup" component={Signup} />
+        <Route path="/invoices/new" component={NewInvoicePage} />
         {/* <Route path="/settings" component={Login} />
         <Route path="/account" component={Login} /> */}
         <Route path="*">
