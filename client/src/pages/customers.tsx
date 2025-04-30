@@ -49,7 +49,8 @@ export type Customer = {
   totalSpent: number,
   orders: number,
   lastPaymentDate: Date,
-  description: string
+  description: string,
+  defaultCurrency: string
 }
 
 const data: Customer[] = [
@@ -62,7 +63,8 @@ const data: Customer[] = [
     totalSpent: 911.00,
     orders: 20,
     lastPaymentDate: new Date(2025, 4, 20),
-    description: "hartwell"
+    description: "hartwell",
+    defaultCurrency: "USDC"
   },
   {
     name: "Jesse",
@@ -73,7 +75,8 @@ const data: Customer[] = [
     totalSpent: 420.00,
     orders: 14,
     lastPaymentDate: new Date(2025, 3, 18),
-    description: "b!tch"
+    description: "b!tch",
+    defaultCurrency: "EURC"
   },
   {
     name: "Saul",
@@ -84,7 +87,8 @@ const data: Customer[] = [
     totalSpent: 69.00,
     orders: 4,
     lastPaymentDate: new Date(2025, 4, 25),
-    description: "did you know you have rights?"
+    description: "did you know you have rights?",
+    defaultCurrency: "USDT"
   },
   {
     name: "Hank",
@@ -95,7 +99,8 @@ const data: Customer[] = [
     totalSpent: 100.00,
     orders: 7,
     lastPaymentDate: new Date(2025, 1, 11),
-    description: "asac"
+    description: "asac",
+    defaultCurrency: "USDC"
   },
   {
     name: "Mike",
@@ -106,7 +111,8 @@ const data: Customer[] = [
     totalSpent: 42.00,
     orders: 48,
     lastPaymentDate: new Date(2025, 4, 1),
-    description: "for the chicken man"
+    description: "for the chicken man",
+    defaultCurrency: "EURC"
   },
 ]
 
@@ -161,9 +167,7 @@ export default function Customers() {
       <div className="md:flex md:items-center md:justify-between mb-8">
         <div className="flex-1 min-w-0">
           <h1 className="text-2xl font-semibold leading-tight">Customers</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            View and manage your customer relationships
-          </p>
+          
         </div>
         <div className="mt-4 flex md:mt-0 md:ml-4">
           {/* <Button variant="outline" className="mr-3 flex items-center">

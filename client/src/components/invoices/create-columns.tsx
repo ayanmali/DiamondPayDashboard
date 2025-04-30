@@ -86,8 +86,8 @@ export const createColumns = (dialogContext: CustomerDialogsContextType): Column
         cell: ({ row }) => (
             <div className="flex items-center">
                 {row.getValue("invoiceNumber")}
-                <Button variant="ghost" size="icon" className="ml-1">
-                    <CopyIcon className="h-4 w-4" onClick={() => navigator.clipboard.writeText(row.getValue("invoiceNumber") as string)} />
+                <Button variant="ghost" size="icon" className="ml-1" onClick={() => navigator.clipboard.writeText(row.getValue("invoiceNumber") as string)}>
+                    <CopyIcon className="h-4 w-4" />
                 </Button>
             </div>
         ),

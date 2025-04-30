@@ -154,3 +154,32 @@ function capitalize(str: string): string {
   }
   return str[0].toUpperCase() + str.substring(1);
 }
+
+function getUtcOffsetMinutes(timeZone: string, date: Date = new Date()): number {
+  // Returns the offset in minutes (e.g., -240 for UTC-4)
+  const dtf = new Intl.DateTimeFormat('en-US', {
+      timeZone,
+      hour12: false,
+      year: 'numeric', month: '2-digit', day: '2-digit',
+      hour: '2-digit', minute: '2-digit', second: '2-digit'
+  });
+  const [{ value: month },, { value: day },, { value: year },, { value: hour },, { value: minute },, { value: second }] = dtf.formatToParts(date);
+  // Create a date in the target timezone
+  const asUTC = Date.UTC(
+      Number(year), Number(month) - 1, Number(day),
+      Number(hour), Number(minute), Number(second)
+  );
+  // Local time in ms
+  const asLocal = date.getTime();
+  // Offset in minutes
+  return (asUTC - asLocal) / 60000;
+}
+
+function getUtcOffsetString(timeZone: string, date: Date = new Date()): string {
+    const offset = getUtcOffsetMinutes(timeZone, date);
+    const sign = offset <= 0 ? "+" : "-";
+    const abs = Math.abs(offset);
+    const hours = String(Math.floor(abs / 60)).padStart(2, "0");
+    const minutes = String(abs % 60).padStart(2, "0");
+    return `${sign}${hours}:${minutes}`;
+}

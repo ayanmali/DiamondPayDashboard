@@ -14,6 +14,7 @@ import { Select } from "../ui/select"
 import { CountryCombobox } from "./country-combobox"
 import { InfoTooltip } from "../tooltips/info-tooltip"
 import { Info } from "lucide-react"
+import { TimezoneCombobox } from "./timezone-combobox"
 
 const formSchema = z.object({
     name: z.string().min(2, {
@@ -33,7 +34,8 @@ const formSchema = z.object({
     addressLine2: z.string().optional(),
     postalCode: z.string().optional(),
     city: z.string().optional(),
-    currency: z.string().optional()
+    currency: z.string().optional(),
+    timezone: z.string().optional(),
 })
 
 interface newCustomerFormProps {
@@ -250,6 +252,26 @@ export function NewCustomerForm({ open, onOpenChange, sameAsAccountEmailChecked,
                         />
                     </>
                 )}
+
+                <FormField
+                    control={form.control}
+                    name="timezone"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel className="flex items-center">
+                                Timezone
+                                <InfoTooltip text="The timezone where the customer resides in."/>
+                            </FormLabel>
+                            <FormControl>
+                                <TimezoneCombobox
+                                    value={field.value ?? ""}
+                                    onChange={field.onChange}
+                                />
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
 
 
                 {/* Add and cancel buttons */}

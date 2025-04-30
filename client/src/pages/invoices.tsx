@@ -38,6 +38,7 @@ import { createColumns } from "@/components/invoices/create-columns"
 
 import { camelCaseToRegular } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
+import { Link } from "wouter"
 
 export type Invoice = {
     invoiceNumber: string
@@ -154,15 +155,15 @@ export default function Invoices() {
             <div className="md:flex md:items-center md:justify-between mb-8">
                 <div className="flex-1 min-w-0">
                     <h1 className="text-2xl font-semibold leading-tight">Invoices</h1>
-                    <p className="mt-1 text-sm text-muted-foreground">
-                        View and manage your invoices
-                    </p>
+                    
                 </div>
                 <div className="mt-4 flex md:mt-0 md:ml-4">
+                <Link href="/invoices/new">
                     <Button variant="outline" className="mr-3 flex items-center">
-            <Plus className="mr-2 h-4 w-4" />
-            New
-          </Button>
+                        <Plus className="mr-2 h-4 w-4" />
+                        New
+                    </Button>
+                    </Link>
                     {/* <Button className="flex items-center" onClick={() => setNewCustomerDialogOpen(true)}>
             <PlusIcon className="mr-2 h-4 w-4" />
             Add Customer
@@ -173,50 +174,45 @@ export default function Invoices() {
 
             <div className="flex items-center justify-center space-x-5 pb-4">
                 {/* All */}
-                <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${
-                        selectedStatus === "all" ? "border-2 border-primary" : "border"
+                <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${selectedStatus === "all" ? "border-2 border-primary" : "border"
                     }`}
-                onClick={() => setSelectedStatus("all")}>
+                    onClick={() => setSelectedStatus("all")}>
                     <div className="text-base font-semibold pt-2 text-muted-foreground">All</div>
                     <div className="text-lg pb-2">911</div>
                 </div>
-                
+
                 {/* Draft */}
-                <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${
-                        selectedStatus === "draft" ? "border-2 border-primary" : "border"
+                <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${selectedStatus === "draft" ? "border-2 border-primary" : "border"
                     }`}
-                onClick={() => setSelectedStatus("draft")}>
+                    onClick={() => setSelectedStatus("draft")}>
                     <div className="text-base font-semibold pt-2 text-muted-foreground">Draft</div>
                     <div className="text-lg pb-2">420</div>
                 </div>
-                
-                {/* Open */}
-                <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${
-                        selectedStatus === "outstanding" ? "border-2 border-primary" : "border"
+
+                {/* Outstanding */}
+                <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${selectedStatus === "outstanding" ? "border-2 border-primary" : "border"
                     }`}
-                onClick={() => setSelectedStatus("outstanding")}>
+                    onClick={() => setSelectedStatus("outstanding")}>
                     <div className="text-base font-semibold pt-2 text-muted-foreground">Outstanding</div>
                     <div className="text-lg pb-2">69</div>
                 </div>
 
-                {/* Open */}
-                <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${
-                        selectedStatus === "overdue" ? "border-2 border-primary" : "border"
+                {/* Overdue */}
+                <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${selectedStatus === "overdue" ? "border-2 border-primary" : "border"
                     }`}
-                onClick={() => setSelectedStatus("overdue")}>
+                    onClick={() => setSelectedStatus("overdue")}>
                     <div className="text-base font-semibold pt-2 text-muted-foreground">Overdue</div>
                     <div className="text-lg pb-2">69</div>
                 </div>
 
                 {/* Paid */}
-                <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${
-                        selectedStatus === "paid" ? "border-2 border-primary" : "border"
+                <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${selectedStatus === "paid" ? "border-2 border-primary" : "border"
                     }`}
-                onClick={() => setSelectedStatus("paid")}>
+                    onClick={() => setSelectedStatus("paid")}>
                     <div className="text-base font-semibold pt-2 text-muted-foreground">Paid</div>
                     <div className="text-lg pb-2">69</div>
                 </div>
-                
+
                 {/* <Toggle className="rounded-3xl border border-solid font-medium">First time customers</Toggle>
         <Toggle className="rounded-3xl border border-solid font-medium">Repeat customers</Toggle>
         <Toggle className="rounded-3xl border border-solid font-medium">Recent customers</Toggle> */}

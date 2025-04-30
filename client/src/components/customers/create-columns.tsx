@@ -9,6 +9,7 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSepara
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { EditDescriptionForm } from "./EditDescription";
 import { ViewAllPaymentMethodsData } from "./all-payment-methods";
+import { Link } from "wouter";
 
 // Create a context for customer dialogs
 interface CustomerDialogsContextType {
@@ -143,8 +144,9 @@ export const createColumns = (dialogContext: CustomerDialogsContextType): Column
               >
                 Copy payment ID
               </DropdownMenuItem> */}
-  
-              <DropdownMenuItem>Create invoice</DropdownMenuItem>
+              <Link href="/invoices/new">
+                <DropdownMenuItem>Create invoice</DropdownMenuItem>
+              </Link>
               {/* <DropdownMenuItem>Create subscription</DropdownMenuItem> */}
               <DropdownMenuSeparator />
               <DropdownMenuItem onSelect={(e) => {

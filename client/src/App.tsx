@@ -16,6 +16,7 @@ import Login from "./pages/login";
 import Signup from "./pages/signup";
 import Invoices from "./pages/invoices";
 import PaymentLinks from "./pages/payment-links";
+import NewInvoicePage from "./pages/new-invoice";
 
 function Router() {
   return (
@@ -28,6 +29,7 @@ function Router() {
       <Route path="/wallets" component={Wallets} />
       <Route path="/customers" component={Customers} />
       <Route path="/invoices" component={Invoices} />
+      <Route path="/invoices/new" component={NewInvoicePage} />
       <Route path="/payment-links" component={PaymentLinks} />
       {/* <Route path="/token-transfers" component={} /> */}
 
