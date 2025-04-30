@@ -34,7 +34,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 import { useState } from "react"
 
-import { createColumns } from "@/components/transactions/create-columns"
+import { createColumns } from "@/components/invoices/create-columns"
 
 import { camelCaseToRegular } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
@@ -42,77 +42,71 @@ import { Toggle } from "@/components/ui/toggle"
 import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
 import { Label } from "recharts"
 
-export type Transaction = {
-    id: string
+export type Invoice = {
+    invNumber: string
     amount: number,
     currency: string
     status: string,
-    paymentMethod: string,
-    description: string,
+    customerName: string,
     customerEmail: string,
-    date: Date,
-    customerCurrencyUsed: string
+    dueDate: Date,
+    createdDate: Date,
+    datePaid: Date
+    description: string,
 }
 
-const data: Transaction[] = [
+const data: Invoice[] = [
     {
-        id: "id",
+        invNumber: "id",
+        customerName: "Waltuh",
         customerEmail: "walter@heisenberg.com",
-        date: new Date(2025, 1, 30),
-        paymentMethod: "0x93awfegegegg42t24gf2t24t24g3rg24t4ef13r2ty35hjyk754tf5g",
+        createdDate: new Date(2025, 1, 8),
+        datePaid: new Date(2025, 1, 30),
+        dueDate: new Date(2025, 1, 9),
         amount: 911.00,
         currency: "USDC",
-        status: "Succeeded",
-        description: "hartwell",
-        customerCurrencyUsed: "USDC"
+        status: "Paid",
+        description: "say my name.",
     },
     {
-        id: "id",
+        invNumber: "id",
+        customerName: "Jesse",
         customerEmail: "jesse@capncook.com",
-        date: new Date(2025, 3, 13),
-        paymentMethod: "0xA5J...9R7",
+        createdDate: new Date(2025, 1, 8),
+        datePaid: new Date(),
+        dueDate: new Date(2025, 1, 9),
+        amount: 420.00,
+        currency: "EURC",
+        status: "Draft",
+        description: "yeah mr white yeah science",
+    },
+    {
+        invNumber: "id",
+        customerName: "Saul",
+        customerEmail: "saul@sgassociates.com",
+        createdDate: new Date(2025, 1, 8),
+        datePaid: new Date(2025, 1, 30),
+        dueDate: new Date(2025, 1, 9),
+        amount: 911.00,
+        currency: "USDC",
+        status: "Outstanding",
+        description: "don't drink and drive... but if you do, call me",
+    },
+    {
+        invNumber: "id",
+        customerName: "Gus",
+        customerEmail: "gus@lospollos.com",
+        createdDate: new Date(2025, 1, 8),
+        datePaid: new Date(),
+        dueDate: new Date(2025, 1, 9),
         amount: 420.00,
         currency: "USDT",
-        status: "Failed",
-        description: "b!tch",
-        customerCurrencyUsed: "USDT"
-    },
-    {
-        id: "id",
-        customerEmail: "saul@sgassociates.com",
-        date: new Date(2025, 2, 20),
-        paymentMethod: "0xX19...7RY",
-        amount: 69.00,
-        currency: "EURC",
-        status: "Succeeded",
-        description: "did you know you have rights?",
-        customerCurrencyUsed: "EURC"
-    },
-    {
-        id: "id",
-        customerEmail: "hank@schraderbrau.com",
-        date: new Date(2025, 1, 11),
-        paymentMethod: "0x7U6...JF9",
-        amount: 100.00,
-        currency: "USDC",
-        status: "Pending",
-        description: "makes me wanna cry",
-        customerCurrencyUsed: "Base ETH"
-    },
-    {
-        id: "id",
-        customerEmail: "mike@lospollos.com",
-        date: new Date(2025, 3, 29),
-        paymentMethod: "0xG89...0D2",
-        amount: 42.00,
-        currency: "USDT",
-        status: "Succeeded",
-        description: "no half measures",
-        customerCurrencyUsed: "Polygon ETH"
+        status: "Overdue",
+        description: "look at me hector",
     },
 ]
 
-export default function Transactions() {
+export default function Invoices() {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
         []
@@ -121,18 +115,18 @@ export default function Transactions() {
         React.useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = React.useState({})
 
-    const [sendReceiptDialogOpen, setSendReceiptDialogOpen] = useState(false);
-    const [currentTransaction, setCurrentTransaction] = useState<Transaction | null>(null);
+    const [deleteInvoiceDialogOpen, setDeleteInvoiceDialogOpen] = useState(false);
+    const [currentInvoice, setCurrentInvoice] = useState<Invoice | null>(null);
     const { toast } = useToast()
 
-    const [selectedStatus, setSelectedStatus] = useState<"all" | "succeeded" | "failed">("all");
+    const [selectedStatus, setSelectedStatus] = useState<"all" | "paid" | "draft" | "outstanding" | "overdue">("all");
 
     // Create the context value
     const dialogContextValue = {
-        sendReceiptDialogOpen,
-        setSendReceiptDialogOpen,
-        currentTransaction,
-        setCurrentTransaction,
+        deleteInvoiceDialogOpen,
+        setDeleteInvoiceDialogOpen,
+        currentInvoice,
+        setCurrentInvoice,
         toast
     };
 
@@ -162,9 +156,9 @@ export default function Transactions() {
         <div className="w-full">
             <div className="md:flex md:items-center md:justify-between mb-8">
                 <div className="flex-1 min-w-0">
-                    <h1 className="text-2xl font-semibold leading-tight">Transactions</h1>
+                    <h1 className="text-2xl font-semibold leading-tight">Invoices</h1>
                     <p className="mt-1 text-sm text-muted-foreground">
-                        View and manage your payment transactions
+                        View and manage your invoices
                     </p>
                 </div>
                 <div className="mt-4 flex md:mt-0 md:ml-4">
@@ -190,21 +184,39 @@ export default function Transactions() {
                     <div className="text-lg pb-2">911</div>
                 </div>
                 
-                {/* Succeeded */}
+                {/* Draft */}
                 <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${
-                        selectedStatus === "succeeded" ? "border-2 border-primary" : "border"
+                        selectedStatus === "draft" ? "border-2 border-primary" : "border"
                     }`}
-                onClick={() => setSelectedStatus("succeeded")}>
-                    <div className="text-base font-semibold pt-2 text-muted-foreground">Succeeded</div>
+                onClick={() => setSelectedStatus("draft")}>
+                    <div className="text-base font-semibold pt-2 text-muted-foreground">Draft</div>
                     <div className="text-lg pb-2">420</div>
                 </div>
                 
-                {/* Failed */}
+                {/* Open */}
                 <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${
-                        selectedStatus === "failed" ? "border-2 border-primary" : "border"
+                        selectedStatus === "outstanding" ? "border-2 border-primary" : "border"
                     }`}
-                onClick={() => setSelectedStatus("failed")}>
-                    <div className="text-base font-semibold pt-2 text-muted-foreground">Failed</div>
+                onClick={() => setSelectedStatus("outstanding")}>
+                    <div className="text-base font-semibold pt-2 text-muted-foreground">Outstanding</div>
+                    <div className="text-lg pb-2">69</div>
+                </div>
+
+                {/* Open */}
+                <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${
+                        selectedStatus === "overdue" ? "border-2 border-primary" : "border"
+                    }`}
+                onClick={() => setSelectedStatus("overdue")}>
+                    <div className="text-base font-semibold pt-2 text-muted-foreground">Overdue</div>
+                    <div className="text-lg pb-2">69</div>
+                </div>
+
+                {/* Paid */}
+                <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${
+                        selectedStatus === "paid" ? "border-2 border-primary" : "border"
+                    }`}
+                onClick={() => setSelectedStatus("paid")}>
+                    <div className="text-base font-semibold pt-2 text-muted-foreground">Paid</div>
                     <div className="text-lg pb-2">69</div>
                 </div>
                 
@@ -226,15 +238,19 @@ export default function Transactions() {
                 {/* Buttons aligned to the right */}
                 <div className="ml-auto flex gap-x-3">
                     {/* Sorting */}
-                    <Select defaultValue="newest">
-                        <SelectTrigger className="w-full md:w-[180px] ml-auto">
+                    <Select defaultValue="newest-creation">
+                        <SelectTrigger className="w-full md:w-[220px] ml-auto">
                             <SelectValue placeholder="Sort by" />
                         </SelectTrigger>
                         <SelectContent>
-                            <SelectItem value="newest">Newest first</SelectItem>
-                            <SelectItem value="oldest">Oldest first</SelectItem>
-                            <SelectItem value="highest-spend">Highest amount</SelectItem>
-                            <SelectItem value="lowest-spend">Lowest amount</SelectItem>
+                            <SelectItem value="newest-creation">Latest creation date first</SelectItem>
+                            <SelectItem value="oldest-creation">Oldest creation date first</SelectItem>
+                            <SelectItem value="newest-due">Latest due date first</SelectItem>
+                            <SelectItem value="oldest-due">Oldest due date first</SelectItem>
+                            <SelectItem value="newest-paid">Latest paid first</SelectItem>
+                            <SelectItem value="oldest-paid">Oldest paid first</SelectItem>
+                            <SelectItem value="highest-amount">Highest amount</SelectItem>
+                            <SelectItem value="lowest-amount">Lowest amount</SelectItem>
                         </SelectContent>
                     </Select>
 

@@ -24,6 +24,8 @@ import {
   PlusIcon,
 } from "lucide-react";
 import { Link } from "wouter";
+import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
+import { Label } from "./ui/label";
 
 interface HeaderProps {
   toggleSidebar: () => void;
@@ -31,7 +33,7 @@ interface HeaderProps {
 
 export default function Header({ toggleSidebar }: HeaderProps) {
   const { isMobile } = useMobile();
-  const [hasNotification] = useState(true);
+  const [hasNotification, setHasNotification] = useState(true);
 
   return (
     <header className="bg-white dark:bg-darkmode-lighter border-b border-border">
@@ -88,12 +90,60 @@ export default function Header({ toggleSidebar }: HeaderProps) {
           </DropdownMenu>
 
           {/* Notifications */}
-          <Button variant="ghost" size="icon" className="relative">
-            <Bell className="h-6 w-6" />
-            {hasNotification && (
-              <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-accent"></span>
-            )}
-          </Button>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button variant="ghost" size="icon" className="relative" onClick={() => hasNotification && setHasNotification(false)}>
+                <Bell className="h-6 w-6" />
+                {hasNotification && (
+                  <span className="absolute top-0 right-0 block h-2 w-2 rounded-full bg-accent"></span>
+                )}
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-80">
+              <div className="grid gap-4">
+                <div className="space-y-2">
+                  <h4 className="font-medium leading-none">Dimensions</h4>
+                  <p className="text-sm text-muted-foreground">
+                    Set the dimensions for the layer.
+                  </p>
+                </div>
+                <div className="grid gap-2">
+                  <div className="grid grid-cols-3 items-center gap-4">
+                    <Label htmlFor="width">Width</Label>
+                    <Input
+                      id="width"
+                      defaultValue="100%"
+                      className="col-span-2 h-8"
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 items-center gap-4">
+                    <Label htmlFor="maxWidth">Max. width</Label>
+                    <Input
+                      id="maxWidth"
+                      defaultValue="300px"
+                      className="col-span-2 h-8"
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 items-center gap-4">
+                    <Label htmlFor="height">Height</Label>
+                    <Input
+                      id="height"
+                      defaultValue="25px"
+                      className="col-span-2 h-8"
+                    />
+                  </div>
+                  <div className="grid grid-cols-3 items-center gap-4">
+                    <Label htmlFor="maxHeight">Max. height</Label>
+                    <Input
+                      id="maxHeight"
+                      defaultValue="none"
+                      className="col-span-2 h-8"
+                    />
+                  </div>
+                </div>
+              </div>
+            </PopoverContent>
+          </Popover>
 
           {/* User Menu */}
           <DropdownMenu>
@@ -110,18 +160,18 @@ export default function Header({ toggleSidebar }: HeaderProps) {
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
               <Link to="/settings">
-                <DropdownMenuItem  className="cursor-pointer">
+                <DropdownMenuItem className="cursor-pointer">
                   <Settings className="mr-3 h-5 w-5 text-muted-foreground" />
                   <span>Settings</span>
                 </DropdownMenuItem>
               </Link>
               <Link to="/account">
-              <DropdownMenuItem className="cursor-pointer">
-                <User className="mr-3 h-5 w-5 text-muted-foreground" />
-                <span>My Account</span>
-              </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer">
+                  <User className="mr-3 h-5 w-5 text-muted-foreground" />
+                  <span>My Account</span>
+                </DropdownMenuItem>
               </Link>
-              
+
               <DropdownMenuSeparator />
               <Link to="/signout">
                 <DropdownMenuItem className="cursor-pointer">

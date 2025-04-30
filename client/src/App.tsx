@@ -14,6 +14,7 @@ import { useMobile } from "@/hooks/use-mobile";
 import { LandingPage } from "./pages/lander";
 import Login from "./pages/login";
 import Signup from "./pages/signup";
+import Invoices from "./pages/invoices";
 
 function Router() {
   return (
@@ -25,6 +26,7 @@ function Router() {
       <Route path="/transactions" component={Transactions} />
       <Route path="/wallets" component={Wallets} />
       <Route path="/customers" component={Customers} />
+      <Route path="/invoices" component={Invoices} />
       {/* <Route path="/token-transfers" component={} /> */}
 
       {/* <Route path="/links" component={} />

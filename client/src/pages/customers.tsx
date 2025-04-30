@@ -37,8 +37,8 @@ import { useState } from "react"
 import { createColumns } from "@/components/customers/create-columns"
 
 import { camelCaseToRegular } from "@/lib/utils"
-import { UUID } from "crypto"
 import { AddNewCustomer } from "@/components/customers/add-new-customer"
+import { Toggle } from "@/components/ui/toggle"
 
 export type Customer = {
   name: string,
@@ -178,6 +178,15 @@ export default function Customers() {
         </div>
       </div>
 
+      <div className="flex justify-center space-x-5 pb-4 text-muted-foreground">
+        <Toggle className="rounded-3xl border border-solid font-medium">First time customers</Toggle>
+        <Toggle className="rounded-3xl border border-solid font-medium">Repeat customers</Toggle>
+        <Toggle className="rounded-3xl border border-solid font-medium">Recent customers</Toggle>
+        {/* <Button variant="ghost" className="rounded-3xl border border-solid">First time customers</Button>
+        <Button variant="ghost" className="rounded-3xl border border-solid">Repeat customers</Button>
+        <Button variant="ghost" className="rounded-3xl border border-solid">Recent customers</Button> */}
+      </div>
+
       <div className="flex items-center py-4">
         <Input
           placeholder="Filter emails..."
@@ -241,6 +250,7 @@ export default function Customers() {
             Export
           </Button>
         </div>
+        
       </div>
 
       <div className="rounded-md border">

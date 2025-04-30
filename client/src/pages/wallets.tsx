@@ -160,13 +160,16 @@ export default function Wallets() {
 
               <DialogFooter className="sm:justify-start">
                 <Button type="button" variant="secondary" onClick={() => {
-                  if (enteredWalletName.trim().length >= 3 && chainOption != "") {
+                  if (chainOption === "") {
+                    alert("Please select a wallet type.")
+                  }
+                  else if (enteredWalletName.trim().length < 3) {
+                    alert("Please enter a unique wallet name at least three characters long.")
+                  }
+                  else {
                     setCreateNewWalletOpen(false);
                     setEnteredWalletName("");
                     setChainOption("");
-                  }
-                  else {
-                    console.error("Fix it");
                   }
 
                 }}>

@@ -49,7 +49,7 @@ export function CountryCombobox({ value, onChange }: CountryComboboxProps) {
           <CommandInput placeholder="Search country..." />
           <CommandList className=" max-h-60 overflow-auto pointer-events-auto">
             <CommandEmpty>No country found.</CommandEmpty>
-            
+
             <CommandGroup className="overflow-auto max-h-60">
               {countries.map((country) => (
                 <CommandItem

@@ -3,29 +3,26 @@ import { Checkbox } from "../ui/checkbox";
 import { Transaction } from "@/pages/transactions";
 import { ArrowUpDown, Check, CopyIcon, DollarSignIcon, EuroIcon, MoreHorizontal, XIcon } from "lucide-react";
 import { Button } from "../ui/button";
-import { formatCurrency, formatDate, truncateAddress } from "@/lib/utils";
-import { SiCheckmarx, SiEthereum, SiPolygon, SiTether } from "react-icons/si";
-import { IoTime, IoTimeOutline } from "react-icons/io5";
+import { formatDate, truncateAddress } from "@/lib/utils";
+import { SiEthereum, SiPolygon, SiTether } from "react-icons/si";
+import { IoTimeOutline } from "react-icons/io5";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "../ui/dialog";
 import { TbCurrencyEthereum } from "react-icons/tb";
 import { InfoTooltip } from "../tooltips/info-tooltip";
 import { Label } from "../ui/label";
 import { Input } from "../ui/input";
 import { useState } from "react";
 import { ToastAction } from "../ui/toast";
-// import { EditDescriptionForm } from "./EditDescription";
-// import { ViewAllPaymentMethodsData } from "./all-payment-methods";
+import { toast } from "@/hooks/use-toast";
 
 // Create a context for customer dialogs
 interface CustomerDialogsContextType {
     sendReceiptDialogOpen: boolean;
     setSendReceiptDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
-    paymentMethodsDialogOpen: boolean;
-    setPaymentMethodsDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
     currentTransaction: Transaction | null;
     setCurrentTransaction: React.Dispatch<React.SetStateAction<Transaction | null>>;
-    toast: (opts: { title?: string; description?: string; action?: React.ReactNode }) => void;
+    toast: typeof toast
 }
 
 // Table columns
@@ -160,8 +157,6 @@ export const createColumns = (dialogContext: CustomerDialogsContextType): Column
             const {
                 sendReceiptDialogOpen,
                 setSendReceiptDialogOpen,
-                paymentMethodsDialogOpen,
-                setPaymentMethodsDialogOpen,
                 currentTransaction,
                 setCurrentTransaction,
                 toast
@@ -231,7 +226,7 @@ export const createColumns = (dialogContext: CustomerDialogsContextType): Column
                         <DialogContent className="sm:max-w-[425px]">
                             <DialogHeader>
                                 <DialogTitle>Send receipt</DialogTitle>
-                                
+
                             </DialogHeader>
                             <div className="grid gap-4 py-4">
                                 <div className="grid grid-cols-4 items-center gap-4">
@@ -246,9 +241,13 @@ export const createColumns = (dialogContext: CustomerDialogsContextType): Column
                                     />
                                 </div>
                                 <span className="text-muted-foreground text-sm text-center">Separate multiple email addresses with commas.</span>
-                                
+
                             </div>
                             <DialogFooter>
+                                <Button onClick={() => {
+                                    currentTransaction?.customerEmail && setEmailInput(currentTransaction?.customerEmail);
+                                    setSendReceiptDialogOpen(false);
+                                }}>Cancel</Button>
                                 <Button
                                     type="button"
                                     onClick={() => {
@@ -274,30 +273,8 @@ export const createColumns = (dialogContext: CustomerDialogsContextType): Column
                                 >
                                     Send
                                 </Button>
+
                             </DialogFooter>
-                        </DialogContent>
-                    </Dialog>
-
-                    {/* All Customer Payment Methods Dialog */}
-                    <Dialog open={paymentMethodsDialogOpen} onOpenChange={setPaymentMethodsDialogOpen}>
-                        <DialogContent>
-                            <DialogHeader>
-                                <DialogTitle>View all payment methods</DialogTitle>
-                                <div className="flex items-center gap-x-10">
-                                    {/* <DialogTitle className="text-md">
-                      {currentCustomer?.name}
-                    </DialogTitle>
-                    <DialogTitle className="text-sm font-normal text-muted-foreground">
-                      {currentCustomer?.email}
-                    </DialogTitle> */}
-                                </div>
-
-                                {/* <DialogDescription className="pt-5">
-                    This action cannot be undone. This will permanently delete your account
-                    and remove your data from our servers.
-                  </DialogDescription> */}
-                                {/* <ViewAllPaymentMethodsData customerId={customer.id}/> */}
-                            </DialogHeader>
                         </DialogContent>
                     </Dialog>
                 </DropdownMenu>
