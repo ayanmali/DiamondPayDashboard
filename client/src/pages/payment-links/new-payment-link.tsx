@@ -93,6 +93,7 @@ export default function NewPaymentLinkPage() {
     const [customFieldsEnabled, setCustomFieldsEnabled] = useState(false);
     const [customFieldType, setCustomFieldType] = useState("text");
     const [showDropdown, setShowDropdown] = useState(false);
+    const [showTotalPaymentsErrMsg, setShowTotalPaymentsErrMsg] = useState(false);
 
     const mockProducts = [
         { id: "1", name: "Digital Course", price: 49.99 },
@@ -140,7 +141,8 @@ export default function NewPaymentLinkPage() {
                         <h3 className="text-base font-medium mb-4">Options</h3>
 
                         <div className="space-y-3">
-                            <div className="flex items-start">
+                            {/* Collect tax */}
+                            {/* <div className="flex items-start">
                                 <Checkbox
                                     id="collect-tax"
                                     checked={collectedData.collectTax}
@@ -154,7 +156,7 @@ export default function NewPaymentLinkPage() {
                                     </Label>
                                     <Info className="w-4 h-4 inline-block ml-1 text-gray-400" />
                                 </div>
-                            </div>
+                            </div> */}
 
                             <div className="flex items-start">
                                 <Checkbox
@@ -201,7 +203,26 @@ export default function NewPaymentLinkPage() {
                                     </Label>
                                     <Info className="w-4 h-4 inline-block ml-1 text-gray-400" />
                                 </div>
+                                
                             </div>
+                            {collectedData.limitPayments &&
+                            <div className="flex items-center pb-2">
+                                <input
+                                    type="number"
+                                    min={1}
+                                    className="pl-3 pt-1 pb-1 w-20"
+                                    onChange={e => {
+                                        Number(e.target.value) < 1 ?
+                                        setShowTotalPaymentsErrMsg(true) :
+                                        setShowTotalPaymentsErrMsg(false);
+                                    }}
+                                ></input>
+                                <span className="text-sm text-muted-foreground ml-3">total payments</span>
+                            </div>
+}
+                            {collectedData.limitPayments && showTotalPaymentsErrMsg && <span className="text-sm text-red-400">Max number of payments must be greater than 0.</span>
+                            }
+                            
                         </div>
                     </div>
 
