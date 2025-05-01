@@ -1,10 +1,5 @@
 import { Dialog } from "@radix-ui/react-dialog";
 import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
-import { Button } from "../ui/button";
-import { Label } from "../ui/label";
-import { Input } from "../ui/input";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select";
-import { PlusIcon } from "lucide-react";
 import { useState } from "react";
 import { NewCustomerForm } from "./new-customer-form";
 

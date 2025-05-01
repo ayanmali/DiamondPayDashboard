@@ -3,18 +3,14 @@
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "../ui/form"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "../ui/form"
 import { Input } from "../ui/input"
 import { Button } from "../ui/button"
-import { addNewCustomerProps } from "./add-new-customer"
 import { Checkbox } from "../ui/checkbox"
-import { useState } from "react"
-import { boolean } from "drizzle-orm/mysql-core"
-import { Select } from "../ui/select"
+import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "../ui/select"
 import { CountryCombobox } from "./country-combobox"
 import { InfoTooltip } from "../tooltips/info-tooltip"
-import { Info } from "lucide-react"
-import { TimezoneCombobox } from "./timezone-combobox"
+import { useEffect } from "react"
 
 const formSchema = z.object({
     name: z.string().min(2, {
@@ -59,18 +55,34 @@ export function NewCustomerForm({ open, onOpenChange, sameAsAccountEmailChecked,
             addressLine2: "",
             postalCode: "",
             city: "",
-            currency: ""
+            currency: "",
+            timezone: ""
         },
     })
 
     // watch the selected country
     const selectedCountry = form.watch("country");
 
+    // Watch email and billingEmail fields
+    const email = form.watch("email");
+
+    // Sync billingEmail with email if checked, or clear if unchecked
+    useEffect(() => {
+        if (sameAsAccountEmailChecked) {
+            form.setValue("billingEmail", email, { shouldValidate: true });
+        } else {
+            form.setValue("billingEmail", "", { shouldValidate: true });
+        }
+    }, [sameAsAccountEmailChecked, email, form]);
+
     // 2. Define a submit handler.
     function onSubmit(values: z.infer<typeof formSchema>) {
-        // Do something with the form values.
-        // ✅ This will be type-safe and validated.
-        //console.log(values)
+        if (sameAsAccountEmailChecked) {
+            values.billingEmail = values.email;
+        }
+        onOpenChange(false);
+        // Now values contains all the correct data
+        // Send values to your backend, etc.
     }
 
     return (
@@ -86,12 +98,12 @@ export function NewCustomerForm({ open, onOpenChange, sameAsAccountEmailChecked,
                             <h1 className="pb-5">General</h1>
                             <FormLabel className="flex items-center">
                                 Name
-                                <InfoTooltip text="The customer's name."/>
+                                <InfoTooltip text="The customer's name." />
                             </FormLabel>
                             <FormControl>
                                 <Input placeholder="Name" {...field} />
                             </FormControl>
-                            
+
                             <FormMessage />
                         </FormItem>
 
@@ -107,12 +119,12 @@ export function NewCustomerForm({ open, onOpenChange, sameAsAccountEmailChecked,
                         <FormItem>
                             <FormLabel className="flex items-center">
                                 Account email
-                                <InfoTooltip text="The email associated with this customer."/>
+                                <InfoTooltip text="The email associated with this customer." />
                             </FormLabel>
                             <FormControl>
                                 <Input placeholder="name@example.com" {...field} />
                             </FormControl>
-                            
+
                             <FormMessage />
                         </FormItem>
 
@@ -128,12 +140,12 @@ export function NewCustomerForm({ open, onOpenChange, sameAsAccountEmailChecked,
                         <FormItem>
                             <FormLabel className="flex items-center">
                                 Description
-                                <InfoTooltip text="A description about this customer."/>
+                                <InfoTooltip text="A description about this customer." />
                             </FormLabel>
                             <FormControl>
                                 <Input placeholder="Description" {...field} />
                             </FormControl>
-                            
+
                             <FormMessage />
                         </FormItem>
 
@@ -144,11 +156,15 @@ export function NewCustomerForm({ open, onOpenChange, sameAsAccountEmailChecked,
 
                 <FormLabel className="flex items-center">
                     Billing email
-                    <InfoTooltip text="The email that will receive invoices and receipts."/>
+                    <InfoTooltip text="The email that will receive invoices and receipts." />
                 </FormLabel>
 
                 <div className="flex items-center space-x-2">
-                    <Checkbox id="billingEmail" checked={sameAsAccountEmailChecked} onCheckedChange={() => { setSameAsAccountEmailChecked(!sameAsAccountEmailChecked) }} />
+                    <Checkbox
+                        id="billingEmail"
+                        checked={sameAsAccountEmailChecked}
+                        onCheckedChange={() => setSameAsAccountEmailChecked(!sameAsAccountEmailChecked)}
+                    />
                     <label
                         htmlFor="terms"
                         className="text-sm font-normal leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
@@ -159,18 +175,14 @@ export function NewCustomerForm({ open, onOpenChange, sameAsAccountEmailChecked,
                 {!sameAsAccountEmailChecked &&
                     <FormField
                         control={form.control}
-                        name="email"
-
+                        name="billingEmail"
                         render={({ field }) => (
-                            // Customer name
                             <FormItem>
                                 <FormControl>
                                     <Input placeholder="name@example.com" {...field} />
                                 </FormControl>
-
                                 <FormMessage />
                             </FormItem>
-
                         )}
                     />
                 }
@@ -182,7 +194,7 @@ export function NewCustomerForm({ open, onOpenChange, sameAsAccountEmailChecked,
                         <FormItem>
                             <FormLabel className="flex items-center">
                                 Country
-                                <InfoTooltip text="The country where the customer resides or operates from."/>
+                                <InfoTooltip text="The country where the customer resides or operates from." />
                             </FormLabel>
                             <FormControl>
                                 <CountryCombobox
@@ -260,13 +272,96 @@ export function NewCustomerForm({ open, onOpenChange, sameAsAccountEmailChecked,
                         <FormItem>
                             <FormLabel className="flex items-center">
                                 Timezone
-                                <InfoTooltip text="The timezone where the customer resides in."/>
+                                <InfoTooltip text="The timezone where the customer resides in." />
                             </FormLabel>
                             <FormControl>
-                                <TimezoneCombobox
-                                    value={field.value ?? ""}
-                                    onChange={field.onChange}
-                                />
+                                <Select value={field.value} onValueChange={field.onChange}>
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Select a timezone" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            <SelectLabel>North America</SelectLabel>
+                                            <SelectItem value="est">Eastern Standard Time (EST)</SelectItem>
+                                            <SelectItem value="cst">Central Standard Time (CST)</SelectItem>
+                                            <SelectItem value="mst">Mountain Standard Time (MST)</SelectItem>
+                                            <SelectItem value="pst">Pacific Standard Time (PST)</SelectItem>
+                                            <SelectItem value="akst">Alaska Standard Time (AKST)</SelectItem>
+                                            <SelectItem value="hst">Hawaii Standard Time (HST)</SelectItem>
+                                        </SelectGroup>
+                                        <SelectGroup>
+                                            <SelectLabel>Europe & Africa</SelectLabel>
+                                            <SelectItem value="gmt">Greenwich Mean Time (GMT)</SelectItem>
+                                            <SelectItem value="cet">Central European Time (CET)</SelectItem>
+                                            <SelectItem value="eet">Eastern European Time (EET)</SelectItem>
+                                            <SelectItem value="west">
+                                                Western European Summer Time (WEST)
+                                            </SelectItem>
+                                            <SelectItem value="cat">Central Africa Time (CAT)</SelectItem>
+                                            <SelectItem value="eat">East Africa Time (EAT)</SelectItem>
+                                        </SelectGroup>
+                                        <SelectGroup>
+                                            <SelectLabel>Asia</SelectLabel>
+                                            <SelectItem value="msk">Moscow Time (MSK)</SelectItem>
+                                            <SelectItem value="ist">India Standard Time (IST)</SelectItem>
+                                            <SelectItem value="cst_china">China Standard Time (CST)</SelectItem>
+                                            <SelectItem value="jst">Japan Standard Time (JST)</SelectItem>
+                                            <SelectItem value="kst">Korea Standard Time (KST)</SelectItem>
+                                            <SelectItem value="ist_indonesia">
+                                                Indonesia Central Standard Time (WITA)
+                                            </SelectItem>
+                                        </SelectGroup>
+                                        <SelectGroup>
+                                            <SelectLabel>Australia & Pacific</SelectLabel>
+                                            <SelectItem value="awst">
+                                                Australian Western Standard Time (AWST)
+                                            </SelectItem>
+                                            <SelectItem value="acst">
+                                                Australian Central Standard Time (ACST)
+                                            </SelectItem>
+                                            <SelectItem value="aest">
+                                                Australian Eastern Standard Time (AEST)
+                                            </SelectItem>
+                                            <SelectItem value="nzst">New Zealand Standard Time (NZST)</SelectItem>
+                                            <SelectItem value="fjt">Fiji Time (FJT)</SelectItem>
+                                        </SelectGroup>
+                                        <SelectGroup>
+                                            <SelectLabel>South America</SelectLabel>
+                                            <SelectItem value="art">Argentina Time (ART)</SelectItem>
+                                            <SelectItem value="bot">Bolivia Time (BOT)</SelectItem>
+                                            <SelectItem value="brt">Brasilia Time (BRT)</SelectItem>
+                                            <SelectItem value="clt">Chile Standard Time (CLT)</SelectItem>
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
+                            </FormControl>
+                            <FormMessage />
+                        </FormItem>
+                    )}
+                />
+
+                <FormField
+                    control={form.control}
+                    name="currency"
+                    render={({ field }) => (
+                        <FormItem>
+                            <FormLabel className="flex items-center">
+                                Default currency
+                                <InfoTooltip text="The default currency to receive payments in for this customer. This can be manually changed when creating an invoice to send to this customer." />
+                            </FormLabel>
+                            <FormControl>
+                                <Select value={field.value} onValueChange={field.onChange}>
+                                    <SelectTrigger className="w-full">
+                                        <SelectValue placeholder="Select a currency" />
+                                    </SelectTrigger>
+                                    <SelectContent>
+                                        <SelectGroup>
+                                            <SelectItem value="usdc">USDC</SelectItem>
+                                            <SelectItem value="usdt">USDT</SelectItem>
+                                            <SelectItem value="eurc">EURC</SelectItem>
+                                        </SelectGroup>
+                                    </SelectContent>
+                                </Select>
                             </FormControl>
                             <FormMessage />
                         </FormItem>

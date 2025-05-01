@@ -203,7 +203,7 @@ export default function NewPaymentLinkPage() {
                                     </Label>
                                     <Info className="w-4 h-4 inline-block ml-1 text-gray-400" />
                                 </div>
-                                
+                            
                             </div>
                             {collectedData.limitPayments &&
                             <div className="flex items-center pb-2">
@@ -329,7 +329,7 @@ export default function NewPaymentLinkPage() {
                             </div>
                             <div className="text-xs text-gray-500 flex items-center">
                                 <div className="mr-1">🔒</div>
-                                buy.stripe.com
+                                buy.diamondpay.dev
                             </div>
                             <div className="text-xs text-gray-500">
                                 Use your domain
