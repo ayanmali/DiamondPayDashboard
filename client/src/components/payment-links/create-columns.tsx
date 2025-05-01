@@ -1,6 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "../ui/checkbox";
-import { Invoice } from "@/pages/invoices";
+import { Invoice } from "@/pages/invoices/invoices";
 import { ArrowUpDown, Check, CopyIcon, MoreHorizontal } from "lucide-react";
 import { Button } from "../ui/button";
 import { formatDate } from "@/lib/utils";
@@ -8,7 +8,7 @@ import { IoTimeOutline } from "react-icons/io5";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "../ui/dropdown-menu";
 import { LiaEnvelopeOpenTextSolid } from "react-icons/lia";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../ui/alert-dialog";
-import { PaymentLink } from "@/pages/payment-links";
+import { PaymentLink } from "@/pages/payment-links/payment-links";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { EditNameForm } from "./EditNameForm";
 

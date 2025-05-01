@@ -6,17 +6,18 @@ import { useEffect, useState } from "react";
 import NotFound from "@/pages/not-found";
 import Sidebar from "@/components/sidebar";
 import Header from "@/components/header";
-import Dashboard from "@/pages/dashboard";
+import Dashboard from "@/pages/dashboard/dashboard";
 import Transactions from "@/pages/transactions";
 import Wallets from "@/pages/wallets";
-import Customers from "@/pages/customers";
+import Customers from "@/pages/customers/customers";
 import { useMobile } from "@/hooks/use-mobile";
-import { LandingPage } from "./pages/lander";
-import Login from "./pages/login";
-import Signup from "./pages/signup";
-import Invoices from "./pages/invoices";
-import PaymentLinks from "./pages/payment-links";
-import NewInvoicePage from "./pages/new-invoice";
+import { LandingPage } from "./pages/landing-page/lander";
+import Login from "./pages/login-signup/login";
+import Signup from "./pages/login-signup/signup";
+import Invoices from "./pages/invoices/invoices";
+import PaymentLinks from "./pages/payment-links/payment-links";
+import NewInvoicePage from "./pages/invoices/new-invoice";
+import NewPaymentLinkPage from "./pages/payment-links/new-payment-link";
 
 function Router() {
   return (
@@ -24,13 +25,17 @@ function Router() {
       <Route path="/" component={LandingPage}/>
       <Route path="/login" component={Login} />
       <Route path="/signup" component={Signup} />
+
       <Route path="/dashboard" component={Dashboard} />
       <Route path="/transactions" component={Transactions} />
       <Route path="/wallets" component={Wallets} />
       <Route path="/customers" component={Customers} />
+
       <Route path="/invoices" component={Invoices} />
       <Route path="/invoices/new" component={NewInvoicePage} />
+
       <Route path="/payment-links" component={PaymentLinks} />
+      <Route path="/payment-links/new" component={NewPaymentLinkPage}/>
       {/* <Route path="/token-transfers" component={} /> */}
 
       {/* <Route path="/links" component={} />
@@ -75,6 +80,7 @@ function App() {
         <Route path="/login" component={Login} />
         <Route path="signup" component={Signup} />
         <Route path="/invoices/new" component={NewInvoicePage} />
+        <Route path="/payment-links/new" component={NewPaymentLinkPage} />
         {/* <Route path="/settings" component={Login} />
         <Route path="/account" component={Login} /> */}
         <Route path="*">

@@ -70,19 +70,21 @@ export default function Header({ toggleSidebar }: HeaderProps) {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
+            <Link href="/payment-links/new">
               <DropdownMenuItem className="cursor-pointer">
                 <LinkIcon className="mr-3 h-5 w-5 text-muted-foreground" />
                 <span>Payment Link</span>
               </DropdownMenuItem>
+            </Link>
               {/* <DropdownMenuItem className="cursor-pointer">
                 <ShoppingCart className="mr-3 h-5 w-5 text-muted-foreground" />
                 <span>Checkout Integration</span>
               </DropdownMenuItem> */}
               <Link href="/invoices/new">
-              <DropdownMenuItem className="cursor-pointer">
-                <FileText className="mr-3 h-5 w-5 text-muted-foreground" />
-                <span>Invoice</span>
-              </DropdownMenuItem>
+                <DropdownMenuItem className="cursor-pointer">
+                  <FileText className="mr-3 h-5 w-5 text-muted-foreground" />
+                  <span>Invoice</span>
+                </DropdownMenuItem>
               </Link>
               
               {/* <DropdownMenuItem className="cursor-pointer">

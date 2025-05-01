@@ -8,8 +8,8 @@ import {
 } from "@/components/ui/select";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { CustomerCombobox } from "../components/invoices/customer-combobox";
-import { Customer } from "@/pages/customers";
+import { CustomerCombobox } from "../../components/invoices/customer-combobox";
+import { Customer } from "@/pages/customers/customers";
 import { formatDate } from "@/lib/utils";
 import { Link } from "wouter";
 

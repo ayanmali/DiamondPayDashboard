@@ -1,6 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "../ui/checkbox";
-import { Invoice } from "@/pages/invoices";
+import { Invoice } from "@/pages/invoices/invoices";
 import { ArrowUpDown, Check, CopyIcon, MoreHorizontal } from "lucide-react";
 import { Button } from "../ui/button";
 import { formatDate } from "@/lib/utils";

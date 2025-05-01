@@ -38,6 +38,7 @@ import { createColumns } from "@/components/payment-links/create-columns"
 
 import { camelCaseToRegular } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
+import { Link } from "wouter"
 
 export type PaymentLink = {
     name: string
@@ -124,13 +125,15 @@ export default function PaymentLinks() {
             <div className="md:flex md:items-center md:justify-between mb-8">
                 <div className="flex-1 min-w-0">
                     <h1 className="text-2xl font-semibold leading-tight">Payment Links</h1>
-                    
+
                 </div>
                 <div className="mt-4 flex md:mt-0 md:ml-4">
-                    <Button variant="outline" className="mr-3 flex items-center">
-            <Plus className="mr-2 h-4 w-4" />
-            New
-          </Button>
+                    <Link href="/payment-links/new">
+                        <Button variant="outline" className="mr-3 flex items-center">
+                            <Plus className="mr-2 h-4 w-4" />
+                            New
+                        </Button>
+                    </Link>
                     {/* <Button className="flex items-center" onClick={() => setNewCustomerDialogOpen(true)}>
             <PlusIcon className="mr-2 h-4 w-4" />
             Add Customer
@@ -138,32 +141,29 @@ export default function PaymentLinks() {
                     {/* <AddNewCustomer open={newCustomerDialogOpen} onOpenChange={setNewCustomerDialogOpen}/> */}
                 </div>
             </div>
-            
+
             {/* Filter Cards */}
             <div className="flex items-center justify-center space-x-5 pb-4">
                 {/* All */}
-                <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${
-                        selectedStatus === "all" ? "border-2 border-primary" : "border"
+                <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${selectedStatus === "all" ? "border-2 border-primary" : "border"
                     }`}
-                onClick={() => setSelectedStatus("all")}>
+                    onClick={() => setSelectedStatus("all")}>
                     <div className="text-base font-semibold pt-2 text-muted-foreground">All</div>
                     <div className="text-lg pb-2">911</div>
                 </div>
-                
+
                 {/* Active */}
-                <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${
-                        selectedStatus === "active" ? "border-2 border-primary" : "border"
+                <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${selectedStatus === "active" ? "border-2 border-primary" : "border"
                     }`}
-                onClick={() => setSelectedStatus("active")}>
+                    onClick={() => setSelectedStatus("active")}>
                     <div className="text-base font-semibold pt-2 text-muted-foreground">Active</div>
                     <div className="text-lg pb-2">420</div>
                 </div>
-                
+
                 {/* Deactivated */}
-                <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${
-                        selectedStatus === "deactivated" ? "border-2 border-primary" : "border"
+                <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${selectedStatus === "deactivated" ? "border-2 border-primary" : "border"
                     }`}
-                onClick={() => setSelectedStatus("deactivated")}>
+                    onClick={() => setSelectedStatus("deactivated")}>
                     <div className="text-base font-semibold pt-2 text-muted-foreground">Deactivated</div>
                     <div className="text-lg pb-2">69</div>
                 </div>

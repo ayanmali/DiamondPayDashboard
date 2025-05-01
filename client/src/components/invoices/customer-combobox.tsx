@@ -18,7 +18,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover"
-import { Customer } from "@/pages/customers"
+import { Customer } from "@/pages/customers/customers"
 import { nullable } from "zod"
 
 // const customers = [
