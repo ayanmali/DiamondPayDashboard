@@ -22,8 +22,8 @@ export function formatCryptoAmount(amount: string | number, symbol: string): str
   
   return `${numAmount.toLocaleString(undefined, { 
     minimumFractionDigits: 0,
-    maximumFractionDigits: 8 
-  })} ${symbol}`;
+    maximumFractionDigits: 2 
+  })} ${symbol.toUpperCase()}`;
 }
 
 export function formatDate(date: Date | string): string {

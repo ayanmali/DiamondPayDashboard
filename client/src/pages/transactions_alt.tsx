@@ -164,7 +164,7 @@ export default function Transactions() {
                       <td className="px-6 py-4 whitespace-nowrap text-sm">
                         <div className="flex items-center space-x-1">
                           <span className="font-medium">
-                            {formatCryptoAmount(transaction.amount.toString(), transaction.currency)}
+                            {formatCryptoAmount(transaction.amount, transaction.currency)}
                           </span>
                           <span className="text-muted-foreground">
                             ({formatCurrency(transaction.fiatAmount || 0, transaction.fiatCurrency)})
