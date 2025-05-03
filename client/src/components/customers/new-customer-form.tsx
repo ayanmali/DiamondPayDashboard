@@ -187,7 +187,8 @@ export function NewCustomerForm({ open, onOpenChange, sameAsAccountEmailChecked,
                     />
                 }
 
-                <FormField
+                {/* Form field for specifying customer country. */}
+                {/* <FormField
                     control={form.control}
                     name="country"
                     render={({ field }) => (
@@ -205,9 +206,9 @@ export function NewCustomerForm({ open, onOpenChange, sameAsAccountEmailChecked,
                             <FormMessage />
                         </FormItem>
                     )}
-                />
+                /> */}
                 {/* only show address inputs once a country is selected */}
-                {selectedCountry && (
+                {/* {selectedCountry && (
                     <>
                         <h2 className="pt-4 text-md font-medium">Billing Address</h2>
                         <FormField
@@ -263,7 +264,7 @@ export function NewCustomerForm({ open, onOpenChange, sameAsAccountEmailChecked,
                             )}
                         />
                     </>
-                )}
+                )} */}
 
                 <FormField
                     control={form.control}

@@ -58,6 +58,13 @@ const coins = [
   }
 ]
 
+export type Wallet = {
+    id: string,
+    walletType: string, // EVM or SOL
+    name: string,
+    address: string
+}
+
 const getCryptoIcon = (symbol: string) => {
   switch (symbol) {
     case 'BTC':

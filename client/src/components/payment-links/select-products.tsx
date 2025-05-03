@@ -20,6 +20,23 @@ const PaymentLinkProductSelector = ({ addedItems, setAddedItems, currency, isMai
         { id: '4', name: 'One-time Service', description: "One-off service charge", amount: 49.99, currency: "EURC" },
     ]);
 
+    useEffect(() => {
+        // Only update if at least one item's price is out of sync with the currency
+        const updated = addedItems.map(item => {
+            const newPrice = getPriceFromProduct(item.product);
+            if (item.price !== newPrice) {
+                return { ...item, price: newPrice };
+            }
+            return item;
+        });
+
+        // Only call setAddedItems if something actually changed
+        if (JSON.stringify(updated) !== JSON.stringify(addedItems)) {
+            setAddedItems(updated);
+        }
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [currency, products]);
+
     // helper function
     function getPriceFromProduct(product: Product) {
         if ( currency.toLowerCase() === product.currency.toLowerCase() || currency.substring(0,3).toLowerCase() === product.currency.substring(0,3).toLowerCase()) {

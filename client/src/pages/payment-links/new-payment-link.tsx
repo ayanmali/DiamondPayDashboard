@@ -1,8 +1,5 @@
 import { useState } from "react";
-import {
-    Card,
-    CardContent,
-} from "@/components/ui/card";
+
 import {
     Tabs,
     TabsContent,
@@ -23,9 +20,7 @@ import {
 import {
     Label
 } from "@/components/ui/label";
-import {
-    Button
-} from "@/components/ui/button";
+
 import {
     Checkbox
 } from "@/components/ui/checkbox";
@@ -34,12 +29,20 @@ import {
     CollapsibleContent,
     CollapsibleTrigger,
 } from "@/components/ui/collapsible";
-import { ChevronDown, ChevronUp, CreditCard, Plus, Info, Check, Apple, SmartphoneIcon } from "lucide-react";
-import { Textarea } from "@/components/ui/textarea";
+import { AlertTriangle, ChevronDown, ChevronUp, DollarSign, Info } from "lucide-react";
 import { Link } from "wouter";
 import PaymentLinkProductSelector from "@/components/payment-links/select-products";
 import { InfoTooltip } from "@/components/tooltips/info-tooltip";
 import PaymentLinkPreview from "@/components/payment-links/payment-link-preview";
+import { Button } from "@/components/ui/button";
+import PostPaymentConfirmation from "@/components/payment-links/post-payment";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
+import ConfirmationPagePreview from "@/components/payment-links/confirmation-page-preview";
+import { Wallet } from "../wallets";
+import test from "node:test";
+import { truncateAddress } from "@/lib/utils";
 
 export type Product = {
     id: string,
@@ -48,6 +51,17 @@ export type Product = {
     amount: number
     currency: string
 }
+
+export type CustomField = {
+    id: string; // unique identifier
+    fieldType: 'text' | 'number' | 'dropdown' | 'checkbox';
+    labelName: string;
+    defaultValue?: string;
+    options?: string[]; // for dropdown
+    minLimit?: number;
+    maxLimit?: number;
+    optional?: boolean;
+};
 
 // Products that have been added to the given payment link
 export type AddedItem = {
@@ -59,6 +73,29 @@ export type AddedItem = {
 };
 
 const merchantName = "DiamondPay";
+const MAX_LABEL_NAME_LENGTH = 30;
+const MAX_LABEL_DEFAULT_VALUE_LENGTH = 50;
+const MIN_LABEL_NAME_LENGTH = 1;
+const testWallets: Wallet[] = [
+    {
+        id: "1",
+        name: "MyWallet",
+        address: "0x123456789",
+        walletType: "EVM"
+    },
+    {
+        id: "2",
+        name: "OtherWallet",
+        address: "0x987654321",
+        walletType: "EVM"
+    },
+    {
+        id: "3",
+        name: "TradingWallet",
+        address: "0x91142069000",
+        walletType: "EVM"
+    },
+]
 
 function PaymentLinksHeader() {
     return (
@@ -84,9 +121,9 @@ function PaymentLinksHeader() {
                     Feedback?
                 </button> */}
 
-                <button className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-md border border-solid">
+                {/* <button className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-md border border-solid">
                     Hide preview
-                </button>
+                </button> */}
 
                 <button className="px-4 py-1.5 bg-[#7C3AED] text-white rounded-md text-sm font-medium hover:bg-[#6D28D9]">
                     Create link
@@ -97,23 +134,48 @@ function PaymentLinksHeader() {
 }
 
 export default function NewPaymentLinkPage() {
+    const [selectedTab, setSelectedTab] = useState<'payment' | 'post-payment'>('payment');
     const [paymentType, setPaymentType] = useState<"simple" | "flexible">("simple");
     const [currency, setCurrency] = useState<"usdc" | "usdt" | "eurc">("usdc");
+    const [wallet, setWallet] = useState<Wallet>(testWallets[0]);
     const [collectedData, setCollectedData] = useState({
-        collectAddress: false,
+        // collectAddress: false,
         requirePhone: false,
         limitPayments: false,
         //collectTax: false
     });
+    const [customFields, setCustomFields] = useState<CustomField[]>([]);
+    const [cta, setCta] = useState('Pay');
     const [advancedOpen, setAdvancedOpen] = useState(false);
     const [selectedProduct, setSelectedProduct] = useState<Product>();
     // items that the user has added to the payment link
     const [addedItems, setAddedItems] = useState<AddedItem[]>(new Array<AddedItem>());
     const [customFieldsEnabled, setCustomFieldsEnabled] = useState(false);
     const [customFieldType, setCustomFieldType] = useState("text");
-    const [showDropdown, setShowDropdown] = useState(false);
+    const [labelNameErr, setLabelNameErr] = useState(false);
+    const [labelDefaultValueErr, setLabelDefaultValueErr] = useState(false);
 
     const [showTotalPaymentsErrMsg, setShowTotalPaymentsErrMsg] = useState(false);
+
+    const [customFieldErrors, setCustomFieldErrors] = useState<{ labelName: boolean; defaultValue: boolean }[]>([]);
+
+    // Post payment
+    const [useCustomMessage, setUseCustomMessage] = useState<boolean>(false);
+    const [showConfirmation, setShowConfirmation] = useState<boolean>(true);
+    const [customMessage, setCustomMessage] = useState<string>('');
+    const [redirectUrl, setRedirectUrl] = useState<string>('');
+    const [createInvoice, setCreateInvoice] = useState<boolean>(false);
+    const [hasError, setHasError] = useState<boolean>(false);
+    const [errorMessage, setErrorMessage] = useState<string>('');
+    const [activeTab, setActiveTab] = useState<string>('payment');
+    const [previewDevice, setPreviewDevice] = useState<'mobile' | 'desktop'>('desktop');
+    const [urlError, setUrlError] = useState<string>('');
+
+    // URL validation function
+    const validateUrl = (url: string) => {
+        const urlPattern = new RegExp('^(https?://)?(www\\.)?([a-zA-Z0-9]+\\.[a-zA-Z]{2,})(/.*)?$');
+        return urlPattern.test(url);
+    };
 
     return (
         <div className="flex flex-col h-full pt-16">
@@ -143,46 +205,85 @@ export default function NewPaymentLinkPage() {
                         </Select>
                     </div>
 
-                    <div className="mb-8">
-                        <div className="flex items-center">
-                            <h3 className="text-base font-medium">Select currency</h3>
-                            <InfoTooltip text="The currency in which you will receive payment."/>
-                        </div>
-
-                        <Select
-                            value={currency}
-                            onValueChange={v => setCurrency(v as "usdc" | "usdt" | "eurc")}
-                            defaultValue="simple"
-                        >
-    
-                            <SelectTrigger className="w-full mt-2">
-                                <SelectValue placeholder="Select currency" />
-                            </SelectTrigger>
-
-                            <SelectContent>
-                                <SelectItem value="usdc">USDC</SelectItem>
-                                <SelectItem value="usdt">USDT</SelectItem>
-                                <SelectItem value="eurc">EURC</SelectItem>
-                            </SelectContent>
-                        </Select>
-                    </div>
-
                     <Tabs defaultValue="payment-page" className="mb-8">
                         <TabsList className="grid w-full grid-cols-2">
-                            <TabsTrigger value="payment-page" className="text-sm">Payment page</TabsTrigger>
-                            <TabsTrigger value="after-payment" className="text-sm">After payment</TabsTrigger>
+                            <TabsTrigger value="payment-page" className="text-sm" onClick={() => setSelectedTab('payment')}>Payment page</TabsTrigger>
+                            <TabsTrigger value="after-payment" className="text-sm" onClick={() => setSelectedTab('post-payment')}>After payment</TabsTrigger>
                         </TabsList>
                     </Tabs>
+                    {selectedTab === 'payment' &&
+                        <>
+                            <div className="mb-8">
+                                <div className="flex items-center">
+                                    <h3 className="text-base font-medium">Select currency</h3>
+                                    <InfoTooltip text="The currency in which you will receive payment." />
+                                </div>
 
-                    <PaymentLinkProductSelector addedItems={addedItems} setAddedItems={setAddedItems} currency={currency} isMain={true} />
-                    <PaymentLinkProductSelector addedItems={addedItems} setAddedItems={setAddedItems} currency={currency} isMain={false} />
+                                <Select
+                                    value={currency}
+                                    onValueChange={v => setCurrency(v as "usdc" | "usdt" | "eurc")}
+                                    defaultValue="simple"
+                                >
 
-                    <div className="mb-8">
-                        <h3 className="text-base font-medium mb-4">Options</h3>
+                                    <SelectTrigger className="w-full mt-2">
+                                        <SelectValue placeholder="Select currency" />
+                                    </SelectTrigger>
 
-                        <div className="space-y-3">
-                            {/* Collect tax */}
-                            {/* <div className="flex items-start">
+                                    <SelectContent>
+                                        <SelectItem value="usdc">USDC</SelectItem>
+                                        <SelectItem value="usdt">USDT</SelectItem>
+                                        <SelectItem value="eurc">EURC</SelectItem>
+                                    </SelectContent>
+                                </Select>
+                            </div>
+
+                            <div className="mb-8">
+                                <div className="flex items-center">
+                                    <h3 className="text-base font-medium">Select wallet</h3>
+                                    <InfoTooltip text="The wallet in which you will receive payment." />
+                                </div>
+
+                                <Select
+                                    value={wallet.name}
+                                    onValueChange={v =>
+                                        setWallet(
+                                            testWallets.find(w => w.name === v) as Wallet
+                                        )
+                                    }
+                                    defaultValue={wallet.name}
+                                >
+                                    <SelectTrigger className="w-full mt-2">
+                                        <SelectValue placeholder="Select wallet" />
+                                    </SelectTrigger>
+
+                                    <SelectContent>
+                                        {testWallets.map(w => (
+                                            <SelectItem key={w.id} value={w.name}>
+                                                <div>
+                                                    <div className="font-medium">{w.name}</div>
+                                                    <div className="text-sm text-gray-500">{truncateAddress(w.address)}</div>
+                                                </div>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <span className="text-sm text-muted-foreground">
+                                    {wallet.walletType === "EVM" ? "This payment link will accept payments from any EVM blockchain (Base, Polygon, Optimism, etc.)."
+                                        : wallet.walletType === "SOL" ? "This payment link will accept payment only on the Solana network." : ""}
+                                </span>
+
+
+                            </div>
+
+                            <PaymentLinkProductSelector addedItems={addedItems} setAddedItems={setAddedItems} currency={currency} isMain={true} />
+                            <PaymentLinkProductSelector addedItems={addedItems} setAddedItems={setAddedItems} currency={currency} isMain={false} />
+
+                            <div className="mb-8">
+                                <h3 className="text-base font-medium mb-4">Options</h3>
+
+                                <div className="space-y-3">
+                                    {/* Collect tax */}
+                                    {/* <div className="flex items-start">
                                 <Checkbox
                                     id="collect-tax"
                                     checked={collectedData.collectTax}
@@ -198,7 +299,7 @@ export default function NewPaymentLinkPage() {
                                 </div>
                             </div> */}
 
-                            <div className="flex items-start">
+                                    {/* <div className="flex items-start">
                                 <Checkbox
                                     id="collect-address"
                                     checked={collectedData.collectAddress}
@@ -211,205 +312,456 @@ export default function NewPaymentLinkPage() {
                                         Collect customers' addresses
                                     </Label>
                                 </div>
-                            </div>
+                            </div> */}
 
-                            <div className="flex items-start">
-                                <Checkbox
-                                    id="require-phone"
-                                    checked={collectedData.requirePhone}
-                                    onCheckedChange={(checked) =>
-                                        setCollectedData({ ...collectedData, requirePhone: !!checked })
+                                    <div className="flex items-center">
+                                        <Checkbox
+                                            id="require-phone"
+                                            checked={collectedData.requirePhone}
+                                            onCheckedChange={(checked) =>
+                                                setCollectedData({ ...collectedData, requirePhone: !!checked })
+                                            }
+                                        />
+                                        <div className="ml-2">
+                                            <Label htmlFor="require-phone" className="font-normal">
+                                                Require customers to provide a phone number
+                                            </Label>
+                                        </div>
+                                    </div>
+
+                                    <div className="flex items-center">
+                                        <Checkbox
+                                            id="limit-payments"
+                                            checked={collectedData.limitPayments}
+                                            onCheckedChange={(checked) =>
+                                                setCollectedData({ ...collectedData, limitPayments: !!checked })
+                                            }
+                                        />
+                                        <div className="ml-2 flex items-center">
+                                            <Label htmlFor="limit-payments" className="font-normal">
+                                                Limit the number of payments
+                                            </Label>
+                                            <InfoTooltip text="The maximum number of payments this link is valid for. Once the limit is reached, customers will no longer be able to make a purchase using this link." />
+                                        </div>
+
+                                    </div>
+                                    {collectedData.limitPayments &&
+                                        <div className="flex items-center pb-2">
+                                            <input
+                                                type="number"
+                                                min={1}
+                                                className="pl-3 pt-1 pb-1 w-20"
+                                                onChange={e => {
+                                                    Number(e.target.value) < 1 ?
+                                                        setShowTotalPaymentsErrMsg(true) :
+                                                        setShowTotalPaymentsErrMsg(false);
+                                                }}
+                                            ></input>
+                                            <span className="text-sm text-muted-foreground ml-3">total payments</span>
+                                        </div>
                                     }
-                                />
-                                <div className="ml-2">
-                                    <Label htmlFor="require-phone" className="font-normal">
-                                        Require customers to provide a phone number
-                                    </Label>
-                                </div>
-                            </div>
-
-                            <div className="flex items-center">
-                                <Checkbox
-                                    id="limit-payments"
-                                    checked={collectedData.limitPayments}
-                                    onCheckedChange={(checked) =>
-                                        setCollectedData({ ...collectedData, limitPayments: !!checked })
+                                    {collectedData.limitPayments && showTotalPaymentsErrMsg && <span className="text-sm text-red-400">Max number of payments must be greater than 0.</span>
                                     }
-                                />
-                                <div className="ml-2 flex items-center">
-                                    <Label htmlFor="limit-payments" className="font-normal">
-                                        Limit the number of payments
-                                    </Label>
-                                    <InfoTooltip text="The maximum number of payments this link is valid for. Once the limit is reached, customers will no longer be able to make a purchase using this link." />
-                                </div>
 
+                                </div>
                             </div>
-                            {collectedData.limitPayments &&
-                                <div className="flex items-center pb-2">
-                                    <input
-                                        type="number"
-                                        min={1}
-                                        className="pl-3 pt-1 pb-1 w-20"
-                                        onChange={e => {
-                                            Number(e.target.value) < 1 ?
-                                                setShowTotalPaymentsErrMsg(true) :
-                                                setShowTotalPaymentsErrMsg(false);
-                                        }}
-                                    ></input>
-                                    <span className="text-sm text-muted-foreground ml-3">total payments</span>
-                                </div>
-                            }
-                            {collectedData.limitPayments && showTotalPaymentsErrMsg && <span className="text-sm text-red-400">Max number of payments must be greater than 0.</span>
-                            }
 
-                        </div>
-                    </div>
+                            <Collapsible
+                                open={advancedOpen}
+                                onOpenChange={setAdvancedOpen}
+                                className="mb-8"
+                            >
+                                <CollapsibleTrigger className="flex items-center text-base font-medium text-gray-800 mb-4">
+                                    Advanced options
+                                    {advancedOpen ? (
+                                        <ChevronUp className="ml-2 w-5 h-5" />
+                                    ) : (
+                                        <ChevronDown className="ml-2 w-5 h-5" />
+                                    )}
+                                </CollapsibleTrigger>
 
-                    <Collapsible
-                        open={advancedOpen}
-                        onOpenChange={setAdvancedOpen}
-                        className="mb-8"
-                    >
-                        <CollapsibleTrigger className="flex items-center text-base font-medium text-gray-800 mb-4">
-                            Advanced options
-                            {advancedOpen ? (
-                                <ChevronUp className="ml-2 w-5 h-5" />
-                            ) : (
-                                <ChevronDown className="ml-2 w-5 h-5" />
-                            )}
-                        </CollapsibleTrigger>
+                                <CollapsibleContent>
+                                    <div className="pt-3 space-y-4">
+                                        <div className="flex items-center">
+                                            <Checkbox
+                                                id="custom-fields"
+                                                checked={customFieldsEnabled}
+                                                onCheckedChange={(checked) =>
+                                                    setCustomFieldsEnabled(!!checked)
+                                                }
+                                            />
+                                            <div className="ml-2 flex items-center">
+                                                <Label htmlFor="custom-fields" className="font-normal">
+                                                    Add custom fields
+                                                </Label>
+                                                <Info className="w-4 h-4 inline-block ml-1 text-gray-400" />
+                                            </div>
+                                        </div>
 
-                        <CollapsibleContent>
+                                        {customFieldsEnabled && (
+                                            <div className="ml-7 space-y-4">
+                                                {customFields.map((field, idx) => (
+                                                    <div key={field.id} className="flex flex-col gap-2 border p-3 rounded-md bg-gray-50">
+                                                        <div className="flex gap-2 items-center">
+                                                            <Select
+                                                                value={field.fieldType}
+                                                                onValueChange={val => {
+                                                                    field.defaultValue = '';
+                                                                    setCustomFields(fields =>
+                                                                        fields.map((f, i) =>
+                                                                            i === idx ? { ...f, fieldType: val as CustomField['fieldType'], options: val === 'dropdown' ? ['Option 1'] : undefined } : f
+                                                                        )
+                                                                    )
+                                                                }
+                                                                }
+                                                            >
+                                                                <SelectTrigger className="w-32">
+                                                                    <SelectValue placeholder="Type" />
+                                                                </SelectTrigger>
+                                                                <SelectContent>
+                                                                    <SelectItem value="text">Text</SelectItem>
+                                                                    <SelectItem value="number">Number</SelectItem>
+                                                                    {/* <SelectItem value="dropdown">Dropdown</SelectItem> */}
+                                                                    <SelectItem value="checkbox">Checkbox</SelectItem>
+                                                                </SelectContent>
+                                                            </Select>
+                                                            <Input
+                                                                placeholder="Label"
+                                                                value={field.labelName}
+                                                                onChange={e => {
+                                                                    const value = e.target.value;
+                                                                    setCustomFields(fields =>
+                                                                        fields.map((f, i) => (i === idx ? { ...f, labelName: value } : f))
+                                                                    );
+                                                                    setCustomFieldErrors(errors =>
+                                                                        errors.map((err, i) =>
+                                                                            i === idx
+                                                                                ? { ...err, labelName: value.length > MAX_LABEL_NAME_LENGTH || value.length < MIN_LABEL_NAME_LENGTH }
+                                                                                : err
+                                                                        )
+                                                                    );
+                                                                }}
+                                                                className="flex-1"
+                                                            />
+                                                            <Button
+                                                                variant="ghost"
+                                                                className="text-red-500"
+                                                                onClick={() => {
+                                                                    setCustomFields(fields => fields.filter((_, i) => i !== idx));
+                                                                    setCustomFieldErrors(errors => errors.filter((_, i) => i !== idx));
+                                                                }}
+                                                            >
+                                                                Remove
+                                                            </Button>
+                                                        </div>
+
+                                                        {customFieldErrors[idx]?.labelName && (
+                                                            <span className="text-red-500 text-sm">{`Label name must be greater than ${MIN_LABEL_NAME_LENGTH} character and no more than ${MAX_LABEL_NAME_LENGTH} characters in length.`}</span>
+                                                        )}
+
+                                                        {field.fieldType !== 'checkbox' && (
+                                                            <>
+                                                                <div className="mt-3 mb-3">
+                                                                    <Input
+                                                                        placeholder="Default value"
+                                                                        value={field.defaultValue ?? ''}
+                                                                        onChange={e => {
+                                                                            const value = e.target.value;
+                                                                            setCustomFields(fields =>
+                                                                                fields.map((f, i) => (i === idx ? { ...f, defaultValue: value } : f))
+                                                                            );
+                                                                            setCustomFieldErrors(errors =>
+                                                                                errors.map((err, i) =>
+                                                                                    i === idx
+                                                                                        ? { ...err, defaultValue: value.length > MAX_LABEL_DEFAULT_VALUE_LENGTH }
+                                                                                        : err
+                                                                                )
+                                                                            );
+                                                                        }}
+                                                                        className="flex-1"
+                                                                    />
+                                                                    {customFieldErrors[idx]?.defaultValue && (
+                                                                        <span className="text-red-500 text-sm">{`Default value must be no more than ${MAX_LABEL_DEFAULT_VALUE_LENGTH} characters in length.`}</span>
+                                                                    )}
+                                                                </div>
+
+                                                                <div className="flex items-center gap-2">
+                                                                    <Checkbox
+                                                                        checked={!!field.optional}
+                                                                        onCheckedChange={checked =>
+                                                                            setCustomFields(fields =>
+                                                                                fields.map((f, i) =>
+                                                                                    i === idx ? { ...f, optional: checked ? true : false } : f
+                                                                                )
+                                                                            )
+                                                                        }
+                                                                    />
+                                                                    <span className="text-sm">Make field optional</span>
+                                                                </div>
+                                                            </>
+                                                        )}
+                                                        {field.fieldType === 'checkbox' && (
+                                                            <div className="flex items-center gap-2 mt-4 mb-2">
+                                                                <Checkbox
+                                                                    checked={!!field.defaultValue}
+                                                                    onCheckedChange={checked =>
+                                                                        setCustomFields(fields =>
+                                                                            fields.map((f, i) =>
+                                                                                i === idx ? { ...f, defaultValue: checked ? 'true' : '' } : f
+                                                                            )
+                                                                        )
+                                                                    }
+                                                                />
+                                                                <span className="text-sm">Default checked</span>
+                                                            </div>
+                                                        )}
+
+                                                        {field.fieldType === 'dropdown' && (
+                                                            <div className="flex flex-col gap-1">
+                                                                <span className="text-xs text-gray-500">Dropdown options:</span>
+                                                                {field.options?.map((opt, oidx) => (
+                                                                    <div key={oidx} className="flex gap-2 items-center">
+                                                                        <Input
+                                                                            value={opt}
+                                                                            onChange={e =>
+                                                                                setCustomFields(fields =>
+                                                                                    fields.map((f, i) =>
+                                                                                        i === idx
+                                                                                            ? {
+                                                                                                ...f,
+                                                                                                options: f.options?.map((o, oi) =>
+                                                                                                    oi === oidx ? e.target.value : o
+                                                                                                ),
+                                                                                            }
+                                                                                            : f
+                                                                                    )
+                                                                                )
+                                                                            }
+                                                                            className="flex-1"
+                                                                        />
+                                                                        <Button
+                                                                            variant="ghost"
+                                                                            className="text-red-500"
+                                                                            onClick={() =>
+                                                                                setCustomFields(fields =>
+                                                                                    fields.map((f, i) =>
+                                                                                        i === idx
+                                                                                            ? {
+                                                                                                ...f,
+                                                                                                options: f.options?.filter((_, oi) => oi !== oidx),
+                                                                                            }
+                                                                                            : f
+                                                                                    )
+                                                                                )
+                                                                            }
+                                                                        >
+                                                                            Remove
+                                                                        </Button>
+                                                                    </div>
+                                                                ))}
+                                                                <Button
+                                                                    variant="outline"
+                                                                    size="sm"
+                                                                    onClick={() =>
+                                                                        setCustomFields(fields =>
+                                                                            fields.map((f, i) =>
+                                                                                i === idx
+                                                                                    ? { ...f, options: [...(f.options || []), ''] }
+                                                                                    : f
+                                                                            )
+                                                                        )
+                                                                    }
+                                                                >
+                                                                    Add Option
+                                                                </Button>
+                                                            </div>
+                                                        )}
+
+
+                                                    </div>
+                                                ))}
+                                                <Button
+                                                    variant="outline"
+                                                    onClick={() => {
+                                                        setCustomFields(fields => [
+                                                            ...fields,
+                                                            {
+                                                                id: Math.random().toString(36).slice(2),
+                                                                fieldType: 'text',
+                                                                labelName: '',
+                                                                defaultValue: '',
+                                                                options: [],
+                                                                optional: false,
+                                                            },
+                                                        ]);
+                                                        setCustomFieldErrors(errors => [
+                                                            ...errors,
+                                                            { labelName: false, defaultValue: false }
+                                                        ]);
+                                                    }}
+                                                >
+                                                    Add Custom Field
+                                                </Button>
+                                            </div>
+                                        )}
+                                    </div>
+
+                                    <div className="pt-5 space-y-4">
+                                        <div className="flex items-center gap-x-2 my-3">
+                                            <Select defaultValue="Pay" onValueChange={c => setCta(c)}>
+                                                <SelectTrigger className="w-max">
+                                                    <SelectValue placeholder="Select a call to action..." />
+                                                </SelectTrigger>
+                                                <SelectContent>
+                                                    <SelectGroup>
+                                                        <SelectItem value="Pay">Pay</SelectItem>
+                                                        <SelectItem value="Checkout">Checkout</SelectItem>
+                                                        <SelectItem value="Book">Book</SelectItem>
+                                                        <SelectItem value="Donate">Donate</SelectItem>
+                                                    </SelectGroup>
+                                                </SelectContent>
+                                            </Select>
+                                            <span className="text-sm">as the call to action</span>
+                                        </div>
+
+                                    </div>
+                                </CollapsibleContent>
+                            </Collapsible>
+                        </>
+                    }
+                    {selectedTab === 'post-payment' &&
+                        <>
                             <div className="space-y-4">
-                                <div className="flex items-start">
+                                <h3 className="text-lg font-medium">Confirmation page</h3>
+
+                                <RadioGroup
+                                    value={showConfirmation ? "show" : "dont"}
+                                    onValueChange={(value) => setShowConfirmation(value === "show")}
+                                >
+                                    <div className="flex items-start space-x-2 pb-4">
+                                        <RadioGroupItem value="show" id="show" className="mt-1" />
+                                        <div className="space-y-1">
+                                            <Label htmlFor="show" className="font-medium">Show confirmation page</Label>
+                                            {showConfirmation && useCustomMessage && (
+                                                <div className="mt-2">
+                                                    <Textarea
+                                                        placeholder="Include any details you see fit, such as delivery information."
+                                                        className={`w-full ${hasError ? 'border-red-500' : ''}`}
+                                                        value={customMessage}
+                                                        onChange={(e) => setCustomMessage(e.target.value)}
+                                                    />
+
+                                                    <div className="flex justify-between items-center mt-2">
+                                                        {hasError && (
+                                                            <div className="flex items-start space-x-2 text-red-500 text-sm">
+                                                                <AlertTriangle className="h-4 w-4 mt-0.5" />
+                                                                <span>{errorMessage}</span>
+                                                            </div>
+                                                        )}
+                                                        {/* <div className="flex ml-auto space-x-2">
+                                                            <Button variant="outline" size="icon" className="h-6 w-6">
+                                                                <DollarSign className="h-4 w-4 text-green-600" />
+                                                            </Button>
+                                                            <Button variant="outline" size="icon" className="h-6 w-6">
+                                                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                                                    <path d="M8 10L12 14L16 10" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" />
+                                                                </svg>
+                                                            </Button>
+                                                        </div> */}
+                                                    </div>
+
+                                                    <p className="text-gray-500 text-xs flex items-center mt-1">
+                                                        <Info className="h-4 w-4 mr-1" />
+                                                        Please note that custom messages aren't translated based on your customer's location.
+                                                    </p>
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-1 ml-5">
+                                        <div className="flex items-start space-x-2">
+                                            <Checkbox
+                                                id="custom-message"
+                                                checked={useCustomMessage}
+                                                onCheckedChange={(checked) => setUseCustomMessage(checked === true)}
+                                                disabled={!showConfirmation}
+                                                className="mt-1"
+                                            />
+                                            <div>
+                                                <Label
+                                                    htmlFor="custom-message"
+                                                    className={`font-medium ${!showConfirmation ? 'text-gray-400' : ''}`}
+                                                >
+                                                    Replace default with custom message
+                                                </Label>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    <div className={`flex items-start space-x-2 border-t ${/*border-b*/""} pt-4 pb-4`}>
+                                        <RadioGroupItem value="dont" id="dont" className="mt-1" />
+                                        <div className="space-y-1 w-full">
+                                            <Label htmlFor="dont" className="font-medium">Don't show confirmation page</Label>
+                                            <p className="text-sm text-gray-500">Redirect customers to your website.</p>
+                                            {!showConfirmation && (
+                                                <Input
+                                                    placeholder="https://yourwebsite.com/thankyou"
+                                                    className={`mt-2 max-w-md ${urlError ? 'border-red-500' : ''}`}
+                                                    type="url"
+                                                    value={redirectUrl}
+                                                    onChange={(e) => {
+                                                        const value = e.target.value;
+                                                        setRedirectUrl(value);
+                                                        if (!validateUrl(value)) {
+                                                            setUrlError('Please enter a valid URL.');
+                                                        } else {
+                                                            setUrlError('');
+                                                        }
+                                                    }}
+                                                />
+                                            )}
+                                            {urlError && <span className="text-red-500 text-sm">{urlError}</span>}
+                                        </div>
+                                    </div>
+                                </RadioGroup>
+                            </div>
+
+                            {/* Post-payment Invoice Options */}
+                            {/* <div className="space-y-4 pt-6"> */}
+                            {/* <h3 className="text-lg font-medium">Post-payment invoice</h3> */}
+
+                            {/* <div className="flex items-start space-x-2 ml-5">
                                     <Checkbox
-                                        id="custom-fields"
-                                        checked={customFieldsEnabled}
-                                        onCheckedChange={(checked) =>
-                                            setCustomFieldsEnabled(!!checked)
-                                        }
+                                        id="create-invoice"
+                                        checked={createInvoice}
+                                        onCheckedChange={(checked) => setCreateInvoice(checked === true)}
+                                        className="mt-1"
                                     />
-                                    <div className="ml-2">
-                                        <Label htmlFor="custom-fields" className="font-normal">
-                                            Add custom fields
-                                        </Label>
-                                        <Info className="w-4 h-4 inline-block ml-1 text-gray-400" />
+                                    <div>
+                                        <Label htmlFor="create-invoice" className="font-medium">Create an invoice PDF</Label>
                                     </div>
-                                </div>
+                                </div> */}
 
-                                {customFieldsEnabled && (
-                                    <div className="ml-7 space-y-3">
-                                        <div className="flex gap-2">
-                                            <Select
-                                                value={customFieldType}
-                                                onValueChange={setCustomFieldType}
-                                            >
-                                                <SelectTrigger className="w-32">
-                                                    <SelectValue placeholder="Type" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="text">Text</SelectItem>
-                                                    <SelectItem value="number">Number</SelectItem>
-                                                    <SelectItem value="dropdown">Dropdown</SelectItem>
-                                                    <SelectItem value="checkbox">Checkbox</SelectItem>
-                                                </SelectContent>
-                                            </Select>
+                            {/* Invoice information */}
+                            {/* <div className="mt-4 text-sm text-gray-600"> */}
+                            {/* <p>
+                                        Post-payment invoices provide more information than a regular receipt. If you want to send a regular receipt, you can choose to email customers about successful payments in
+                                        <a href="#" className="text-violet-600 mx-1">email settings</a>.
+                                        Configure your invoice, including adding a memo, footer, and your tax ID in
+                                        <a href="#" className="text-violet-600 mx-1">invoice template settings</a>.
+                                    </p> */}
+                            {/* </div> */}
+                            {/* </div> */}
 
-                                            <Input placeholder="Label name" className="flex-1" />
-                                        </div>
-
-                                        <div className="flex items-center gap-2">
-                                            <Checkbox id="default-value" />
-                                            <Label htmlFor="default-value">
-                                                Set a default value
-                                            </Label>
-                                            <Info className="w-4 h-4 inline-block ml-1 text-gray-400" />
-                                        </div>
-
-                                        <div className="flex items-center gap-2">
-                                            <Checkbox id="set-limits" />
-                                            <Label htmlFor="set-limits">
-                                                Set limits
-                                            </Label>
-                                        </div>
-
-                                        <div className="flex items-center gap-2">
-                                            <Checkbox id="mark-optional" />
-                                            <Label htmlFor="mark-optional">
-                                                Mark as optional
-                                            </Label>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                            <div className="space-y-4">
-                                <div className="flex items-center gap-x-2 my-3">
-                                    <Select defaultValue="pay">
-                                        <SelectTrigger className="w-max">
-                                            <SelectValue placeholder="Select a call to action..." />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            <SelectGroup>
-                                                <SelectItem value="pay">Pay</SelectItem>
-                                                <SelectItem value="checkout">Checkout</SelectItem>
-                                                <SelectItem value="book">Book</SelectItem>
-                                                <SelectItem value="donate">Donate</SelectItem>
-                                            </SelectGroup>
-                                        </SelectContent>
-                                    </Select>
-                                    <span className="text-sm">as the call to action</span>
-                                </div>
-
-                                {customFieldsEnabled && (
-                                    <div className="ml-7 space-y-3">
-                                        <div className="flex gap-2">
-                                            <Select
-                                                value={customFieldType}
-                                                onValueChange={setCustomFieldType}
-                                            >
-                                                <SelectTrigger className="w-32">
-                                                    <SelectValue placeholder="Type" />
-                                                </SelectTrigger>
-                                                <SelectContent>
-                                                    <SelectItem value="text">Text</SelectItem>
-                                                    <SelectItem value="number">Number</SelectItem>
-                                                    <SelectItem value="dropdown">Dropdown</SelectItem>
-                                                    <SelectItem value="checkbox">Checkbox</SelectItem>
-                                                </SelectContent>
-                                            </Select>
-
-                                            <Input placeholder="Label name" className="flex-1" />
-                                        </div>
-
-                                        <div className="flex items-center gap-2">
-                                            <Checkbox id="default-value" />
-                                            <Label htmlFor="default-value">
-                                                Set a default value
-                                            </Label>
-                                            <Info className="w-4 h-4 inline-block ml-1 text-gray-400" />
-                                        </div>
-
-                                        <div className="flex items-center gap-2">
-                                            <Checkbox id="set-limits" />
-                                            <Label htmlFor="set-limits">
-                                                Set limits
-                                            </Label>
-                                        </div>
-
-                                        <div className="flex items-center gap-2">
-                                            <Checkbox id="mark-optional" />
-                                            <Label htmlFor="mark-optional">
-                                                Mark as optional
-                                            </Label>
-                                        </div>
-                                    </div>
-                                )}
-                            </div>
-                        </CollapsibleContent>
-                    </Collapsible>
+                        </>}
                 </div>
-
-                <PaymentLinkPreview merchantName={merchantName} addedItems={addedItems} currency={currency}/>
+                {selectedTab === "payment" ?
+                    <PaymentLinkPreview merchantName={merchantName} addedItems={addedItems} currency={currency} cta={cta} customFields={customFieldsEnabled ? customFields : []} requirePhone={collectedData.requirePhone} />
+                    :
+                    <ConfirmationPagePreview useCustomPostPaymentMessage={useCustomMessage} customPostPaymentMessage={customMessage} showConfirmation={showConfirmation} merchantName={merchantName} addedItems={addedItems} currency={currency} cta={cta} customFields={customFieldsEnabled ? customFields : []} requirePhone={collectedData.requirePhone} />
+                }
+                
                 {/* <Button onClick={() => addedItems.map(item => console.log(`Currency: ${currency} Price: ${item.price}`))}>click me</Button> */}
             </div>
         </div>
