@@ -1,8 +1,11 @@
+// UI for users to select products to add to the payment link.
+
 import { useState, useEffect, useRef } from 'react';
 import { Search, Plus, MoreHorizontal, Box } from 'lucide-react';
 import { AddedItem, Product } from '@/pages/payment-links/new-payment-link';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { USD_TO_EURO } from '@/lib/exchange-rates';
+import { add } from 'date-fns';
 
 interface selectProductsProps {
     addedItems: AddedItem[];
@@ -260,6 +263,7 @@ const PaymentLinkProductSelector = ({ addedItems, setAddedItems, currency, isMai
                             <input
                                 type="number"
                                 value={linkProduct.quantity}
+                                disabled={linkProduct.allowQuantityAdjustment}
                                 min="1"
                                 onChange={(e) => handleQuantityChange(linkProduct.product, parseInt(e.target.value) || 1)}
                                 className="w-20 border border-gray-200 rounded px-2 py-1 text-sm"
@@ -270,7 +274,11 @@ const PaymentLinkProductSelector = ({ addedItems, setAddedItems, currency, isMai
                                     type="checkbox"
                                     id={`adjust-quantity-${linkProduct.product.id}`}
                                     checked={linkProduct.allowQuantityAdjustment}
-                                    onChange={() => handleToggleQuantityAdjustment(linkProduct.product)}
+                                    onChange={() => 
+                                    {
+                                        linkProduct.quantity = 1;
+                                        handleToggleQuantityAdjustment(linkProduct.product)}
+                                    }
                                     className="mr-2 h-4 w-4"
                                 />
                                 <label htmlFor={`adjust-quantity-${linkProduct.product.id}`} className="text-sm">
@@ -281,7 +289,6 @@ const PaymentLinkProductSelector = ({ addedItems, setAddedItems, currency, isMai
                     </div>
                 );
             })}
-
         </div>
     );
 };

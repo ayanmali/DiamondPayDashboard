@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import {
   Select,
   SelectContent,
+  SelectGroup,
   SelectItem,
   SelectTrigger,
   SelectValue
@@ -12,7 +13,7 @@ import {
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 
-import { Plus, CreditCard, Info, Phone, User } from 'lucide-react';
+import { Plus, CreditCard, Info, Phone, User, XIcon } from 'lucide-react';
 import { AddedItem, CustomField } from '@/pages/payment-links/new-payment-link';
 import { formatCryptoAmount } from '@/lib/utils';
 
@@ -45,24 +46,57 @@ export default function PaymentLinkPreview({
   customFields = [],
   requirePhone = false
 }: PaymentLinkPreviewProps) {
+  // const [cart, setCart] = useState<CartItem[]>(
+  //   addedItems.map(addedItem => ({ addedItem: addedItem, quantity: addedItem.isMain ? addedItem.quantity : 0 }))
+  // );
   const [cart, setCart] = useState<CartItem[]>(
-    addedItems.map(addedItem => ({ addedItem: addedItem, quantity: addedItem.isMain ? 1 : 0 }))
+    addedItems.filter(i => i.isMain).map(addedItem => ({ addedItem: addedItem, quantity: addedItem.quantity }))
   );
+
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'applepay'>('card');
 
   // sync cart with addedItems
+  // useEffect(() => {
+  //   setCart(prevCart =>
+  //     addedItems.map(addedItem => {
+  //       // Try to find the item in the previous cart
+  //       const existing = prevCart.find(c => c.addedItem.product.id === addedItem.product.id);
+  //       // for items that are already in the cart, keep their quantities the same
+  //       // else, set their quantity to 1 (for main products) or 0 (for recommended)
+  //       return {
+  //         addedItem,
+  //         quantity: addedItem.isMain ? addedItem.quantity : 0
+  //         // quantity: existing ? existing.quantity : (addedItem.isMain ? addedItem.quantity : 0),
+  //       };
+  //     })
+  //   );
+  // }, [addedItems]);
+
   useEffect(() => {
     setCart(prevCart =>
       addedItems.map(addedItem => {
-        // Try to find the item in the previous cart
+        if (addedItem.isMain) {
+          // For main items, keep their quantities the same
+          return {
+            addedItem,
+            quantity: addedItem.quantity
+          };
+        }
+        
+        // Check if the item already exists in the cart
         const existing = prevCart.find(c => c.addedItem.product.id === addedItem.product.id);
-        // for items that are already in the cart, keep their quantities the same
-        // else, set their quantity to 1 (for main products) or 0 (for recommended)
-        return {
-          addedItem,
-          quantity: existing ? existing.quantity : (addedItem.isMain ? 1 : 0),
-        };
-      })
+        if (existing) {
+          // If it exists, keep its quantity
+          return {
+            addedItem,
+            // quantity: Math.max(existing.quantity, addedItem.quantity)
+            quantity: addedItem.quantity
+          };
+        } 
+        
+        // If it's not a main item and doesn't exist in the cart, return null
+        return null;
+      }).filter(item => item !== null) // Filter out null values
     );
   }, [addedItems]);
 
@@ -86,13 +120,17 @@ export default function PaymentLinkPreview({
     ));
   };
 
+  const removeProduct = (addedItem: AddedItem) => {
+    setCart(cart.filter(i => i.addedItem.product.id !== addedItem.product.id));
+  }
+
   // Add product to cart
   const addProduct = (addedItem: AddedItem) => {
     const existingItem = cart.find(item => item.addedItem.product.id === addedItem.product.id);
     if (existingItem) {
       updateQuantity(addedItem, existingItem.quantity + 1);
     } else {
-      setCart([...cart, { addedItem: addedItem, quantity: 1 }]);
+      setCart([...cart, { addedItem: addedItem, quantity: addedItem.quantity }]);
     }
   };
 
@@ -159,13 +197,14 @@ export default function PaymentLinkPreview({
                   <div className="text-4xl font-bold mb-6">{totalAmount}</div>
 
                   {/* Cart Items */}
-                  <div className="space-y-4">
-                    {cartProducts.map((addedItem) => {
+                  <div className="space-y-5">
+                    {cartProducts.filter(i => i.isMain).map((addedItem) => {
                       const cartItem = cart.find(item => item.addedItem.product.id === addedItem.product.id);
                       const quantity = cartItem ? cartItem.quantity : 0;
                       const totalPrice = addedItem.price * quantity;
 
                       return (
+                        
                         <div key={addedItem.product.id} className="flex justify-between items-start">
                           <div>
                             <div className="text-gray-300">{addedItem.product.name}</div>
@@ -174,9 +213,77 @@ export default function PaymentLinkPreview({
                                 <div className="text-gray-400">
                                   Qty {quantity} -
                                 </div>
+
                                 <div className="text-gray-400 ml-1">
                                   {formatCryptoAmount(addedItem.price, currency)} each
                                 </div>
+                              </div>
+                            )}
+                            {addedItem.allowQuantityAdjustment && (
+                              <div className='flex items-center text-sm mt-2'>
+                                <input
+                                  type="number"
+                                  value={quantity}
+                                  min="1"
+                                  onChange={(e) => {
+                                    const newQuantity = parseInt(e.target.value) || 1;
+                                    updateQuantity(addedItem, newQuantity);
+                                  }}
+                                  className="w-20 border border-gray-200 rounded px-2 py-1 text-sm text-slate-700"
+                                />
+                                <span className="ml-2">Quantity</span>
+                              </div>
+                            )}
+                          </div>
+                          <div className="text-right">{formatCryptoAmount(totalPrice, currency)}</div>
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  <div className='border-t border-slate-500 mt-5 mb-5'></div>
+
+                  <div className="space-y-5 pb-5">
+                    {cartProducts.filter(i => !i.isMain).map((addedItem) => {
+                      const cartItem = cart.find(item => item.addedItem.product.id === addedItem.product.id);
+                      const quantity = cartItem ? cartItem.quantity : 0;
+                      const totalPrice = addedItem.price * quantity;
+
+                      return (
+                        <div key={addedItem.product.id} className="flex justify-between items-start">
+                          <div>
+                            <div className='flex items-center gap-x-4'>
+                              {!addedItem.isMain &&
+                                <Button variant="link" className='w-1 h-1' onClick={() => removeProduct(addedItem)}>
+                                  <XIcon className='h-4 w-4 text-white'/>
+                                </Button>
+                              }
+                              <div className="text-gray-300">{addedItem.product.name}</div>
+                            </div>
+                            {quantity > 1 && (
+                              <div className="flex items-center text-sm">
+                                <div className="text-gray-400">
+                                  Qty {quantity} -
+                                </div>
+
+                                <div className="text-gray-400 ml-1">
+                                  {formatCryptoAmount(addedItem.price, currency)} each
+                                </div>
+                              </div>
+                            )}
+                            {addedItem.allowQuantityAdjustment && (
+                              <div className='flex items-center text-sm mt-2'>
+                                <input
+                                  type="number"
+                                  value={quantity}
+                                  min="1"
+                                  onChange={(e) => {
+                                    const newQuantity = parseInt(e.target.value) || 1;
+                                    updateQuantity(addedItem, newQuantity);
+                                  }}
+                                  className="w-20 border border-gray-200 rounded px-2 py-1 text-sm text-slate-700"
+                                />
+                                <span className="ml-2">Quantity</span>
                               </div>
                             )}
                           </div>
@@ -200,16 +307,31 @@ export default function PaymentLinkPreview({
                               <div className="text-white">{item.product.name}</div>
                               <div className="text-gray-400 text-sm">{item.product.description}</div>
                             </div>
-                            <div>{formatCryptoAmount(item.price, currency)}</div>
+                            <div>{formatCryptoAmount(item.price * item.quantity, currency)}</div>
                           </div>
-                          <Button
-                            variant="ghost"
-                            className="mt-2 text-white hover:bg-slate-500"
-                            size="sm"
-                            onClick={() => addProduct(item)}
-                          >
-                            <Plus className="h-4 w-4 mr-1" /> Add
-                          </Button>
+
+                          {item.quantity > 1 && (
+                            <div className="flex items-center text-sm">
+                              <div className="text-gray-400">
+                                Qty {item.quantity} -
+                              </div>
+
+                              <div className="text-gray-400 ml-1">
+                                {formatCryptoAmount(item.price, currency)} each
+                              </div>
+                            </div>
+                          )}
+
+                          {!cart.map(i => i.addedItem.product.id).includes(item.product.id) &&
+                            <Button
+                              variant="ghost"
+                              className="mt-2 text-white hover:bg-slate-500"
+                              size="sm"
+                              onClick={() => addProduct(item)}
+                            >
+                              <Plus className="h-4 w-4 mr-1" /> Add
+                            </Button>
+                          }
                         </div>
                       )}
 
@@ -257,7 +379,7 @@ export default function PaymentLinkPreview({
 
                         <div className="mb-5">
                           <h3 className="text-gray-700 font-medium mb-2">Contact information</h3>
-                          
+
                           <div className="space-y-4">
                             {/* Name */}
                             <div className="relative">
@@ -267,7 +389,7 @@ export default function PaymentLinkPreview({
                                 className="pl-10"
                               />
                               <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                <User className='text-muted-foreground h-5 w-5'/>
+                                <User className='text-muted-foreground h-5 w-5' />
 
                               </div>
                             </div>
@@ -288,19 +410,19 @@ export default function PaymentLinkPreview({
 
                             {/* phone number */}
                             {requirePhone &&
-                            <div className="relative">
-                              <Input
-                                type="tel"
-                                placeholder="(201) 555-0123"
-                                className="pl-10"
-                              />
-                              <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
-                                <div className="flex items-center">
-                                  <span className="text-xs mr-1"><Phone className='w-4 h-4 text-muted-foreground' /></span>
+                              <div className="relative">
+                                <Input
+                                  type="tel"
+                                  placeholder="(201) 555-0123"
+                                  className="pl-10"
+                                />
+                                <div className="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none">
+                                  <div className="flex items-center">
+                                    <span className="text-xs mr-1"><Phone className='w-4 h-4 text-muted-foreground' /></span>
+                                  </div>
                                 </div>
-                              </div>
 
-                            </div>
+                              </div>
                             }
 
                           </div>
@@ -468,7 +590,7 @@ export default function PaymentLinkPreview({
                       >
                         {cta}
                       </Button>
-                      
+
                       <div className='pt-5 text-muted-foreground w-full flex items-center justify-center'>
                         <span className='text-center text-xs'>Powered by DiamondPay</span>
                       </div>
@@ -476,10 +598,10 @@ export default function PaymentLinkPreview({
                         <span className='text-center text-xs'>Terms  Privacy</span>
                       </div>
 
-                      <div>
+                      {addedItems.map(item => <span>{item.product.name},   Qty={item.quantity} ---------</span>)}
+                      <span> //////////////////// </span>
                       {cart.map(item => <span>{item.addedItem.product.name},   Qty={item.quantity} ---------</span>)}
 
-                      </div>
                     </div>
                   </>
                 )}

@@ -194,7 +194,7 @@ export default function ConfirmationPagePreview({
                                             );
                                         })}
                                     </div>
-                                    
+
 
                                 </div>
                             </div>
@@ -232,7 +232,7 @@ export default function ConfirmationPagePreview({
                               Apple Pay
                             </Button>
                           </div> */}
-                                                </div> 
+                                                </div>
 
                                                 {/* Card Information */}
                                                 {/* <div className="mb-4">
@@ -303,27 +303,27 @@ export default function ConfirmationPagePreview({
 
                                             {/* Checkmark */}
                                             <div className='w-full flex items-center justify-center'>
-                                                <CiCircleCheck className='text-green-400 h-20 w-20'/>
+                                                <CiCircleCheck className='text-green-400 h-20 w-20' />
                                             </div>
-                                            
+
                                             {/* Post payment message */}
                                             <div className='text-muted-foreground w-full flex items-center justify-center'>
                                                 <span className='font-medium text-lg'>{useCustomPostPaymentMessage ? customPostPaymentMessage : "Thanks for your payment"}</span>
                                             </div>
 
                                             <div className="border border-gray-300 rounded-lg p-4 max-w-md mx-auto">
-            <div className="flex justify-between items-center">
-                <h2 className="font-semibold text-lg">{merchantName}</h2>
-                <span className="text-gray-500">{"44.44"}</span>
-            </div>
-            <hr className="my-2 border-dashed" />
+                                                <div className="flex justify-between items-center">
+                                                    <h2 className="font-medium text-lg">{merchantName}</h2>
+                                                    <span className="text-slate-800">{formatCryptoAmount(44.44, currency)}</span>
+                                                </div>
+                                                <hr className="my-2 border-dashed" />
 
-        </div>
-                                                
+                                            </div>
+
                                             <div className='text-muted-foreground w-full flex items-center justify-center'>
                                                 <span className=''>A receipt will be sent to your email shortly.</span>
                                             </div>
-                                            
+
                                             <div className='pt-5 text-muted-foreground w-full flex items-center justify-center'>
                                                 <span className='text-center text-xs'>Powered by DiamondPay</span>
                                             </div>
