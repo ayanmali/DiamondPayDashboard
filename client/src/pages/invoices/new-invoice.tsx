@@ -10,8 +10,10 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CustomerCombobox } from "../../components/invoices/customer-combobox";
 import { Customer } from "@/pages/customers/customers";
-import { formatDate } from "@/lib/utils";
+import { formatCryptoAmount, formatDate } from "@/lib/utils";
 import { Link } from "wouter";
+import PaymentLinkProductSelector from "@/components/payment-links/select-products";
+import { AddedItem } from "../payment-links/new-payment-link";
 
 // Types
 interface LineItem {
@@ -36,7 +38,7 @@ interface InvoicePreviewProps {
     currency: string;
     //dueDate: DueOption;
     dateDue: Date
-    items: LineItem[];
+    items: AddedItem[];
     customFields: CustomFields;
 }
 
@@ -114,7 +116,13 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
     items,
     customFields
 }) => {
-    const total = items.reduce((sum, item) => sum + item.price * item.qty, 0);
+    const total = items.reduce(
+        (sum, item) => {
+            return currency 
+            ? sum + item.price * item.quantity
+            : sum + item.product.amount * item.quantity;
+        }, 0
+    );
 
     return (
         <div className="p-6 bg-white rounded shadow w-full">
@@ -125,6 +133,18 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                         <span className="font-semibold">Invoice number:</span>
                         <span>EXAMPLE-0001</span>
                         {/* {formatDate(new Date()) || " —"} */}
+                </div>
+
+                {/* Date issued */}
+                <div className="flex items-center gap-x-1">
+                    <span className="font-semibold">Date Issued:</span>
+                    {formatDate(new Date()) || " —"}
+                </div>
+
+                {/* Date due */}
+                <div className="flex items-center gap-x-1">
+                    <span className="font-semibold">Date Due:</span>
+                    {formatDate(dateDue) || " —"}
                 </div>
 
                 {/* Vendor and customer info */}
@@ -143,22 +163,14 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                     </div>
                 </div>
 
-                {/* Date issued */}
-                <div className="flex items-center gap-x-1">
-                    <span className="font-semibold">Date Issued:</span>
-                    {formatDate(new Date()) || " —"}
+                <div className="font-semibold text-xl mt-5">
+                    {currency ? formatCryptoAmount(total, currency) : "0 USDC"} due {formatDate(dateDue)}
                 </div>
 
-                {/* Date due */}
-                <div className="flex items-center gap-x-1">
-                    <span className="font-semibold">Date Due:</span>
-                    {formatDate(dateDue) || " —"}
+                <div className="font-medium mt-5 mb-16">
+                    Pay online
                 </div>
 
-                <div className="flex items-center gap-x-1">
-                    <span className="font-semibold">Currency:</span>
-                    {currency || "—"}
-                </div>
                 {customFields.memo && <div className="my-3">{customFields.memo}</div>}
 
                 {Object.entries(customFields.fields).map(([key, value]) => (
@@ -168,7 +180,7 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
             <table className="w-full text-left border-collapse">
                 <thead>
                     <tr>
-                        <th className="font-semibold">Description</th>
+                        <th className="font-semibold">Item</th>
                         <th className="text-right font-semibold">Qty</th>
                         <th className="text-right font-semibold">Unit Price</th>
                         <th className="text-right font-semibold">Amount</th>
@@ -177,17 +189,17 @@ const InvoicePreview: React.FC<InvoicePreviewProps> = ({
                 <tbody>
                     {items.map((item, idx) => (
                         <tr key={idx}>
-                            <td>{item.desc}</td>
-                            <td className="text-right">{item.qty}</td>
-                            <td className="text-right">{currency} {item.price.toFixed(2)}</td>
-                            <td className="text-right">{currency} {(item.price * item.qty).toFixed(2)}</td>
+                            <td>{item.product.name}</td>
+                            <td className="text-right">{item.quantity}</td>
+                            <td className="text-right">{currency ? formatCryptoAmount(item.price, currency) : formatCryptoAmount(item.product.amount, item.product.currency)}</td>
+                            <td className="text-right">{currency ? formatCryptoAmount((item.price * item.quantity), currency) : formatCryptoAmount(item.product.amount * item.quantity, item.product.currency)}</td>
                         </tr>
                     ))}
                 </tbody>
                 <tfoot>
                     <tr>
                         <td colSpan={3} className="text-right font-semibold">Total</td>
-                        <td className="text-right font-semibold">{currency} {total.toFixed(2)}</td>
+                        <td className="text-right font-semibold">{formatCryptoAmount(total, currency)}</td>
                     </tr>
                 </tfoot>
             </table>
@@ -236,6 +248,7 @@ function InvoiceHeader() {
 const NewInvoicePage: React.FC = () => {
     const [customer, setCustomer] = useState<Customer | null>(null);
     const [currency, setCurrency] = useState<string>("");
+    const [addedItems, setAddedItems] = useState<AddedItem[]>(new Array<AddedItem>());
     const [dueOption, setDueOption] = useState<string>("");
     const [customDate, setCustomDate] = useState<string>("");
     const [items, setItems] = useState<LineItem[]>([{ desc: "", qty: 1, price: 0 }]);
@@ -390,93 +403,27 @@ const NewInvoicePage: React.FC = () => {
 
                 {/* Line Items */}
                 <div className="mb-4">
-                    <h2 className="font-medium mb-2">Line Items</h2>
-                    {/* column of labels */}
-                    {
-                        items.length > 0 &&
-                        <div className="grid grid-cols-4 gap-4">
-                            <label htmlFor={`description-0`} className="block text-sm font-medium text-gray-600">
-                                Description
-                            </label>
-                            <label htmlFor={`quantity-0`} className="block text-sm font-medium text-gray-600">
-                                Qty
-                            </label>
-                            <label htmlFor={`unitPrice-0`} className="block text-sm font-medium text-gray-600">
-                                Unit price
-                            </label>
-                            <span /> {/* Empty for alignment with remove button */}
-                        </div>
-                    }
-
-                    {/* inputs row */}
-                    {items.map((item, idx) => (
-                        <div key={idx} className="grid grid-cols-4 gap-4 items-center pt-2 pb-2">
-                            {/* Description */}
-                            <div>
-                                <input
-                                    id={`description-${idx}`}
-                                    type="text"
-                                    value={item.desc}
-                                    onChange={e => updateItem(idx, "desc", e.target.value)}
-                                    placeholder="Description"
-                                    className="w-full border rounded px-3 py-2"
-                                />
-                            </div>
-
-                            {/* Quantity */}
-                            <div>
-                                <input
-                                    id={`quantity-${idx}`}
-                                    type="number"
-                                    min={0}
-                                    value={item.qty}
-                                    onChange={e => updateItem(idx, "qty", e.target.value)}
-                                    className="w-full border rounded px-3 py-2"
-                                />
-                            </div>
-
-                            {/* Unit Price */}
-                            <div>
-                                <input
-                                    id={`unitPrice-${idx}`}
-                                    type="number"
-                                    min={0}
-                                    value={item.price}
-                                    onChange={e => updateItem(idx, "price", e.target.value)}
-                                    className="w-full border rounded px-3 py-2"
-                                />
-                            </div>
-
-                            {/* Remove button */}
-                            <div className="flex justify-end">
-                                <Button variant="ghost" onClick={() => removeItem(idx)}>✕</Button>
-                            </div>
-                        </div>
-                    ))}
-
-                    <button
-                        type="button"
-                        onClick={addItem}
-                        className="mt-2 px-4 py-2 bg-gray-100 rounded-md hover:bg-gray-200 text-sm"
-                    >
-                        Add line item
-                    </button>
+                    <PaymentLinkProductSelector addedItems={addedItems} setAddedItems={setAddedItems} currency={currency} isMain={true} invoice={true}/>
                 </div>
 
                 {/* Custom Fields */}
                 <div className="mb-4">
-                    <h2 className="font-medium mb-2">Custom Fields</h2>
+                    <h2 className="font-medium mb-3">Custom Fields</h2>
                     {/* <Checkbox checked onCheckedChange={() => { }} className="mb-2">Memo</Checkbox> */}
+                    <h3 className="font-normal text-sm mb-1">Memo</h3>
                     <Input
-                        placeholder="Memo"
+                        placeholder="Thanks for your business!"
                         value={memo}
                         onChange={(e: ChangeEvent<HTMLInputElement>) => setMemo(e.target.value)}
                         className="mb-2"
                     />
 
+                    <div className="pt-2 pb-2"></div>
+
+                    <h3 className="font-normal text-sm mb-1">Footer</h3>
                     {/* <Checkbox checked onCheckedChange={() => { }} className="mb-2">Footer</Checkbox> */}
                     <Input
-                        placeholder="Footer"
+                        placeholder="Thanks for your business!"
                         value={footer}
                         onChange={(e: ChangeEvent<HTMLInputElement>) => setFooter(e.target.value)}
                         className="mb-2"
@@ -519,7 +466,7 @@ const NewInvoicePage: React.FC = () => {
                     currency={currency}
                     //dueDate={dueOptions.find(o => o.value === dueOption) || { value: '', label: '' }}
                     dateDue={getDateDue()}
-                    items={items}
+                    items={addedItems}
                     customFields={{ memo, footer, fields }}
                 />
             </div>

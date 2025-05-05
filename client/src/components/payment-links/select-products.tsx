@@ -5,16 +5,17 @@ import { Search, Plus, MoreHorizontal, Box } from 'lucide-react';
 import { AddedItem, Product } from '@/pages/payment-links/new-payment-link';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from '../ui/dropdown-menu';
 import { USD_TO_EURO } from '@/lib/exchange-rates';
-import { add } from 'date-fns';
+import NewProductSheet from './new-product';
 
 interface selectProductsProps {
     addedItems: AddedItem[];
     setAddedItems: (v: AddedItem[]) => void;
     currency: string;
     isMain: boolean;
+    invoice: boolean;
 }
 
-const PaymentLinkProductSelector = ({ addedItems, setAddedItems, currency, isMain }: selectProductsProps) => {
+const PaymentLinkProductSelector = ({ addedItems, setAddedItems, currency, isMain, invoice }: selectProductsProps) => {
     // Sample products (in a real app this would come from an API)
     const [products, setProducts] = useState<Product[]>([
         { id: '1', name: 'Basic Subscription', description: "Basic subscription plan", amount: 9.99, currency: "USDC" },
@@ -22,6 +23,7 @@ const PaymentLinkProductSelector = ({ addedItems, setAddedItems, currency, isMai
         { id: '3', name: 'Enterprise Solution', amount: 99.99, description: "Enterprise plan with greater usage capacity", currency: "USDT" },
         { id: '4', name: 'One-time Service', description: "One-off service charge", amount: 49.99, currency: "EURC" },
     ]);
+    const [openNewProductSheet, setOpenNewProductSheet] = useState(false);
 
     useEffect(() => {
         // Only update if at least one item's price is out of sync with the currency
@@ -42,7 +44,7 @@ const PaymentLinkProductSelector = ({ addedItems, setAddedItems, currency, isMai
 
     // helper function
     function getPriceFromProduct(product: Product) {
-        if ( currency.toLowerCase() === product.currency.toLowerCase() || currency.substring(0,3).toLowerCase() === product.currency.substring(0,3).toLowerCase()) {
+        if (currency.toLowerCase() === product.currency.toLowerCase() || currency.substring(0, 3).toLowerCase() === product.currency.substring(0, 3).toLowerCase()) {
             return product.amount;
         }
 
@@ -57,7 +59,7 @@ const PaymentLinkProductSelector = ({ addedItems, setAddedItems, currency, isMai
         }
 
         return -1;
-        
+
     }
 
     // State for the products added to the payment link
@@ -75,7 +77,7 @@ const PaymentLinkProductSelector = ({ addedItems, setAddedItems, currency, isMai
 
     // Filter products based on search query
     const filteredProducts = products.filter(product =>
-        product.name.toLowerCase().includes(searchQuery.toLowerCase()) 
+        product.name.toLowerCase().includes(searchQuery.toLowerCase())
         && !addedItems.map(item => item.product.id).includes(product.id)
     );
 
@@ -110,7 +112,7 @@ const PaymentLinkProductSelector = ({ addedItems, setAddedItems, currency, isMai
         // }
         setAddedItems([
             ...addedItems,
-            { product: product, quantity: 1, allowQuantityAdjustment: false, price: getPriceFromProduct(product), isMain: isMain}
+            { product: product, quantity: 1, allowQuantityAdjustment: false, price: getPriceFromProduct(product), isMain: isMain }
         ]);
         setIsComboboxOpen(false);
         setSearchQuery('');
@@ -133,7 +135,7 @@ const PaymentLinkProductSelector = ({ addedItems, setAddedItems, currency, isMai
 
     // Handle removing a product from the payment link
     const handleRemoveProduct = (product: Product) => {
-        setAddedItems(addedItems.filter(p => p.product.id !== product.id) );
+        setAddedItems(addedItems.filter(p => p.product.id !== product.id));
     };
 
     // Handle editing quantity
@@ -176,13 +178,9 @@ const PaymentLinkProductSelector = ({ addedItems, setAddedItems, currency, isMai
 
                 {isComboboxOpen && (
                     <div className="absolute w-full bg-white border border-gray-200 rounded-md mt-1 shadow-lg z-10">
-                        <div
-                            className="p-2 border-b border-gray-200 hover:bg-gray-50 cursor-pointer flex items-center"
-                            onClick={handleAddNewProduct}
-                        >
-                            <Plus className="w-4 h-4 mr-2 text-violet-500" />
-                            <span className="text-sm">Add new product</span>
-                        </div>
+
+                        <NewProductSheet />
+
                         {filteredProducts.map(product => (
                             <div
                                 key={product.id}
@@ -196,7 +194,7 @@ const PaymentLinkProductSelector = ({ addedItems, setAddedItems, currency, isMai
                                 <div className="text-xs text-gray-500">
                                     {`${product.amount.toFixed(2)} ${product.currency}`}
                                 </div>
-                                
+
                             </div>
                         ))}
                         {filteredProducts.length === 0 && searchQuery && (
@@ -210,85 +208,87 @@ const PaymentLinkProductSelector = ({ addedItems, setAddedItems, currency, isMai
 
             {/* Selected Products */}
             {addedItems
-            .filter(item => item.isMain === isMain) // display main products under Products, display recommended products under Recommended Products
-            .map((linkProduct, index) => {
-                const product = products.find(p => p.id === linkProduct.product.id);
-                if (!product) return null;
+                .filter(item => item.isMain === isMain) // display main products under Products, display recommended products under Recommended Products
+                .map((linkProduct, index) => {
+                    const product = products.find(p => p.id === linkProduct.product.id);
+                    if (!product) return null;
 
-                return (
-                    <div key={linkProduct.product.id} className="bg-white border border-gray-200 rounded-md mb-4 p-4">
-                        <div className="flex items-center mb-2">
-                            <div className="bg-gray-100 w-12 h-12 rounded-md flex items-center justify-center mr-3">
-                                <Box className="w-6 h-6 text-gray-400" />
-                            </div>
-                            <div>
-                                <div className="font-medium">{product.name}</div>
-                                <div className="text-sm text-gray-500">
-                                    {`${product.amount} ${product.currency}`}
+                    return (
+                        <div key={linkProduct.product.id} className="bg-white border border-gray-200 rounded-md mb-4 p-4">
+                            <div className="flex items-center mb-2">
+                                <div className="bg-gray-100 w-12 h-12 rounded-md flex items-center justify-center mr-3">
+                                    <Box className="w-6 h-6 text-gray-400" />
+                                </div>
+                                <div>
+                                    <div className="font-medium">{product.name}</div>
+                                    <div className="text-sm text-gray-500">
+                                        {`${product.amount} ${product.currency}`}
+                                    </div>
+                                </div>
+                                <div className="ml-auto">
+
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <button className="text-gray-400 hover:text-gray-600">
+                                                <MoreHorizontal className="w-5 h-5" />
+                                            </button>
+                                        </DropdownMenuTrigger>
+
+                                        <DropdownMenuContent className="w-56">
+                                            <DropdownMenuGroup>
+                                                <DropdownMenuItem>
+                                                    Edit product
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => handleRemoveProduct(linkProduct.product)} className='text-red-700'>
+                                                    Remove product
+                                                </DropdownMenuItem>
+                                            </DropdownMenuGroup>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
+
                                 </div>
                             </div>
-                            <div className="ml-auto">
-                                
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                    <button className="text-gray-400 hover:text-gray-600">
-                                    <MoreHorizontal className="w-5 h-5" />
-                                </button>
-                                    </DropdownMenuTrigger>
 
-                                    <DropdownMenuContent className="w-56">
-                                        <DropdownMenuGroup>
-                                            <DropdownMenuItem>
-                                                Edit product
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem onClick={() => handleRemoveProduct(linkProduct.product)} className='text-red-700'>
-                                                Remove product
-                                            </DropdownMenuItem>
-                                        </DropdownMenuGroup>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-
+                            <div className="bg-gray-100 text-sm px-2 py-1 rounded-md inline-block mb-2">
+                                Product tax code: General - Electronically Supplied Services
                             </div>
-                        </div>
 
-                        <div className="bg-gray-100 text-sm px-2 py-1 rounded-md inline-block mb-2">
-                            Product tax code: General - Electronically Supplied Services
-                        </div>
+                            <div className="bg-gray-100 text-sm px-2 py-1 rounded-md inline-block ml-5">
+                                Tax included in price: No
+                            </div>
 
-                        <div className="bg-gray-100 text-sm px-2 py-1 rounded-md inline-block ml-5">
-                            Tax included in price: No
-                        </div>
-
-                        <div className="mt-4 flex items-center gap-4">
-                            <input
-                                type="number"
-                                value={linkProduct.quantity}
-                                disabled={linkProduct.allowQuantityAdjustment}
-                                min="1"
-                                onChange={(e) => handleQuantityChange(linkProduct.product, parseInt(e.target.value) || 1)}
-                                className="w-20 border border-gray-200 rounded px-2 py-1 text-sm"
-                            />
-                            <span className="text-sm">Quantity</span>
-                            <div className="flex items-center">
+                            <div className="mt-4 flex items-center gap-4">
                                 <input
-                                    type="checkbox"
-                                    id={`adjust-quantity-${linkProduct.product.id}`}
-                                    checked={linkProduct.allowQuantityAdjustment}
-                                    onChange={() => 
-                                    {
-                                        linkProduct.quantity = 1;
-                                        handleToggleQuantityAdjustment(linkProduct.product)}
-                                    }
-                                    className="mr-2 h-4 w-4"
+                                    type="number"
+                                    value={linkProduct.quantity}
+                                    disabled={linkProduct.allowQuantityAdjustment}
+                                    min="1"
+                                    onChange={(e) => handleQuantityChange(linkProduct.product, parseInt(e.target.value) || 1)}
+                                    className="w-20 border border-gray-200 rounded px-2 py-1 text-sm"
                                 />
-                                <label htmlFor={`adjust-quantity-${linkProduct.product.id}`} className="text-sm">
-                                    Let customers adjust quantity
-                                </label>
+                                <span className="text-sm">Quantity</span>
+                                {!invoice &&
+                                    <div className="flex items-center">
+                                        <input
+                                            type="checkbox"
+                                            id={`adjust-quantity-${linkProduct.product.id}`}
+                                            checked={linkProduct.allowQuantityAdjustment}
+                                            onChange={() => {
+                                                linkProduct.quantity = 1;
+                                                handleToggleQuantityAdjustment(linkProduct.product)
+                                            }
+                                            }
+                                            className="mr-2 h-4 w-4"
+                                        />
+                                        <label htmlFor={`adjust-quantity-${linkProduct.product.id}`} className="text-sm">
+                                            Let customers adjust quantity
+                                        </label>
+                                    </div>
+                                }
                             </div>
                         </div>
-                    </div>
-                );
-            })}
+                    );
+                })}
         </div>
     );
 };

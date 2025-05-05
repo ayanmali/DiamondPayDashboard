@@ -76,7 +76,8 @@ const merchantName = "DiamondPay";
 const MAX_LABEL_NAME_LENGTH = 30;
 const MAX_LABEL_DEFAULT_VALUE_LENGTH = 50;
 const MIN_LABEL_NAME_LENGTH = 1;
-const testWallets: Wallet[] = [
+
+export const testWallets: Wallet[] = [
     {
         id: "1",
         name: "MyWallet",
@@ -124,10 +125,11 @@ function PaymentLinksHeader() {
                 {/* <button className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-md border border-solid">
                     Hide preview
                 </button> */}
-
-                <button className="px-4 py-1.5 bg-[#7C3AED] text-white rounded-md text-sm font-medium hover:bg-[#6D28D9]">
-                    Create link
-                </button>
+                <Link href="/payment-links/id">
+                    <button className="px-4 py-1.5 bg-[#7C3AED] text-white rounded-md text-sm font-medium hover:bg-[#6D28D9]">
+                        Create link
+                    </button>
+                </Link>
             </div>
         </header>
     );
@@ -275,8 +277,8 @@ export default function NewPaymentLinkPage() {
 
                             </div>
 
-                            <PaymentLinkProductSelector addedItems={addedItems} setAddedItems={setAddedItems} currency={currency} isMain={true} />
-                            <PaymentLinkProductSelector addedItems={addedItems} setAddedItems={setAddedItems} currency={currency} isMain={false} />
+                            <PaymentLinkProductSelector addedItems={addedItems} setAddedItems={setAddedItems} currency={currency} isMain={true} invoice={false} />
+                            <PaymentLinkProductSelector addedItems={addedItems} setAddedItems={setAddedItems} currency={currency} isMain={false} invoice={false} />
 
                             <div className="mb-8">
                                 <h3 className="text-base font-medium mb-4">Options</h3>

@@ -598,10 +598,6 @@ export default function PaymentLinkPreview({
                         <span className='text-center text-xs'>Terms  Privacy</span>
                       </div>
 
-                      {addedItems.map(item => <span>{item.product.name},   Qty={item.quantity} ---------</span>)}
-                      <span> //////////////////// </span>
-                      {cart.map(item => <span>{item.addedItem.product.name},   Qty={item.quantity} ---------</span>)}
-
                     </div>
                   </>
                 )}
