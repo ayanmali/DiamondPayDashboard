@@ -272,13 +272,13 @@ export function NewCustomerForm({ open, onOpenChange, sameAsAccountEmailChecked,
                     render={({ field }) => (
                         <FormItem>
                             <FormLabel className="flex items-center">
-                                Timezone
+                                Time zone
                                 <InfoTooltip text="The timezone where the customer resides in." />
                             </FormLabel>
                             <FormControl>
                                 <Select value={field.value} onValueChange={field.onChange}>
                                     <SelectTrigger className="w-full">
-                                        <SelectValue placeholder="Select a timezone" />
+                                        <SelectValue placeholder="Select a time zone" />
                                     </SelectTrigger>
                                     <SelectContent>
                                         <SelectGroup>

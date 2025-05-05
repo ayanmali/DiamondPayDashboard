@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Check, ChevronsUpDown } from "lucide-react"
+import { Check, ChevronsUpDown, Plus } from "lucide-react"
 
 import { cn } from "@/lib/utils"
 import { Button } from "@/components/ui/button"
@@ -45,24 +45,33 @@ import { nullable } from "zod"
 // ]
 
 interface customerComboBoxProps {
-    customers: Customer[]; // the customers array
-    onSelect: (customerObj: Customer | null) => void; // sets the selected customer
-    setCurrency: (currency: string) => void;
+  customers: Customer[]; // the customers array
+  onSelect: (customerObj: Customer | null) => void; // sets the selected customer
+  setCurrency: (currency: string) => void;
+  newCustomerOpen: boolean;
+  setNewCustomerOpen: (v: boolean) => void;
 }
 
-export function CustomerCombobox({ customers, onSelect, setCurrency }: customerComboBoxProps) {
+export function CustomerCombobox({ customers, onSelect, setCurrency, newCustomerOpen, setNewCustomerOpen }: customerComboBoxProps) {
   const [open, setOpen] = React.useState(false)
   const [value, setValue] = React.useState("")
 
   const customerOptions = customers.map(customer => ({
     value: customer.name.toLowerCase(),
-    label: 
-    <div className="flex items-center gap-x-5">
+    label:
+      <div className="flex items-center gap-x-5">
         {customer.name}
         <span className="text-muted-foreground">{customer.email}</span>
-    </div>,
+      </div>,
     customerObj: customer,
   }));
+
+  const handleAddCustomer = () => {
+    // Logic to add a new customer
+    // This could open a modal or redirect to a new customer form
+    setNewCustomerOpen(true);    
+    // You can implement your logic here, e.g., opening a modal
+  };
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -80,8 +89,15 @@ export function CustomerCombobox({ customers, onSelect, setCurrency }: customerC
         </Button>
       </PopoverTrigger>
       <PopoverContent className="w-full p-0">
+
         <Command>
-          <CommandInput placeholder="Search customer..." className="h-9"/>
+          <CommandInput placeholder="Search customer..." className="h-9" />
+          <div className="flex items-center">
+            <Button variant="link" onClick={handleAddCustomer} className="flex items-center">
+              <Plus className="h-5 w-5"/>
+              <span>Add New Customer</span>
+            </Button>
+          </div>
           <CommandList>
             <CommandEmpty>No customer found.</CommandEmpty>
             <CommandGroup>
@@ -108,6 +124,7 @@ export function CustomerCombobox({ customers, onSelect, setCurrency }: customerC
             </CommandGroup>
           </CommandList>
         </Command>
+
       </PopoverContent>
     </Popover>
   )

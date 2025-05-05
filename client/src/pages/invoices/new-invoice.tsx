@@ -16,6 +16,7 @@ import PaymentLinkProductSelector from "@/components/payment-links/select-produc
 import { AddedItem, testWallets } from "../payment-links/new-payment-link";
 import { InfoTooltip } from "@/components/tooltips/info-tooltip";
 import { Wallet } from "../wallets";
+import { AddNewCustomer } from "@/components/customers/add-new-customer";
 
 // Types
 interface LineItem {
@@ -249,6 +250,7 @@ function InvoiceHeader() {
 // Main Invoice Page
 const NewInvoicePage: React.FC = () => {
     const [customer, setCustomer] = useState<Customer | null>(null);
+    const [newCustomerOpen, setNewCustomerOpen] = useState(false);
     const [currency, setCurrency] = useState<string>("");
     const [addedItems, setAddedItems] = useState<AddedItem[]>(new Array<AddedItem>());
     const [wallet, setWallet] = useState<Wallet>(testWallets[0]);
@@ -351,9 +353,11 @@ const NewInvoicePage: React.FC = () => {
                         value={customer}
                         onChange={(e: ChangeEvent<HTMLInputElement>) => setCustomer(e.target.value)}
                     /> */}
-                    <CustomerCombobox customers={sampleCustomersData} onSelect={setCustomer} setCurrency={setCurrency}/>
+                    <CustomerCombobox customers={sampleCustomersData} onSelect={setCustomer} setCurrency={setCurrency} newCustomerOpen={newCustomerOpen} setNewCustomerOpen={setNewCustomerOpen}/>
 
                 </div>
+
+                {newCustomerOpen && <AddNewCustomer open={newCustomerOpen} onOpenChange={setNewCustomerOpen}/>}
 
                 {/* Currency */}
                 <div className="mb-4">
