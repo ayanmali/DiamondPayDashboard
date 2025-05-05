@@ -10,10 +10,12 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CustomerCombobox } from "../../components/invoices/customer-combobox";
 import { Customer } from "@/pages/customers/customers";
-import { formatCryptoAmount, formatDate } from "@/lib/utils";
+import { formatCryptoAmount, formatDate, truncateAddress } from "@/lib/utils";
 import { Link } from "wouter";
 import PaymentLinkProductSelector from "@/components/payment-links/select-products";
-import { AddedItem } from "../payment-links/new-payment-link";
+import { AddedItem, testWallets } from "../payment-links/new-payment-link";
+import { InfoTooltip } from "@/components/tooltips/info-tooltip";
+import { Wallet } from "../wallets";
 
 // Types
 interface LineItem {
@@ -249,6 +251,7 @@ const NewInvoicePage: React.FC = () => {
     const [customer, setCustomer] = useState<Customer | null>(null);
     const [currency, setCurrency] = useState<string>("");
     const [addedItems, setAddedItems] = useState<AddedItem[]>(new Array<AddedItem>());
+    const [wallet, setWallet] = useState<Wallet>(testWallets[0]);
     const [dueOption, setDueOption] = useState<string>("");
     const [customDate, setCustomDate] = useState<string>("");
     const [items, setItems] = useState<LineItem[]>([{ desc: "", qty: 1, price: 0 }]);
@@ -370,6 +373,44 @@ const NewInvoicePage: React.FC = () => {
                         </SelectContent>
                     </Select>
                 </div>
+
+                <div className="mb-8">
+                                <div className="flex items-center">
+                                    <h3 className="text-base font-medium">Select wallet</h3>
+                                    <InfoTooltip text="The wallet in which you will receive payment." />
+                                </div>
+
+                                <Select
+                                    value={wallet.name}
+                                    onValueChange={v =>
+                                        setWallet(
+                                            testWallets.find(w => w.name === v) as Wallet
+                                        )
+                                    }
+                                    defaultValue={wallet.name}
+                                >
+                                    <SelectTrigger className="w-full mt-2">
+                                        <SelectValue placeholder="Select wallet" />
+                                    </SelectTrigger>
+
+                                    <SelectContent>
+                                        {testWallets.map(w => (
+                                            <SelectItem key={w.id} value={w.name}>
+                                                <div>
+                                                    <div className="font-medium">{w.name}</div>
+                                                    <div className="text-sm text-gray-500">{truncateAddress(w.address)}</div>
+                                                </div>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <span className="text-sm text-muted-foreground">
+                                    {wallet.walletType === "EVM" ? "This invoice will accept payments from any EVM blockchain (Base, Polygon, Optimism, etc.)."
+                                        : wallet.walletType === "SOL" ? "This invoice will accept payment only on the Solana network." : ""}
+                                </span>
+
+
+                            </div>
 
                 {/* Due Date */}
                 <div className="mb-4">
