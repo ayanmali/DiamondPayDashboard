@@ -18,6 +18,7 @@ import Invoices from "./pages/invoices/invoices";
 import PaymentLinks from "./pages/payment-links/payment-links";
 import NewInvoicePage from "./pages/invoices/new-invoice";
 import NewPaymentLinkPage from "./pages/payment-links/new-payment-link";
+import Products from "./pages/product-catalogue/products";
 
 function Router() {
   return (
@@ -30,6 +31,7 @@ function Router() {
       <Route path="/transactions" component={Transactions} />
       <Route path="/wallets" component={Wallets} />
       <Route path="/customers" component={Customers} />
+      <Route path="/products" component={Products} />
 
       <Route path="/invoices" component={Invoices} />
       <Route path="/invoices/new" component={NewInvoicePage} />

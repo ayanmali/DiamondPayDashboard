@@ -146,6 +146,10 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
           <SidebarItem href="/customers" icon={<UsersIcon />} onClick={handleItemClick}>
             Customers
           </SidebarItem>
+
+          <SidebarItem href="/products" icon={<UsersIcon />} onClick={handleItemClick}>
+            Product catalogue
+          </SidebarItem>
           
           <div className="pt-4 pb-2">
             <div className="flex items-center px-4">

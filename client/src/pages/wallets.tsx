@@ -38,6 +38,7 @@ import {
 } from "@/components/ui/dropdown-menu"
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { wallets } from "@shared/schema";
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 
 const coins = [
   {
@@ -59,10 +60,10 @@ const coins = [
 ]
 
 export type Wallet = {
-    id: string,
-    walletType: string, // EVM or SOL
-    name: string,
-    address: string
+  id: string,
+  walletType: string, // EVM or SOL
+  name: string,
+  address: string
 }
 
 const getCryptoIcon = (symbol: string) => {
@@ -87,6 +88,8 @@ export default function Wallets() {
   const [createNewWalletOpen, setCreateNewWalletOpen] = useState(false);
   const [enteredWalletName, setEnteredWalletName] = useState<string>("");
 
+  const [showPrivateKeyDialog, setShowPrivateKeyDialog] = useState(false);
+
   const walletsLength: number = 5;
 
   type ChainOptions = 'EVM' | 'SOL' | "";
@@ -98,7 +101,7 @@ export default function Wallets() {
       <div className="md:flex md:items-center md:justify-between mb-8">
         <div className="flex-1 min-w-0">
           <h1 className="text-2xl font-semibold leading-tight">Wallets</h1>
-          
+
         </div>
         <div className="mt-4 flex md:mt-0 md:ml-4">
 
@@ -163,7 +166,14 @@ export default function Wallets() {
 
               </div>
 
-              <DialogFooter className="sm:justify-start">
+              <DialogFooter className="sm:justify-end">
+                <Button type="button" variant="secondary" onClick={() => {
+                  setCreateNewWalletOpen(false);
+                  setEnteredWalletName("");
+                  setChainOption("");
+                }}>
+                  Cancel
+                </Button>
                 <Button type="button" variant="secondary" onClick={() => {
                   if (chainOption === "") {
                     alert("Please select a wallet type.")
@@ -173,14 +183,82 @@ export default function Wallets() {
                   }
                   else {
                     setCreateNewWalletOpen(false);
-                    setEnteredWalletName("");
-                    setChainOption("");
+                    setShowPrivateKeyDialog(true);
+                    // setEnteredWalletName("");
+                    // setChainOption("");
                   }
 
                 }}>
                   Create
                 </Button>
 
+
+                {/* <DialogClose asChild>
+            <Button type="button" variant="secondary">
+              Close
+            </Button>
+          </DialogClose> */}
+
+              </DialogFooter>
+            </DialogContent>
+          </Dialog>
+
+          <Dialog open={showPrivateKeyDialog} onOpenChange={(open) => {
+            setShowPrivateKeyDialog(open);
+            if (!open) {
+              // setEnteredWalletName(""); // Clear input when dialog closes
+              // setChainOption("");       // (Optional) Clear chain selection too
+            }
+          }}>
+
+            <DialogContent className="sm:max-w-md">
+              {/* Header */}
+              <DialogHeader>
+                <DialogTitle>Wallet Private Key</DialogTitle>
+                <DialogDescription>
+                  {chainOption === "EVM"
+                    ? "This wallet will support any EVM blockchain (Ethereum Mainnet, Base, Polygon, Optimism, etc.)"
+                    : chainOption === "SOL"
+                      ? "This wallet will only support the Solana blockchain."
+                      : "Enter a name and select a blockchain type for your new wallet."}
+                </DialogDescription>
+              </DialogHeader>
+
+              <div className="grid gap-4 py-4">
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="name" className="text-right">
+                    Name
+                  </Label>
+                  <Input id="name"
+                    placeholder="My Wallet"
+                    className="col-span-3"
+                    value={enteredWalletName}
+                    onChange={e => setEnteredWalletName(e.target.value)}
+                  />
+                </div>
+
+                <div className="grid grid-cols-4 items-center gap-4">
+                  <Label htmlFor="username" className="text-right">
+                    Type
+                  </Label>
+                  <Select
+                    onValueChange={(val) => setChainOption(val as ChainOptions)}>
+                    <SelectTrigger className="w-[180px]">
+                      <SelectValue placeholder="Select a wallet type" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectGroup>
+                        <SelectLabel>Wallet Type</SelectLabel>
+                        <SelectItem value="EVM">EVM</SelectItem>
+                        <SelectItem value="SOL">Solana</SelectItem>
+                      </SelectGroup>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+              </div>
+
+              <DialogFooter className="sm:justify-start">
                 <Button type="button" variant="secondary" onClick={() => {
                   setCreateNewWalletOpen(false);
                   setEnteredWalletName("");
@@ -188,6 +266,26 @@ export default function Wallets() {
                 }}>
                   Cancel
                 </Button>
+
+                <Button type="button" variant="secondary" onClick={() => {
+                  if (chainOption === "") {
+                    alert("Please select a wallet type.")
+                  }
+                  else if (enteredWalletName.trim().length < 3) {
+                    alert("Please enter a unique wallet name at least three characters long.")
+                  }
+                  else {
+                    setCreateNewWalletOpen(false);
+                    setShowPrivateKeyDialog(true);
+                    // setEnteredWalletName("");
+                    // setChainOption("");
+                  }
+
+                }}>
+                  Create
+                </Button>
+
+
                 {/* <DialogClose asChild>
             <Button type="button" variant="secondary">
               Close
@@ -435,8 +533,31 @@ export default function Wallets() {
               </p>
             </div>
           )}
+
+          <div>
+          </div>
         </CardContent>
       </Card>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>
+            Archived Wallets
+          </CardTitle>
+        </CardHeader>
+
+        <CardContent>
+          <Collapsible>
+            <CollapsibleTrigger>Can I use this in my project?</CollapsibleTrigger>
+            <CollapsibleContent>
+              Yes. Free to use for personal and commercial projects. No attribution
+              required.
+            </CollapsibleContent>
+          </Collapsible>
+
+        </CardContent>
+      </Card>
+
     </div>
   );
 }

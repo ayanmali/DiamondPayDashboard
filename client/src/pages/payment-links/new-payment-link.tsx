@@ -50,6 +50,8 @@ export type Product = {
     description: string
     amount: number
     currency: string
+    createdAt: Date
+    status: string
 }
 
 export type CustomField = {

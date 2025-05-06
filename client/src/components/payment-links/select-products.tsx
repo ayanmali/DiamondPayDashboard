@@ -18,10 +18,10 @@ interface selectProductsProps {
 const PaymentLinkProductSelector = ({ addedItems, setAddedItems, currency, isMain, invoice }: selectProductsProps) => {
     // Sample products (in a real app this would come from an API)
     const [products, setProducts] = useState<Product[]>([
-        { id: '1', name: 'Basic Subscription', description: "Basic subscription plan", amount: 9.99, currency: "USDC" },
-        { id: '2', name: 'Premium Plan', description: "Premium option with additional features", amount: 19.99, currency: "EURC" },
-        { id: '3', name: 'Enterprise Solution', amount: 99.99, description: "Enterprise plan with greater usage capacity", currency: "USDT" },
-        { id: '4', name: 'One-time Service', description: "One-off service charge", amount: 49.99, currency: "EURC" },
+        { id: '1', name: 'Basic Subscription', description: "Basic subscription plan", amount: 9.99, currency: "USDC", createdAt: new Date(), status: "active" },
+        { id: '2', name: 'Premium Plan', description: "Premium option with additional features", amount: 19.99, currency: "EURC", createdAt: new Date(), status: "active" },
+        { id: '3', name: 'Enterprise Solution', amount: 99.99, description: "Enterprise plan with greater usage capacity", currency: "USDT", createdAt: new Date(), status: "active" },
+        { id: '4', name: 'One-time Service', description: "One-off service charge", amount: 49.99, currency: "EURC", createdAt: new Date(), status: "archived" },
     ]);
     const [openNewProductSheet, setOpenNewProductSheet] = useState(false);
 
@@ -119,19 +119,19 @@ const PaymentLinkProductSelector = ({ addedItems, setAddedItems, currency, isMai
     };
 
     // Handle adding a new product
-    const handleAddNewProduct = () => {
-        // In a real app, this would open a modal or navigate to a product creation page
-        const newProduct: Product = {
-            id: `new-${Date.now()}`,
-            name: 'New Product',
-            description: "Description of product",
-            amount: 1.00,
-            currency: "USDC"
-        };
+    // const handleAddNewProduct = () => {
+    //     // In a real app, this would open a modal or navigate to a product creation page
+    //     const newProduct: Product = {
+    //         id: `new-${Date.now()}`,
+    //         name: 'New Product',
+    //         description: "Description of product",
+    //         amount: 1.00,
+    //         currency: "USDC"
+    //     };
 
-        setProducts([...products, newProduct]);
-        handleSelectProduct(newProduct);
-    };
+    //     setProducts([...products, newProduct]);
+    //     handleSelectProduct(newProduct);
+    // };
 
     // Handle removing a product from the payment link
     const handleRemoveProduct = (product: Product) => {
