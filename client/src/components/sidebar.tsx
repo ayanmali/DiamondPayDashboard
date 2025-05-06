@@ -15,6 +15,7 @@ import {
   BoltIcon,
   XIcon
 } from "lucide-react";
+import { IoCubeOutline } from "react-icons/io5";
 import {
   PiHandCoins
 } from "react-icons/pi"
@@ -147,7 +148,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             Customers
           </SidebarItem>
 
-          <SidebarItem href="/products" icon={<UsersIcon />} onClick={handleItemClick}>
+          <SidebarItem href="/products" icon={<IoCubeOutline className="h-5 w-5"/>} onClick={handleItemClick}>
             Product catalogue
           </SidebarItem>
           

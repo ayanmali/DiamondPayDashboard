@@ -1,6 +1,6 @@
 import { ColumnDef } from "@tanstack/react-table";
 import { Checkbox } from "../ui/checkbox";
-import { ArrowUpDown, Check, CopyIcon, DollarSignIcon, EuroIcon, MoreHorizontal, XIcon } from "lucide-react";
+import { ArrowUpDown, Check, CopyIcon, DollarSignIcon, EuroIcon, MoreHorizontal, Plus, XIcon } from "lucide-react";
 import { Button } from "../ui/button";
 import { formatDate, truncateAddress } from "@/lib/utils";
 import { SiEthereum, SiPolygon, SiTether } from "react-icons/si";
@@ -16,11 +16,16 @@ import { ToastAction } from "../ui/toast";
 import { toast } from "@/hooks/use-toast";
 import { Product } from "@/pages/payment-links/new-payment-link";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "../ui/alert-dialog";
+import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle, SheetTrigger } from "../ui/sheet";
+import { Textarea } from "../ui/textarea";
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 // Create a context for customer dialogs
 interface ProductDialogsContextType {
     archiveProductDialogOpen: boolean;
     setArchiveProductDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
+    editProductDialogOpen: boolean;
+    setEditProductDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
     currentProduct: Product | null;
     setCurrentProduct: React.Dispatch<React.SetStateAction<Product | null>>;
     toast: typeof toast
@@ -66,7 +71,7 @@ export const createColumns = (dialogContext: ProductDialogsContextType): ColumnD
                     : (row.getValue("status") as string).toLowerCase() === "archived" ? "bg-slate-200" : "")
             }>
                 {row.getValue("status")}
-                
+
             </div>
         ),
     },
@@ -96,7 +101,7 @@ export const createColumns = (dialogContext: ProductDialogsContextType): ColumnD
             );
         },
     },
-    
+
     {
         accessorKey: "createdAt",
         header: "Created date",
@@ -113,6 +118,8 @@ export const createColumns = (dialogContext: ProductDialogsContextType): ColumnD
             const {
                 archiveProductDialogOpen,
                 setArchiveProductDialogOpen,
+                editProductDialogOpen,
+                setEditProductDialogOpen,
                 currentProduct,
                 setCurrentProduct,
                 toast
@@ -133,7 +140,6 @@ export const createColumns = (dialogContext: ProductDialogsContextType): ColumnD
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-8 w-8 p-0">
-                            {/* <span className="sr-only">Open menu</span> */}
                             <MoreHorizontal />
                         </Button>
                     </DropdownMenuTrigger>
@@ -144,9 +150,11 @@ export const createColumns = (dialogContext: ProductDialogsContextType): ColumnD
                             Copy Product ID
                         </DropdownMenuItem>
 
-                        <DropdownMenuItem
-                        
-                        >
+                        <DropdownMenuItem onSelect={(e) => {
+                            e.preventDefault(); // Prevent dropdown from closing dialog immediately
+                            setCurrentProduct(product);
+                            setEditProductDialogOpen(true);
+                        }}>
                             Edit product
                         </DropdownMenuItem>
 
@@ -165,19 +173,7 @@ export const createColumns = (dialogContext: ProductDialogsContextType): ColumnD
                         }}>
                             View customer
                         </DropdownMenuItem> */}
-                        <DropdownMenuItem>
-                            View customer
-                        </DropdownMenuItem>
-                        {/* <DropdownMenuItem onSelect={(e) => {
-                            e.preventDefault(); // Prevent dropdown from closing dialog immediately
-                            setCurrentProduct(Product);
-                            setEditDescDialogOpen(true);
-                        }}>
-                            View payment details
-                        </DropdownMenuItem> */}
-                        <DropdownMenuItem>
-                            View payment details
-                        </DropdownMenuItem>
+
                     </DropdownMenuContent>
 
                     <AlertDialog open={archiveProductDialogOpen} onOpenChange={setArchiveProductDialogOpen}>
@@ -186,7 +182,7 @@ export const createColumns = (dialogContext: ProductDialogsContextType): ColumnD
                                 <AlertDialogTitle>Archive product</AlertDialogTitle>
                                 <AlertDialogDescription></AlertDialogDescription>
                                 <AlertDialogDescription>
-                                Archiving will hide this product from new purchases. Your existing payment links that use this product will be deactivated. Are you sure you want to archive this product?
+                                    Archiving will hide this product from new purchases. Your existing payment links that use this product will be deactivated. Are you sure you want to archive this product?
                                 </AlertDialogDescription>
                                 <AlertDialogDescription>
                                     You can choose to unarchive this product at any time.
@@ -199,6 +195,64 @@ export const createColumns = (dialogContext: ProductDialogsContextType): ColumnD
                             </AlertDialogFooter>
                         </AlertDialogContent>
                     </AlertDialog>
+
+                    <Sheet open={editProductDialogOpen} onOpenChange={setEditProductDialogOpen}>
+                        <SheetContent>
+                            <SheetHeader>
+                                <SheetTitle>Edit product</SheetTitle>
+                               
+                            </SheetHeader>
+                            <div className="grid gap-4 py-4">
+                                <div className="my-3">
+                                    <Label htmlFor="name" className="text-right">
+                                        Name
+                                    </Label>
+                                    <Input id="name" defaultValue={currentProduct?.name} placeholder="Name" /*onChange={e => setName(e.target.value)}*/ className="mt-2" />
+                                </div>
+
+                                <div className="my-3">
+                                    <Label htmlFor="username" className="text-right">
+                                        Description
+                                    </Label>
+                                    <Textarea className="mt-2" defaultValue={currentProduct?.description} placeholder="Description" />
+                                </div>
+
+                                <div className="my-3">
+                                    <Label htmlFor="username" className="text-right">
+                                        Amount
+                                    </Label>
+
+                                    <div className="flex items-center mt-2 gap-x-1">
+                                        <Input type="number" placeholder="0.00" defaultValue={currentProduct?.amount} className="" />
+                                        <Select defaultValue={currentProduct?.currency.toLowerCase()}>
+                                            <SelectTrigger className="w-[180px]">
+                                                <SelectValue placeholder="Select a currency" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectGroup>
+                                                    <SelectItem value="usdc">USDC</SelectItem>
+                                                    <SelectItem value="usdt">USDT</SelectItem>
+                                                    <SelectItem value="eurc">EURC</SelectItem>
+                                                </SelectGroup>
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+
+                                </div>
+                            </div>
+
+                            <SheetFooter>
+                                <SheetClose asChild>
+                                    <Button type="button">Cancel</Button>
+                                </SheetClose>
+
+                                <SheetClose asChild>
+                                    <Button type="submit">Save changes</Button>
+                                </SheetClose>
+
+                            </SheetFooter>
+                        </SheetContent>
+                    </Sheet>
                 </DropdownMenu>
             )
         },

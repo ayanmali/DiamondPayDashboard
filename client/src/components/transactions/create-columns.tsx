@@ -277,6 +277,7 @@ export const createColumns = (dialogContext: CustomerDialogsContextType): Column
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
+                    
                 </DropdownMenu>
             )
         },

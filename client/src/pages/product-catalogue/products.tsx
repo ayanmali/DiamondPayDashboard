@@ -83,6 +83,7 @@ export default function Products() {
     const [rowSelection, setRowSelection] = React.useState({})
 
     const [archiveProductDialogOpen, setArchiveProductDialogOpen] = useState(false);
+    const [editProductDialogOpen, setEditProductDialogOpen] = useState(false);
     const [currentProduct, setCurrentProduct] = useState<Product | null>(null);
     const { toast } = useToast()
 
@@ -92,6 +93,8 @@ export default function Products() {
     const dialogContextValue = {
         archiveProductDialogOpen,
         setArchiveProductDialogOpen,
+        editProductDialogOpen,
+        setEditProductDialogOpen,
         currentProduct,
         setCurrentProduct,
         toast
