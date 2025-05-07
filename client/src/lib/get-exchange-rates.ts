@@ -1,4 +1,4 @@
-async function requestExchangeRates() {
+async function requestUSDToEuroExchangeRate() {
     const response = await fetch("https://www.xe.com/api/protected/midmarket-converter/", {
         "headers": {
             "authorization": "Basic bG9kZXN0YXI6cHVnc25heA==",
@@ -16,10 +16,14 @@ async function requestExchangeRates() {
 }
 
 async function getExchangeRates() {
-    const data = await requestExchangeRates();
+    const data = await requestUSDToEuroExchangeRate();
     data['rates']['EUR'];
     return {
         usdToEuro: data['rates']['EUR'] as number,
         euroToUsd: 1 / (data['rates']['EUR'] as number) as number
     }
+}
+
+async function requestEtherPrice() {
+    
 }

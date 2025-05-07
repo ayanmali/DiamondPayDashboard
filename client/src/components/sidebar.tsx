@@ -13,7 +13,9 @@ import {
   LinkIcon,  
   FileTextIcon, 
   BoltIcon,
-  XIcon
+  XIcon,
+  ClockIcon,
+  Clock
 } from "lucide-react";
 import { IoCubeOutline } from "react-icons/io5";
 import {
@@ -114,7 +116,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             <div className="h-8 w-8 bg-primary rounded-md flex items-center justify-center">
               <BoltIcon className="h-5 w-5 text-white" />
             </div>
-            <h1 className="text-xl font-semibold">DiamondPay</h1>
+            <h1 className="text-xl font-medium">Ilion</h1>
           </div>
           {isMobile && (
             <Button 
@@ -140,16 +142,16 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             Transactions
           </SidebarItem>
           
-          <SidebarItem href="/token-transfers" icon={<PiHandCoins className="h-6 w-6"/>} onClick={handleItemClick}>
-            Token Transfers
+          <SidebarItem href="/wallet-activity" icon={<Clock className=""/>} onClick={handleItemClick}>
+            Wallet Activity
           </SidebarItem>
           
           <SidebarItem href="/customers" icon={<UsersIcon />} onClick={handleItemClick}>
             Customers
           </SidebarItem>
 
-          <SidebarItem href="/products" icon={<IoCubeOutline className="h-5 w-5"/>} onClick={handleItemClick}>
-            Product catalogue
+          <SidebarItem href="/products" icon={<IoCubeOutline className="h-6 w-6"/>} onClick={handleItemClick}>
+            Product Catalogue
           </SidebarItem>
           
           <div className="pt-4 pb-2">

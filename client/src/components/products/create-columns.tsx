@@ -84,13 +84,13 @@ export const createColumns = (dialogContext: ProductDialogsContextType): ColumnD
     },
     {
         id: "amount",
-        header: "Amount",
+        header: "Pricing",
         cell: ({ row }) => {
             const { amount, currency } = row.original as { amount: number; currency: string };
             return (
                 <div className="uppercase flex items-center gap-x-2">
                     <div className="font-medium">
-                        {amount.toPrecision(5)}
+                        {amount.toFixed(2)}
                     </div>
 
                     <div className="text-muted-foreground">

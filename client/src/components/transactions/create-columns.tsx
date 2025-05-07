@@ -176,7 +176,9 @@ export const createColumns = (dialogContext: CustomerDialogsContextType): Column
             return (
                 <DropdownMenu>
                     <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" className="h-8 w-8 p-0">
+                        <Button variant="ghost" className="h-8 w-8 p-0" onClick={() => {
+                            setCurrentTransaction(transaction);
+                        }}>
                             {/* <span className="sr-only">Open menu</span> */}
                             <MoreHorizontal />
                         </Button>
@@ -184,9 +186,9 @@ export const createColumns = (dialogContext: CustomerDialogsContextType): Column
                     <DropdownMenuContent align="end">
                         <DropdownMenuLabel>Actions</DropdownMenuLabel>
                         <DropdownMenuItem
-                            onClick={() => navigator.clipboard.writeText(transaction.id)}
+                            onClick={() => navigator.clipboard.writeText(transaction.txHash)}
                         >
-                            Copy transaction ID
+                            Copy transaction hash
                         </DropdownMenuItem>
 
                         <DropdownMenuItem onSelect={(e) => {

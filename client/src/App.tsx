@@ -19,6 +19,7 @@ import PaymentLinks from "./pages/payment-links/payment-links";
 import NewInvoicePage from "./pages/invoices/new-invoice";
 import NewPaymentLinkPage from "./pages/payment-links/new-payment-link";
 import Products from "./pages/product-catalogue/products";
+import WalletActivity from "./pages/wallet-activity/recent-activity";
 
 function Router() {
   return (
@@ -38,6 +39,8 @@ function Router() {
 
       <Route path="/payment-links" component={PaymentLinks} />
       <Route path="/payment-links/new" component={NewPaymentLinkPage}/>
+      <Route path="/wallet-activity" component={WalletActivity}/>
+      
       {/* <Route path="/token-transfers" component={} /> */}
 
       {/* <Route path="/links" component={} />

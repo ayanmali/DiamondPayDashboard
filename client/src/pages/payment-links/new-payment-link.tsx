@@ -74,7 +74,7 @@ export type AddedItem = {
     isMain: boolean // whether the product is a main product or recommended product
 };
 
-const merchantName = "DiamondPay";
+const merchantName = "Ilion";
 const MAX_LABEL_NAME_LENGTH = 30;
 const MAX_LABEL_DEFAULT_VALUE_LENGTH = 50;
 const MIN_LABEL_NAME_LENGTH = 1;
@@ -84,19 +84,55 @@ export const testWallets: Wallet[] = [
         id: "1",
         name: "MyWallet",
         address: "0x123456789",
-        walletType: "EVM"
+        status: "active",
+        walletType: "EVM",
+        balances: [
+            {
+                token: {
+                    name: "USDC",
+                    ticker: "USDC",
+                    chain: "Base"
+                },
+                amount: 100.50,
+                usdAmount: 69
+            }
+        ]
     },
     {
         id: "2",
         name: "OtherWallet",
         address: "0x987654321",
-        walletType: "EVM"
+        status: "active",
+        walletType: "EVM",
+        balances: [
+            {
+                token: {
+                    name: "USDC",
+                    ticker: "USDC",
+                    chain: "Base"
+                },
+                amount: 42.24,
+                usdAmount: 69
+            }
+        ]
     },
     {
         id: "3",
         name: "TradingWallet",
         address: "0x91142069000",
-        walletType: "EVM"
+        status: "archived",
+        walletType: "EVM",
+        balances: [
+            {
+                token: {
+                    name: "USDC",
+                    ticker: "USDC",
+                    chain: "Base"
+                },
+                amount: 42.00,
+                usdAmount: 69
+            }
+        ]
     },
 ]
 

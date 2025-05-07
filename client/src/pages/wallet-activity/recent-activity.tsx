@@ -12,7 +12,7 @@ import {
     getSortedRowModel,
     useReactTable,
 } from "@tanstack/react-table"
-import { ChevronDown, DownloadIcon, FilterIcon } from "lucide-react"
+import { ChevronDown, DownloadIcon, FilterIcon, Plus } from "lucide-react"
 
 import { Button } from "@/components/ui/button"
 import {
@@ -34,124 +34,57 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 import { useState } from "react"
 
-import { createColumns } from "@/components/transactions/create-columns"
+import { createColumns } from "@/components/recent-activity/create-columns"
 
 import { camelCaseToRegular } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
-import { Toggle } from "@/components/ui/toggle"
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card"
-import { Label } from "recharts"
-import { Wallet } from "./wallets"
+import { Link } from "wouter"
+import { Token, Wallet } from "../wallets"
+import { testWallets } from "../payment-links/new-payment-link"
+import { AddNewCustomer } from "@/components/customers/add-new-customer"
 
-export type CustomerWallet = {
-    address: string;
-    walletType: string;
-    addedDate: Date;
-}
-
-export type Transaction = {
-    id: string
-    amount: number,
-    currency: string
-    status: string,
-    paymentMethod: string,
-    description: string,
-    customerEmail: string,
-    customerWallet: CustomerWallet,
+export type TokenTransfer = {
+    sendingWallet: Wallet,
+    receiver: Receiver
+    rawAmount: number,
+    usdAmount: number,
+    token: Token,
     date: Date,
-    customerCurrencyUsed: string
-    txHash: string
+    txHash: string,
 }
 
-const data: Transaction[] = [
-    {
-        id: "id",
-        customerEmail: "walter@heisenberg.com",
-        date: new Date(2025, 1, 30),
-        paymentMethod: "0x93awfegegegg42t24gf2t24t24g3rg24t4ef13r2ty35hjyk754tf5g",
-        amount: 911.00,
-        currency: "USDC",
-        status: "Succeeded",
-        description: "hartwell",
-        customerCurrencyUsed: "USDC",
-        txHash: "0xkdjdkfm9rnwmdmcsaaxlx,slsaxci3",
-        customerWallet: {
-            address: "0x123456789",
-            walletType: "EVM",
-            addedDate: new Date()
+export type Receiver = {
+    name: string,
+    address: string,
+    email: string
+    createdDate: Date,
+    description: string,
+}
+const data: TokenTransfer[] = testWallets.map(w => {
+    return (
+        {
+            sendingWallet: w,
+            receiver: {
+                name: "John Doe",
+                address: "0x123456789",
+                email: "john.doe@example.com",
+                createdDate: new Date(),
+                description: "John Doe's wallet",
+            },
+            rawAmount: 100,
+            usdAmount: 101,
+            token: {
+                name: "USDC",
+                ticker: "USDC",
+                chain: "Polygon",
+            },
+            date: new Date(),
+            txHash: "0x9876543210"
         }
-    },
-    {
-        id: "id",
-        customerEmail: "jesse@capncook.com",
-        date: new Date(2025, 3, 13),
-        paymentMethod: "0xA5J...9R7",
-        amount: 420.00,
-        currency: "USDT",
-        status: "Failed",
-        description: "b!tch",
-        customerCurrencyUsed: "USDT",
-        txHash: "0xdfkvkoe0rfmd938r9n2kc0n4n",
-        customerWallet: {
-            address: "0x123456789",
-            walletType: "EVM",
-            addedDate: new Date()
-        }
-    },
-    {
-        id: "id",
-        customerEmail: "saul@sgassociates.com",
-        date: new Date(2025, 2, 20),
-        paymentMethod: "0xX19...7RY",
-        amount: 69.00,
-        currency: "EURC",
-        status: "Succeeded",
-        description: "did you know you have rights?",
-        customerCurrencyUsed: "EURC",
-        txHash: "0xdmfnfklslamalco84n3congh59ne",
-        customerWallet: {
-            address: "0x123456789",
-            walletType: "EVM",
-            addedDate: new Date()
-        }
-    },
-    {
-        id: "id",
-        customerEmail: "hank@schraderbrau.com",
-        date: new Date(2025, 1, 11),
-        paymentMethod: "0x7U6...JF9",
-        amount: 100.00,
-        currency: "USDC",
-        status: "Pending",
-        description: "makes me wanna cry",
-        customerCurrencyUsed: "Base ETH",
-        txHash: "0xdvmfjkj4iu93yn2oc3",
-        customerWallet: {
-            address: "0x123456789",
-            walletType: "EVM",
-            addedDate: new Date()
-        }
-    },
-    {
-        id: "id",
-        customerEmail: "mike@lospollos.com",
-        date: new Date(2025, 3, 29),
-        paymentMethod: "0xG89...0D2",
-        amount: 42.00,
-        currency: "USDT",
-        status: "Succeeded",
-        description: "no half measures",
-        customerCurrencyUsed: "Polygon ETH",
-        txHash: "0xefejpqngbopwgjpq94312noi",
-        customerWallet: {
-            address: "0x123456789",
-            walletType: "EVM",
-            addedDate: new Date()
-        }
-    },
-]
+    )
+})
 
-export default function Transactions() {
+export default function WalletActivity() {
     const [sorting, setSorting] = React.useState<SortingState>([])
     const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
         []
@@ -160,27 +93,30 @@ export default function Transactions() {
         React.useState<VisibilityState>({})
     const [rowSelection, setRowSelection] = React.useState({})
 
-    const [sendReceiptDialogOpen, setSendReceiptDialogOpen] = useState(false);
-    const [currentTransaction, setCurrentTransaction] = useState<Transaction | null>(null);
+    const [newWithdrawWalletDialogOpen, setNewWithdrawWalletDialogOpen] = useState(false);
+    const [changeNameDialogOpen, setChangeNameDialogOpen] = useState(false);
+    const [currentTransfer, setCurrentTransfer] = useState<TokenTransfer | null>(null);
     const { toast } = useToast()
 
-    const [selectedStatus, setSelectedStatus] = useState<"all" | "succeeded" | "failed">("all");
+    const [selectedStatus, setSelectedStatus] = useState<"all" | "active" | "deactivated">("all");
 
     // Create the context value
     const dialogContextValue = {
-        sendReceiptDialogOpen,
-        setSendReceiptDialogOpen,
-        currentTransaction,
-        setCurrentTransaction,
-        toast
+        newWithdrawWalletDialogOpen,
+        setNewWithdrawWalletDialogOpen,
+        changeNameDialogOpen,
+        setChangeNameDialogOpen,
+        currentTransfer,
+        setCurrentTransfer,
+
     };
 
     // Create columns with the context
     const columns = createColumns(dialogContextValue);
 
     const table = useReactTable({
-        data,
-        columns,
+        data: data,
+        columns: columns,
         onSortingChange: setSorting,
         onColumnFiltersChange: setColumnFilters,
         getCoreRowModel: getCoreRowModel(),
@@ -201,14 +137,18 @@ export default function Transactions() {
         <div className="w-full">
             <div className="md:flex md:items-center md:justify-between mb-8">
                 <div className="flex-1 min-w-0">
-                    <h1 className="text-2xl font-semibold leading-tight">Transactions</h1>
-                    
+                    <h1 className="text-2xl font-semibold leading-tight">Wallet Activity</h1>
+                    <h3 className="text-muted-foreground my-2">
+                        View token transfers and swaps from your wallets
+                    </h3>
+
                 </div>
                 <div className="mt-4 flex md:mt-0 md:ml-4">
-                    {/* <Button variant="outline" className="mr-3 flex items-center">
-            <DownloadIcon className="mr-2 h-4 w-4" />
-            Export
-          </Button> */}
+                    <Button className="flex items-center" onClick={() => setNewWithdrawWalletDialogOpen(true)}>
+                        <Plus className="mr-2 h-4 w-4" />
+                        New Withdrawal Wallet
+                    </Button>
+                    <AddNewCustomer open={newWithdrawWalletDialogOpen} onOpenChange={setNewWithdrawWalletDialogOpen}/>
                     {/* <Button className="flex items-center" onClick={() => setNewCustomerDialogOpen(true)}>
             <PlusIcon className="mr-2 h-4 w-4" />
             Add Customer
@@ -217,45 +157,39 @@ export default function Transactions() {
                 </div>
             </div>
 
-            <div className="flex items-center justify-center space-x-5 pb-4">
-                {/* All */}
-                <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${
-                        selectedStatus === "all" ? "border-2 border-primary" : "border"
+            {/* Filter Cards */}
+            {/* <div className="flex items-center justify-center space-x-5 pb-4"> */}
+            {/* All */}
+            {/* <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${selectedStatus === "all" ? "border-2 border-primary" : "border"
                     }`}
-                onClick={() => setSelectedStatus("all")}>
+                    onClick={() => setSelectedStatus("all")}>
                     <div className="text-base font-semibold pt-2 text-muted-foreground">All</div>
                     <div className="text-lg pb-2">911</div>
-                </div>
-                
-                {/* Succeeded */}
-                <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${
-                        selectedStatus === "succeeded" ? "border-2 border-primary" : "border"
+                </div> */}
+
+            {/* Active */}
+            {/* <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${selectedStatus === "active" ? "border-2 border-primary" : "border"
                     }`}
-                onClick={() => setSelectedStatus("succeeded")}>
-                    <div className="text-base font-semibold pt-2 text-muted-foreground">Succeeded</div>
+                    onClick={() => setSelectedStatus("active")}>
+                    <div className="text-base font-semibold pt-2 text-muted-foreground">Active</div>
                     <div className="text-lg pb-2">420</div>
-                </div>
-                
-                {/* Failed */}
-                <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${
-                        selectedStatus === "failed" ? "border-2 border-primary" : "border"
+                </div> */}
+
+            {/* Deactivated */}
+            {/* <div className={`w-48 cursor-pointer transition-all rounded-lg font-medium pl-3 text-lg bg-white ${selectedStatus === "deactivated" ? "border-2 border-primary" : "border"
                     }`}
-                onClick={() => setSelectedStatus("failed")}>
-                    <div className="text-base font-semibold pt-2 text-muted-foreground">Failed</div>
+                    onClick={() => setSelectedStatus("deactivated")}>
+                    <div className="text-base font-semibold pt-2 text-muted-foreground">Deactivated</div>
                     <div className="text-lg pb-2">69</div>
-                </div>
-                
-                {/* <Toggle className="rounded-3xl border border-solid font-medium">First time customers</Toggle>
-        <Toggle className="rounded-3xl border border-solid font-medium">Repeat customers</Toggle>
-        <Toggle className="rounded-3xl border border-solid font-medium">Recent customers</Toggle> */}
-            </div>
+                </div> */}
+            {/* </div> */}
 
             <div className="flex items-center py-4">
                 <Input
-                    placeholder="Filter emails..."
-                    value={(table.getColumn("customerEmail")?.getFilterValue() as string) ?? ""}
+                    placeholder="Filter by receiver name..."
+                    value={(table.getColumn("receiver")?.getFilterValue() as string) ?? ""}
                     onChange={(event) =>
-                        table.getColumn("customerEmail")?.setFilterValue(event.target.value)
+                        table.getColumn("receiver")?.setFilterValue(event.target.value)
                     }
                     className="max-w-sm"
                 />
@@ -264,14 +198,14 @@ export default function Transactions() {
                 <div className="ml-auto flex gap-x-3">
                     {/* Sorting */}
                     <Select defaultValue="newest">
-                        <SelectTrigger className="w-full md:w-[180px] ml-auto">
+                        <SelectTrigger className="w-full md:w-[220px] ml-auto">
                             <SelectValue placeholder="Sort by" />
                         </SelectTrigger>
                         <SelectContent>
                             <SelectItem value="newest">Newest first</SelectItem>
                             <SelectItem value="oldest">Oldest first</SelectItem>
-                            <SelectItem value="highest-spend">Highest amount</SelectItem>
-                            <SelectItem value="lowest-spend">Lowest amount</SelectItem>
+                            <SelectItem value="highest">Highest amount</SelectItem>
+                            <SelectItem value="lowest">Lowest amount</SelectItem>
                         </SelectContent>
                     </Select>
 

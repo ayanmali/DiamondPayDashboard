@@ -17,10 +17,13 @@ import {
   ArrowDownIcon,
   BarChart4Icon,
   AlertCircleIcon,
-  Copy
+  Copy,
+  ChevronRight,
+  ChevronDown,
+  MoreVertical
 } from "lucide-react";
 import { SiBitcoin, SiEthereum, SiSolana } from "react-icons/si";
-import { FaDollarSign } from "react-icons/fa";
+import { FaChevronDown, FaDollarSign, FaEuroSign } from "react-icons/fa";
 import { Dialog, DialogTrigger } from "@radix-ui/react-dialog";
 import { DialogClose, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
@@ -39,54 +42,90 @@ import {
 import { BsThreeDotsVertical } from "react-icons/bs";
 import { wallets } from "@shared/schema";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import { IconRight } from "react-day-picker";
+import { testWallets } from "./payment-links/new-payment-link";
 
-const coins = [
-  {
-    name: "WETH",
-    amount: 100.00
-  },
-  {
-    name: "USDC",
-    amount: 42.00
-  },
-  {
-    name: "USDT",
-    amount: 100.50
-  },
-  {
-    name: "EURC",
-    amount: 911.00
-  }
-]
+// const coins = [
+//   {
+//     name: "WETH",
+//     amount: 100.00
+//   },
+//   {
+//     name: "USDC",
+//     amount: 42.00
+//   },
+//   {
+//     name: "USDT",
+//     amount: 100.50
+//   },
+//   {
+//     name: "EURC",
+//     amount: 911.00
+//   }
+// ]
 
 export type Wallet = {
   id: string,
   walletType: string, // EVM or SOL
   name: string,
-  address: string
+  address: string,
+  status: string // active or archived
+  balances: Balance[]
 }
 
-const getCryptoIcon = (symbol: string) => {
-  switch (symbol) {
-    case 'BTC':
-      return <SiBitcoin className="text-lg" />;
-    case 'ETH':
+type Balance = {
+  token: Token,
+  amount: number
+  usdAmount: number
+}
+
+export type Token = {
+  name: string // base ETH, USDC, etc
+  ticker: string // WETH, USDC, etc
+  chain: string // base, polygon, etc
+}
+
+interface WalletsData {
+  // amount and currency of the wallet's total balance
+  totalBalance: number,
+  currency: string
+
+  wallets: Wallet[]
+}
+
+const getCryptoIcon = (walletType: string) => {
+  switch (walletType) {
+    case 'EVM':
       return <SiEthereum className="text-lg" />;
     case 'SOL':
       return <SiSolana className="text-lg" />;
+
+    case 'BTC':
+      return <SiBitcoin className="text-lg" />;
     case 'USDC':
+    case 'USDT':
       return <FaDollarSign className="text-blue-500 text-xl" />;
+    case 'EURC':
+      return <FaEuroSign className="text-blue-500 text-xl" />;
     default:
-      return <span className="text-sm font-bold">{symbol}</span>;
+      return <span className="text-sm font-bold">{walletType}</span>;
   }
 };
 
 export default function Wallets() {
-  const { data: walletsData, isLoading } = useQuery({
-    queryKey: ["/api/wallets"],
-  });
+  // const { data: walletsData, isLoading } = useQuery<WalletsData>({
+  //   queryKey: ["/api/wallets"],
+  // });
+  const walletsData: WalletsData = 
+  {
+    totalBalance: 999999999,
+    currency: "USD",
+    wallets: testWallets
+  }
+  const isLoading = false;
   const [createNewWalletOpen, setCreateNewWalletOpen] = useState(false);
   const [enteredWalletName, setEnteredWalletName] = useState<string>("");
+  const [collapseArchivedWallets, setCollapseArchivedWallets] = useState(false);
 
   const [showPrivateKeyDialog, setShowPrivateKeyDialog] = useState(false);
 
@@ -312,7 +351,8 @@ export default function Wallets() {
           ) : (
             <div className="flex items-end space-x-4">
               <h1 className="text-4xl font-bold">
-                {formatCurrency(walletsData?.totalBalance || 0, 'USD')}
+                $999,999,999
+                {/* {formatCurrency(walletsData?.totalBalance || 0, 'USD')} */}
               </h1>
               <div className="flex items-center text-sm font-medium text-secondary">
                 <ArrowUpIcon className="h-4 w-4 mr-1" />
@@ -350,23 +390,22 @@ export default function Wallets() {
         ) : (
           <Carousel>
             <CarouselContent>
-              {walletsData?.wallets.map((wallet: any) => (
+              {walletsData?.wallets.filter(w => w.status === "active").map((wallet: Wallet) => (
                 <CarouselItem key={wallet.id} className={walletsLength === 1 ? "basis-full" : walletsLength === 2 ? "basis-1/2" : "basis-1/3"}>
                   <Card>
                     <CardHeader className="pb-2 flex flex-row items-center">
                       <div className="flex-1"></div>
                       <CardTitle className="text-xl text-center flex-grow flex flex-row items-center justify-center gap-2">
                         <div className="h-8 w-8 rounded-full bg-opacity-10 flex items-center justify-center">
-                          {getCryptoIcon(wallet.currency)}
+                          {getCryptoIcon(wallet.walletType)}
                         </div>
-                        <span>{wallet.currency} Wallet</span>
+                        <span>{wallet.name}</span>
                       </CardTitle>
                       <div className="flex-1 flex justify-end">
                         <DropdownMenu>
                           <DropdownMenuTrigger><BsThreeDotsVertical /></DropdownMenuTrigger>
                           <DropdownMenuContent>
                             {/* <DropdownMenuLabel>My Account</DropdownMenuLabel> */}
-                            <DropdownMenuSeparator />
                             <DropdownMenuItem>View more</DropdownMenuItem>
                             <DropdownMenuItem>Archive wallet</DropdownMenuItem>
                           </DropdownMenuContent>
@@ -376,33 +415,43 @@ export default function Wallets() {
                     <CardContent>
                       {/* Address */}
                       <div className="flex items-center text-sm text-muted-foreground justify-center pb-5">
-                        <span className="truncate">{truncateAddress(wallet.address)}</span>
-                        <Button variant="ghost" size="icon" className="h-6 w-6 ml-1" onClick={() => navigator.clipboard.writeText(wallet.address)}>
+                        <Button variant="link" size="icon" className="flex items-center h-6 w-max ml-1" onClick={() => navigator.clipboard.writeText(wallet.address)}>
+                          <span className="truncate text-muted-foreground">{truncateAddress(wallet.address)}</span>
                           <CopyIcon className="h-3 w-3" />
                         </Button>
                       </div>
 
-                      {coins.map((coin) => {
+                      <div className="flex mt-4 mb-4 text-3xl font-semibold justify-center items-center">
+                        <span>$420,000</span>
+                      </div>
+
+                      {wallet.balances.map((balance) => {
                         return (
-                          <div key={coin.name}>
+                          <div key={`${balance.token.chain}-${balance.token.ticker}`}>
                             <div className="flex items-center justify-between space-x-4 pt-5 pb-5 pl-5 pr-5 border border-solid rounded-xl bg-slate-50">
                               <div className="flex items-center space-x-4">
                                 <div className="h-12 w-12 rounded-full bg-opacity-10 flex items-center justify-center">
-                                  {getCryptoIcon(coin.name)}
+                                  {getCryptoIcon(balance.token.ticker)}
                                 </div>
                                 <div>
-                                  <p className="text-xl font-bold">{coin.name}</p>
+                                  <p className="text-xl font-bold">{balance.token.name}</p>
                                   <p className="text-sm text-muted-foreground">
-                                    {coin.amount} {coin.name}
+                                    {formatCryptoAmount(balance.amount, balance.token.ticker)}
                                   </p>
                                 </div>
                               </div>
                               <div>
-                                <p className={(coin.amount * (wallet.currency === 'BTC' ? 95000 : wallet.currency === 'ETH' ? 1790 : 1) >= 1000000 ? "text-lg " : "text-xl ") +
+                                {/* <p className={(coin.amount * (wallet.currency === 'BTC' ? 95000 : wallet.currency === 'ETH' ? 1790 : 1) >= 1000000 ? "text-lg " : "text-xl ") +
                                   "font-medium text-right"}>
                                   {formatCurrency(
                                     coin.amount *
                                     (wallet.currency === 'BTC' ? 95000 : wallet.currency === 'ETH' ? 1790 : 1),
+                                    'USD'
+                                  )}
+                                </p> */}
+                                <p className={`${balance.usdAmount >= 1000000 ? "text-lg" : "text-xl"} font-medium text-right`}>
+                                  {formatCurrency(
+                                    balance.usdAmount,
                                     'USD'
                                   )}
                                 </p>
@@ -413,17 +462,11 @@ export default function Wallets() {
                         );
                       })}
 
-
-
                     </CardContent>
                     <CardFooter className="flex justify-between">
-                      <Button variant="outline" size="sm" className="w-[48%]">
+                      <Button variant="outline" size="sm" className="w-full">
                         <ArrowUpIcon className="h-4 w-4 mr-2" />
                         Send
-                      </Button>
-                      <Button variant="outline" size="sm" className="w-[48%]">
-                        <ArrowDownIcon className="h-4 w-4 mr-2" />
-                        Receive
                       </Button>
                     </CardFooter>
                   </Card>
@@ -451,7 +494,7 @@ export default function Wallets() {
       </div>
 
       {/* Recent Activities */}
-      <Card>
+      <Card className="gap-6 mb-8">
         <CardHeader>
           <CardTitle>Recent Activities</CardTitle>
           <CardDescription>
@@ -472,7 +515,7 @@ export default function Wallets() {
                 <Skeleton className="h-6 w-20" />
               </div>
             ))
-          ) : walletsData?.wallets.length > 0 ? (
+          ) : walletsData?.wallets.length as number > 0 ? (
             <div className="space-y-0">
               <div className="flex items-center justify-between py-3 border-b border-border">
                 <div className="flex items-center space-x-4">
@@ -541,21 +584,43 @@ export default function Wallets() {
 
       <Card>
         <CardHeader>
-          <CardTitle>
-            Archived Wallets
-          </CardTitle>
-        </CardHeader>
-
-        <CardContent>
           <Collapsible>
-            <CollapsibleTrigger>Can I use this in my project?</CollapsibleTrigger>
+            <CollapsibleTrigger onClick={() => setCollapseArchivedWallets(!collapseArchivedWallets)}>
+              <CardTitle>
+                <div className="flex gap-x-6 items-center">
+                  <span>Archived Wallets</span>
+                  {!collapseArchivedWallets ? <ChevronRight /> : <ChevronDown />}
+                </div>
+
+              </CardTitle>
+            </CollapsibleTrigger>
             <CollapsibleContent>
-              Yes. Free to use for personal and commercial projects. No attribution
-              required.
+              <CardContent>
+                {walletsData?.wallets.filter(w => w.status === "archived").map(w => {
+                  return (
+                    <div className="my-4 flex gap-x-10 items-center">
+                      <div className="flex items-center gap-x-3">
+                        {getCryptoIcon(w.walletType)}
+                        <span>{w.name}</span>
+                      </div>
+                      <span className="truncate text-muted-foreground">{truncateAddress(w.address)}</span>
+                      <DropdownMenu>
+                          <DropdownMenuTrigger><BsThreeDotsVertical /></DropdownMenuTrigger>
+                          <DropdownMenuContent>
+                            {/* <DropdownMenuLabel>My Account</DropdownMenuLabel> */}
+                            <DropdownMenuItem>View more</DropdownMenuItem>
+                            <DropdownMenuItem>Unarchive wallet</DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                    </div>
+                    
+                  )
+                })}
+              </CardContent>
             </CollapsibleContent>
           </Collapsible>
 
-        </CardContent>
+        </CardHeader>
       </Card>
 
     </div>
