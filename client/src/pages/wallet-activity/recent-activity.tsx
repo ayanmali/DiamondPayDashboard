@@ -42,6 +42,7 @@ import { Link } from "wouter"
 import { Token, Wallet } from "../wallets"
 import { testWallets } from "../payment-links/new-payment-link"
 import { AddNewCustomer } from "@/components/customers/add-new-customer"
+import { AddNewWithdrawWallet } from "@/components/recent-activity/new-withdraw-wallet"
 
 export type TokenTransfer = {
     sendingWallet: Wallet,
@@ -148,7 +149,7 @@ export default function WalletActivity() {
                         <Plus className="mr-2 h-4 w-4" />
                         New Withdrawal Wallet
                     </Button>
-                    <AddNewCustomer open={newWithdrawWalletDialogOpen} onOpenChange={setNewWithdrawWalletDialogOpen}/>
+                    <AddNewWithdrawWallet open={newWithdrawWalletDialogOpen} onOpenChange={setNewWithdrawWalletDialogOpen}/>
                     {/* <Button className="flex items-center" onClick={() => setNewCustomerDialogOpen(true)}>
             <PlusIcon className="mr-2 h-4 w-4" />
             Add Customer
