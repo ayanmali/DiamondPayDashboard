@@ -66,7 +66,7 @@ export function EditNameForm({ currentName, onSuccessfulSubmit }: EditDescriptio
           )}
         />
         <div className="flex justify-end gap-x-2">
-          <Button type="button" onClick={onSuccessfulSubmit}>Cancel</Button>
+          <Button type="button" variant="outline" onClick={onSuccessfulSubmit}>Cancel</Button>
           <Button type="submit">Save</Button>
         </div>
       </form>

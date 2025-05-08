@@ -44,10 +44,11 @@ export type Invoice = {
     invoiceNumber: string
     amount: number,
     currency: string
-    status: string,
+    status: string, // Paid, Draft, Outstanding, Overdue, Cancelled, Pending
     customerName: string,
     customerEmail: string,
     dueDate: Date,
+    send_at_utc: Date, // date to finalize and send the invoice
     createdDate: Date,
     datePaid: Date
     description: string,
@@ -59,6 +60,7 @@ const data: Invoice[] = [
         customerName: "Waltuh",
         customerEmail: "walter@heisenberg.com",
         createdDate: new Date(2025, 1, 8),
+        send_at_utc: new Date(2025, 1, 9),
         datePaid: new Date(2025, 1, 30),
         dueDate: new Date(2025, 1, 9),
         amount: 911.00,
@@ -71,6 +73,7 @@ const data: Invoice[] = [
         customerName: "Jesse",
         customerEmail: "jesse@capncook.com",
         createdDate: new Date(2025, 1, 8),
+        send_at_utc: new Date(2025, 1, 9),
         datePaid: new Date(),
         dueDate: new Date(2025, 1, 9),
         amount: 420.00,
@@ -83,6 +86,7 @@ const data: Invoice[] = [
         customerName: "Saul",
         customerEmail: "saul@sgassociates.com",
         createdDate: new Date(2025, 1, 8),
+        send_at_utc: new Date(2025, 1, 9),
         datePaid: new Date(2025, 1, 30),
         dueDate: new Date(2025, 1, 9),
         amount: 911.00,
@@ -95,6 +99,7 @@ const data: Invoice[] = [
         customerName: "Gus",
         customerEmail: "gus@lospollos.com",
         createdDate: new Date(2025, 1, 8),
+        send_at_utc: new Date(2025, 1, 9),
         datePaid: new Date(),
         dueDate: new Date(2025, 1, 9),
         amount: 420.00,

@@ -33,7 +33,7 @@ interface PaymentLinkPreviewProps {
   requirePhone?: boolean
 }
 
-type CartItem = {
+export type CartItem = {
   addedItem: AddedItem
   quantity: number
 }

@@ -4,56 +4,44 @@ import { InfoTooltip } from "@/components/tooltips/info-tooltip";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { ToastAction } from "@/components/ui/toast";
 import { toast } from "@/hooks/use-toast";
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { z } from "zod"
-
-// Regular expressions for EVM and Solana addresses
-const evmAddressRegex = /^0x[a-fA-F0-9]{40}$/;
-const solanaAddressRegex = /^[1-9A-HJ-NP-Za-km-z]{32,44}$/;
-
-// Custom validation function
-const validateAddress = (address: string) => {
-    return evmAddressRegex.test(address) || solanaAddressRegex.test(address);
-};
-
-// Define the schema with custom validation
-const addressSchema = z.string().refine(validateAddress, {
-    message: "Invalid wallet address format. Must be a valid EVM or Solana address.",
-});
+import { Select, SelectContent, SelectGroup, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 const formSchema = z.object({
     name: z.string().min(2, {
         message: "Name must be at least 2 characters.",
     }),
 
-    address: addressSchema,
-
-    email: z.string().email({
-        message: "Must be a valid email."
-    }).optional(),
-
     description: z.string().max(100, {
         message: "Description must be no more than 100 characters."
+    }),
+
+    amount: z.number().min(0, {
+        message: "Amount must be at least 0."
+    }),
+
+    currency: z.string().min(1, {
+        message: "Please select a currency."
     })
 })
 
-interface newWithdrawWalletFormProps {
+interface NewProductFormProps {
     open: boolean;
     onOpenChange: (value: boolean) => void;
 }
 
-export function NewWithdrawWalletForm({ open, onOpenChange }: newWithdrawWalletFormProps) {
+export function NewProductForm({ open, onOpenChange }: NewProductFormProps) {
     // 1. Define your form.
     const form = useForm<z.infer<typeof formSchema>>({
         resolver: zodResolver(formSchema),
         defaultValues: {
             name: "",
-            address: "",
-            email: "",
             description: "",
+            amount: 0,
+            currency: "",
         },
     })
 
@@ -61,12 +49,12 @@ export function NewWithdrawWalletForm({ open, onOpenChange }: newWithdrawWalletF
     function onSubmit(values: z.infer<typeof formSchema>) {
         onOpenChange(false);
         toast({
-            title: "New Withdrawal Wallet Added",
-            description: `The withdrawal wallet ${values.name} with address ${values.address} has been added.`,
+            title: "New Product Added",
+            description: `${values.name} has been added to the product catalogue.`,
             // action: (
             //   <ToastAction altText="Goto schedule to undo">Undo</ToastAction>
             // ),
-          })
+        })
     }
 
     return (
@@ -77,59 +65,17 @@ export function NewWithdrawWalletForm({ open, onOpenChange }: newWithdrawWalletF
                     name="name"
 
                     render={({ field }) => (
-                        // Customer name
+                        // Product name
                         <FormItem>
                             <FormLabel className="flex items-center">
                                 Name
-                                <InfoTooltip text="The name of the withdrawal wallet." />
+                                <InfoTooltip text="The name of the product." />
                             </FormLabel>
                             <FormControl>
-                                <Input placeholder="Name" {...field} />
+                                <Input placeholder="Product name" {...field} />
                             </FormControl>
                             <FormMessage />
                         </FormItem>
-                    )}
-                />
-
-                <FormField
-                    control={form.control}
-                    name="address"
-
-                    render={({ field }) => (
-                        // Customer name
-                        <FormItem>
-                            <FormLabel className="flex items-center">
-                                Wallet Address
-                                <InfoTooltip text="The EVM/Solana address of the withdrawal wallet." />
-                            </FormLabel>
-                            <FormControl>
-                                <Input placeholder="Address..." {...field} />
-                            </FormControl>
-
-                            <FormMessage />
-                        </FormItem>
-
-                    )}
-                />
-
-                <FormField
-                    control={form.control}
-                    name="email"
-
-                    render={({ field }) => (
-                        // Customer name
-                        <FormItem>
-                            <FormLabel className="flex items-center">
-                                Email
-                                <InfoTooltip text="The email associated with this withdrawal wallet. This can be used to notify receivers after transferring crypto to them." />
-                            </FormLabel>
-                            <FormControl>
-                                <Input placeholder="name@example.com" {...field} />
-                            </FormControl>
-
-                            <FormMessage />
-                        </FormItem>
-
                     )}
                 />
 
@@ -153,6 +99,50 @@ export function NewWithdrawWalletForm({ open, onOpenChange }: newWithdrawWalletF
 
                     )}
                 />
+
+                <div>
+                    <FormLabel className="flex items-center mb-2">Pricing</FormLabel>
+                    <div className="flex items-center gap-x-2">
+                        <FormField
+                            control={form.control}
+                            name="amount"
+                            render={({ field }) => (
+                                <FormItem>
+
+                                    <FormControl>
+                                        <Input placeholder="Amount" {...field} />
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+
+                        <FormField
+                            control={form.control}
+                            name="currency"
+                            render={({ field }) => (
+                                <FormItem>
+
+                                    <FormControl>
+                                        <Select onValueChange={field.onChange}>
+                                            <SelectTrigger className="w-[180px]">
+                                                <SelectValue placeholder="Select a currency" />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectGroup>
+                                                    <SelectItem value="usdc">USDC</SelectItem>
+                                                    <SelectItem value="usdt">USDT</SelectItem>
+                                                    <SelectItem value="eurc">EURC</SelectItem>
+                                                </SelectGroup>
+                                            </SelectContent>
+                                        </Select>
+                                    </FormControl>
+                                    <FormMessage />
+                                </FormItem>
+                            )}
+                        />
+                    </div>
+                </div>
 
                 {/* Form field for specifying customer country. */}
                 {/* <FormField
@@ -244,7 +234,7 @@ export function NewWithdrawWalletForm({ open, onOpenChange }: newWithdrawWalletF
                         Cancel
                     </Button>
                     <Button type="submit">
-                        Add withdrawal wallet
+                        Add product
                     </Button>
                 </div>
             </form>

@@ -11,19 +11,23 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { PaymentLink } from "@/pages/payment-links/payment-links";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "../ui/dialog";
 import { EditNameForm } from "./EditNameForm";
+import { QRCodeSVG } from 'qrcode.react';
+import { Card } from "../ui/card";
 
 // Create a context for customer dialogs
-interface CustomerDialogsContextType {
+interface PLDialogsContextType {
     deactivatePLDialogOpen: boolean;
     setDeactivatePLDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
     changeNameDialogOpen: boolean;
     setChangeNameDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
     currentPl: PaymentLink | null;
     setCurrentPl: React.Dispatch<React.SetStateAction<PaymentLink | null>>;
+    generateQRDialogOpen: boolean;
+    setGenerateQRDialogOpen: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
 // Table columns
-export const createColumns = (dialogContext: CustomerDialogsContextType): ColumnDef<PaymentLink>[] => [
+export const createColumns = (dialogContext: PLDialogsContextType): ColumnDef<PaymentLink>[] => [
     {
         id: "select",
         header: ({ table }) => (
@@ -89,7 +93,7 @@ export const createColumns = (dialogContext: CustomerDialogsContextType): Column
             </div>
         ),
     },
-    
+
     {
         accessorKey: "createdDate",
         header: "Created Date",
@@ -109,6 +113,8 @@ export const createColumns = (dialogContext: CustomerDialogsContextType): Column
                 setChangeNameDialogOpen,
                 currentPl,
                 setCurrentPl,
+                generateQRDialogOpen,
+                setGenerateQRDialogOpen,
             } = dialogContext;
 
             return (
@@ -133,31 +139,39 @@ export const createColumns = (dialogContext: CustomerDialogsContextType): Column
                         <DropdownMenuItem onSelect={(e) => {
                             //e.preventDefault(); // Prevent dropdown from closing dialog immediately
                             setCurrentPl(paymentLink);
+                            setGenerateQRDialogOpen(true);
+                        }}>
+                            Generate QR Code
+                        </DropdownMenuItem>
+
+                        <DropdownMenuItem onSelect={(e) => {
+                            //e.preventDefault(); // Prevent dropdown from closing dialog immediately
+                            setCurrentPl(paymentLink);
                         }}>
                             Preview payment link
                         </DropdownMenuItem>
 
                         <DropdownMenuItem onSelect={(e) => {
-                                e.preventDefault(); // Prevent dropdown from closing dialog immediately
-                                setCurrentPl(paymentLink);
-                                setChangeNameDialogOpen(true);
-                            }}>
-                                Change name
+                            e.preventDefault(); // Prevent dropdown from closing dialog immediately
+                            setCurrentPl(paymentLink);
+                            setChangeNameDialogOpen(true);
+                        }}>
+                            Change name
                         </DropdownMenuItem>
 
                         <DropdownMenuItem onSelect={(e) => {
-                                //e.preventDefault(); // Prevent dropdown from closing dialog immediately
-                                setCurrentPl(paymentLink);
-                            }}>
-                                Edit
+                            //e.preventDefault(); // Prevent dropdown from closing dialog immediately
+                            setCurrentPl(paymentLink);
+                        }}>
+                            Edit
                         </DropdownMenuItem>
 
                         <DropdownMenuSeparator />
                         <DropdownMenuItem onSelect={(e) => {
-                                e.preventDefault(); // Prevent dropdown from closing dialog immediately
-                                setCurrentPl(paymentLink);
-                                setDeactivatePLDialogOpen(true);
-                            }}>
+                            e.preventDefault(); // Prevent dropdown from closing dialog immediately
+                            setCurrentPl(paymentLink);
+                            setDeactivatePLDialogOpen(true);
+                        }}>
                             Deactivate
                         </DropdownMenuItem>
 
@@ -184,18 +198,38 @@ export const createColumns = (dialogContext: CustomerDialogsContextType): Column
                     </AlertDialog>
 
                     <Dialog open={changeNameDialogOpen} onOpenChange={setChangeNameDialogOpen}>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Change name</DialogTitle>
-                  <DialogDescription>This name only appears on your dashboard, and your customers won't see it.</DialogDescription>
-                  
-                  <DialogDescription className="pt-3">
-                    <EditNameForm currentName={currentPl?.name as string} onSuccessfulSubmit={() => setChangeNameDialogOpen(false)}
-                    />
-                  </DialogDescription>
-                </DialogHeader>
-              </DialogContent>
-            </Dialog>
+                        <DialogContent>
+                            <DialogHeader>
+                                <DialogTitle>Change name</DialogTitle>
+                                <DialogDescription>This name only appears on your dashboard, and your customers won't see it.</DialogDescription>
+
+                                <DialogDescription className="pt-3">
+                                    <EditNameForm currentName={currentPl?.name as string} onSuccessfulSubmit={() => setChangeNameDialogOpen(false)}
+                                    />
+                                </DialogDescription>
+                            </DialogHeader>
+                        </DialogContent>
+                    </Dialog>
+
+                    <Dialog open={generateQRDialogOpen} onOpenChange={setGenerateQRDialogOpen}>
+                        <DialogContent className="sm:max-w-[425px]">
+                            <DialogHeader>
+                                <DialogTitle>QR Code</DialogTitle>
+                                <DialogDescription>
+                                    Scan this QR code to access the payment link
+                                </DialogDescription>
+                            </DialogHeader>
+                            <div className="flex justify-center p-4">
+                                <QRCodeSVG 
+                                    value={currentPl?.url as string}
+                                    size={256}
+                                    level="H"
+                                    includeMargin={true}
+                                />
+                            </div>
+                        </DialogContent>
+                    </Dialog>
+                    
                 </DropdownMenu>
 
             )

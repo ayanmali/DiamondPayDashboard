@@ -4,6 +4,9 @@ import TodaySummary from "@/components/dashboard/today-summary";
 import BusinessOverview from "@/components/dashboard/business-overview";
 import RecentTransactions from "@/components/dashboard/recent-transactions";
 import { Link } from "wouter";
+import ReactDOM from 'react-dom';
+import {QRCodeSVG} from 'qrcode.react';
+
 //import SupportedCryptocurrencies from "@/components/dashboard/supported-cryptocurrencies";
 
 export default function Dashboard() {
@@ -30,7 +33,7 @@ export default function Dashboard() {
       {/* Dashboard Components */}
       <TodaySummary />
       <BusinessOverview />
-      <RecentTransactions />
+      {/* <RecentTransactions /> */}
       {/* <SupportedCryptocurrencies /> */}
     </div>
   );

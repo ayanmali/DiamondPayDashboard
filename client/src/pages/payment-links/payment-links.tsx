@@ -83,6 +83,7 @@ export default function PaymentLinks() {
     const [deactivatePLDialogOpen, setDeactivatePLDialogOpen] = useState(false);
     const [changeNameDialogOpen, setChangeNameDialogOpen] = useState(false);
     const [currentPl, setCurrentPl] = useState<PaymentLink | null>(null);
+    const [generateQRDialogOpen, setGenerateQRDialogOpen] = useState(false);
     const { toast } = useToast()
 
     const [selectedStatus, setSelectedStatus] = useState<"all" | "active" | "deactivated">("all");
@@ -95,6 +96,8 @@ export default function PaymentLinks() {
         setChangeNameDialogOpen,
         currentPl,
         setCurrentPl,
+        generateQRDialogOpen,
+        setGenerateQRDialogOpen,
         toast
     };
 

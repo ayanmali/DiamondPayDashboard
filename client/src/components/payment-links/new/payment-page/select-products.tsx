@@ -3,9 +3,9 @@
 import { useState, useEffect, useRef } from 'react';
 import { Search, Plus, MoreHorizontal, Box } from 'lucide-react';
 import { AddedItem, Product } from '@/pages/payment-links/new-payment-link';
-import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from '../ui/dropdown-menu';
+import { DropdownMenu, DropdownMenuContent, DropdownMenuGroup, DropdownMenuItem, DropdownMenuLabel, DropdownMenuPortal, DropdownMenuSeparator, DropdownMenuShortcut, DropdownMenuSub, DropdownMenuSubContent, DropdownMenuSubTrigger, DropdownMenuTrigger } from '../../../ui/dropdown-menu';
 import { USD_TO_EURO } from '@/lib/exchange-rates';
-import NewProductSheet from './new-product';
+import { NewProductSheet } from '../../../products/new-product-sheet';
 
 interface selectProductsProps {
     addedItems: AddedItem[];
@@ -176,10 +176,21 @@ const PaymentLinkProductSelector = ({ addedItems, setAddedItems, currency, isMai
                     />
                 </div>
 
+                <NewProductSheet open={openNewProductSheet} onOpenChange={setOpenNewProductSheet} />
+
                 {isComboboxOpen && (
                     <div className="absolute w-full bg-white border border-gray-200 rounded-md mt-1 shadow-lg z-10">
 
-                        <NewProductSheet />
+                        <div
+                            className="p-2 border-b border-gray-200 hover:bg-gray-50 cursor-pointer flex items-center"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                setOpenNewProductSheet(true);
+                            }}
+                        >
+                            <Plus className="w-4 h-4 mr-2 text-violet-500" />
+                            <span className="text-sm">Add new product</span>
+                        </div>
 
                         {filteredProducts.map(product => (
                             <div

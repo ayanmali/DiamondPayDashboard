@@ -27,6 +27,15 @@ export function SignupForm({
                 <CardContent>
                     <form>
                         <div className="flex flex-col gap-6">
+                        <div className="grid gap-2">
+                                <Label htmlFor="name">Name</Label>
+                                <Input
+                                    id="name"
+                                    type="text"
+                                    placeholder="John Doe"
+                                    required
+                                />
+                            </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="email">Email</Label>
                                 <Input
@@ -36,6 +45,7 @@ export function SignupForm({
                                     required
                                 />
                             </div>
+                           
                             <div className="grid gap-2">
                                 <div className="flex items-center">
                                     <Label htmlFor="password">Password</Label>

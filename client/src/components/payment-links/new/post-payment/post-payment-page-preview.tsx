@@ -42,7 +42,7 @@ type CartItem = {
     quantity: number
 }
 
-export default function ConfirmationPagePreview({
+export default function PostPaymentPagePreview({
     showConfirmation = false,
     merchantName = '',
     addedItems = [],

@@ -45,6 +45,7 @@ import { Product } from "../payment-links/new-payment-link"
 import { AddNewCustomer } from "@/components/customers/add-new-customer"
 import { Sheet, SheetClose, SheetContent, SheetFooter, SheetHeader, SheetTitle } from "@/components/ui/sheet"
 import { Textarea } from "@/components/ui/textarea"
+import { NewProductSheet } from "@/components/products/new-product-sheet"
 
 const testData: Product[] = [
     {
@@ -147,62 +148,7 @@ export default function Products() {
                         Add Product
                     </Button>
                     
-                    <Sheet open={newProductDialogOpen} onOpenChange={setNewProductDialogOpen}>
-                        <SheetContent>
-                            <SheetHeader>
-                                <SheetTitle>Add new product</SheetTitle>
-                               
-                            </SheetHeader>
-                            <div className="grid gap-4 py-4">
-                                <div className="my-3">
-                                    <Label className="text-right">
-                                        Name
-                                    </Label>
-                                    <Input id="name" value={newProductName} placeholder="Name" onChange={e => setNewProductName(e.target.value)} className="mt-2" />
-                                </div>
-
-                                <div className="my-3">
-                                    <Label className="text-right">
-                                        Description
-                                    </Label>
-                                    <Textarea className="mt-2" value={newProductDescription} onChange={e => setNewProductDescription(e.target.value)} placeholder="Description" />
-                                </div>
-
-                                <div className="my-3">
-                                    <Label className="text-right">
-                                        Amount
-                                    </Label>
-                                    <div className="flex items-center mt-2 gap-x-1">
-                                        <Input type="number" placeholder="0.00" value={newProductAmount} onChange={e => setNewProductAmount(Number(e.target.value))} className="" />
-                                        <Select value={newProductCurrency} onValueChange={value => setNewProductCurrency(value)}>
-                                            <SelectTrigger className="w-[180px]">
-                                                <SelectValue placeholder="Select a currency" />
-                                            </SelectTrigger>
-                                            <SelectContent>
-                                                <SelectGroup>
-                                                    <SelectItem value="usdc">USDC</SelectItem>
-                                                    <SelectItem value="usdt">USDT</SelectItem>
-                                                    <SelectItem value="eurc">EURC</SelectItem>
-                                                </SelectGroup>
-                                            </SelectContent>
-                                        </Select>
-                                    </div>
-
-                                </div>
-                            </div>
-
-                            <SheetFooter>
-                                <SheetClose asChild>
-                                    <Button type="button">Cancel</Button>
-                                </SheetClose>
-
-                                <SheetClose asChild>
-                                    <Button type="submit">Save changes</Button>
-                                </SheetClose>
-
-                            </SheetFooter>
-                        </SheetContent>
-                    </Sheet>
+                    <NewProductSheet open={newProductDialogOpen} onOpenChange={setNewProductDialogOpen} />
                 </div>
             </div>
 

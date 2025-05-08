@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrig
 import { CountryCombobox } from "./country-combobox"
 import { InfoTooltip } from "../tooltips/info-tooltip"
 import { useEffect } from "react"
+import { toast } from "@/hooks/use-toast"
 
 const formSchema = z.object({
     name: z.string().min(2, {
@@ -81,6 +82,13 @@ export function NewCustomerForm({ open, onOpenChange, sameAsAccountEmailChecked,
             values.billingEmail = values.email;
         }
         onOpenChange(false);
+        toast({
+            title: "New Customer Added",
+            description: `${values.name} (${values.email}) has been added as a customer.`,
+            // action: (
+            //   <ToastAction altText="Goto schedule to undo">Undo</ToastAction>
+            // ),
+          })
         // Now values contains all the correct data
         // Send values to your backend, etc.
     }
@@ -372,7 +380,7 @@ export function NewCustomerForm({ open, onOpenChange, sameAsAccountEmailChecked,
 
                 {/* Add and cancel buttons */}
                 <div className="flex items-center gap-x-5 justify-end">
-                    <Button type="button" variant="secondary" onClick={() => {
+                    <Button type="button" variant="outline" onClick={() => {
                         onOpenChange(false);
                         // setEnteredWalletName("");
                         // setChainOption("");

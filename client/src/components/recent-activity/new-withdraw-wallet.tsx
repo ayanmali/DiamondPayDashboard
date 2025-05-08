@@ -1,5 +1,5 @@
 import { Dialog } from "@radix-ui/react-dialog";
-import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "../ui/dialog";
+import { DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { useState } from "react";
 import { NewWithdrawWalletForm } from "./new-withdraw-wallet-form";
 
@@ -46,8 +46,7 @@ export function AddNewWithdrawWallet({ open, onOpenChange }: addNewCustomerProps
                         <NewWithdrawWalletForm 
                         open={open} 
                         onOpenChange={onOpenChange}
-                        sameAsAccountEmailChecked={sameAsAccountEmailChecked}
-                        setSameAsAccountEmailChecked={setSameAsAccountEmailChecked}/>
+                        />
 
                     </div>
                     {/* <div className="grid gap-4 py-4">

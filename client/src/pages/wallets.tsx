@@ -206,7 +206,7 @@ export default function Wallets() {
               </div>
 
               <DialogFooter className="sm:justify-end">
-                <Button type="button" variant="secondary" onClick={() => {
+                <Button type="button" variant="outline" onClick={() => {
                   setCreateNewWalletOpen(false);
                   setEnteredWalletName("");
                   setChainOption("");
@@ -298,7 +298,7 @@ export default function Wallets() {
               </div>
 
               <DialogFooter className="sm:justify-start">
-                <Button type="button" variant="secondary" onClick={() => {
+                <Button type="button" variant="outline" onClick={() => {
                   setCreateNewWalletOpen(false);
                   setEnteredWalletName("");
                   setChainOption("");

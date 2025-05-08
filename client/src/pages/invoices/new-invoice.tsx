@@ -12,11 +12,13 @@ import { CustomerCombobox } from "../../components/invoices/customer-combobox";
 import { Customer } from "@/pages/customers/customers";
 import { formatCryptoAmount, formatDate, truncateAddress } from "@/lib/utils";
 import { Link } from "wouter";
-import PaymentLinkProductSelector from "@/components/payment-links/select-products";
+import PaymentLinkProductSelector from "@/components/payment-links/new/payment-page/select-products";
 import { AddedItem, testWallets } from "../payment-links/new-payment-link";
 import { InfoTooltip } from "@/components/tooltips/info-tooltip";
 import { Wallet } from "../wallets";
 import { AddNewCustomer } from "@/components/customers/add-new-customer";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
 
 // Types
 interface LineItem {
@@ -256,6 +258,8 @@ const NewInvoicePage: React.FC = () => {
     const [wallet, setWallet] = useState<Wallet>(testWallets[0]);
     const [dueOption, setDueOption] = useState<string>("");
     const [customDate, setCustomDate] = useState<string>("");
+    const [scheduleSend, setScheduleSend] = useState(false);
+    const [scheduleDate, setScheduleDate] = useState<Date>(new Date());
     const [items, setItems] = useState<LineItem[]>([{ desc: "", qty: 1, price: 0 }]);
     const [memo, setMemo] = useState<string>("");
     const [footer, setFooter] = useState<string>("");
@@ -313,27 +317,32 @@ const NewInvoicePage: React.FC = () => {
     };
 
     const getDateDue = (): Date => {
-        const now = new Date();
+        let dateSent: Date;
+        if (scheduleSend) {
+            dateSent = scheduleDate;
+        } else {
+            dateSent = new Date();
+        }
         switch (dueOption) {
             case "today":
-                return now;
+                return dateSent;
             case "tomorrow":
-                return new Date(now.getFullYear(), now.getMonth(), now.getDate() + 1);
+                return new Date(dateSent.getFullYear(), dateSent.getMonth(), dateSent.getDate() + 1);
             case "7":
             case "14":
             case "30":
             case "45":
             case "60":
             case "90":
-                return new Date(now.getFullYear(), now.getMonth(), now.getDate() + Number(dueOption));
+                return new Date(dateSent.getFullYear(), dateSent.getMonth(), dateSent.getDate() + Number(dueOption));
             case "custom":
                 if (customDate) {
                     const [year, month, day] = customDate.split('-').map(Number);
                     return new Date(year, month - 1, day);
                 }
-                return now;
+                return dateSent;
             default:
-                return now;
+                return dateSent;
         }
     };
 
@@ -417,7 +426,7 @@ const NewInvoicePage: React.FC = () => {
                             </div>
 
                 {/* Due Date */}
-                <div className="mb-4">
+                <div className="mb-5">
                     <label className="block font-medium mb-1">Due Date</label>
                     <Select
                         onValueChange={(v: string) => setDueOption(v)}
@@ -438,9 +447,47 @@ const NewInvoicePage: React.FC = () => {
                         <div className="mt-2">
                             <Input
                                 type="date"
-                                min={todayDateStr}
+                                min={scheduleSend ? scheduleDate.toISOString().split("T")[0] : todayDateStr}
                                 value={customDate}
                                 onChange={handleDateChange}
+                                
+                            />
+                        </div>
+                    )}
+                    {dueOption !== 'custom' && dueOption !== '' &&
+                        <Label className="text-sm text-muted-foreground">
+                            {`This invoice will be due on ${formatDate(getDateDue())}${!scheduleSend ? "." : ","} 
+                            ${scheduleSend ? 
+                             (dueOption === 'today' ? 'the same day the invoice is finalized and sent.' :
+                             dueOption === 'tomorrow' ? 'the day after the invoice is finalized and sent.' :
+                             `${dueOption} days after the invoice is finalized and sent.`): ""}`}
+                        </Label>
+                    }
+                    
+                </div>
+
+                {/* Schedule Send */}
+                <div className="mb-4">
+                    <div className="flex items-center space-x-2">
+                        <Checkbox 
+                            id="schedule-send" 
+                            checked={scheduleSend}
+                            onCheckedChange={(checked) => setScheduleSend(checked as boolean)}
+                        />
+                        <label
+                            htmlFor="schedule-send"
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                            Schedule send date
+                        </label>
+                    </div>
+                    {scheduleSend && (
+                        <div className="mt-2">
+                            <Input
+                                type="date"
+                                min={todayDateStr}
+                                value={scheduleDate.toISOString().split('T')[0]}
+                                onChange={(e) => setScheduleDate(new Date(e.target.value))}
                             />
                         </div>
                     )}

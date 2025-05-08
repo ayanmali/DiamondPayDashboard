@@ -31,17 +31,14 @@ import {
 } from "@/components/ui/collapsible";
 import { AlertTriangle, ChevronDown, ChevronUp, DollarSign, Info } from "lucide-react";
 import { Link } from "wouter";
-import PaymentLinkProductSelector from "@/components/payment-links/select-products";
+import PaymentLinkProductSelector from "@/components/payment-links/new/payment-page/select-products";
 import { InfoTooltip } from "@/components/tooltips/info-tooltip";
-import PaymentLinkPreview from "@/components/payment-links/payment-link-preview";
+import PaymentLinkPreview, { CartItem } from "@/components/payment-links/new/payment-page/payment-link-preview";
 import { Button } from "@/components/ui/button";
-import PostPaymentConfirmation from "@/components/payment-links/post-payment";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
-import { Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from "@/components/ui/card";
-import ConfirmationPagePreview from "@/components/payment-links/confirmation-page-preview";
+import PostPaymentPagePreview from "@/components/payment-links/new/post-payment/post-payment-page-preview";
 import { Wallet } from "../wallets";
-import test from "node:test";
 import { truncateAddress } from "@/lib/utils";
 
 export type Product = {
@@ -190,6 +187,7 @@ export default function NewPaymentLinkPage() {
     const [selectedProduct, setSelectedProduct] = useState<Product>();
     // items that the user has added to the payment link
     const [addedItems, setAddedItems] = useState<AddedItem[]>(new Array<AddedItem>());
+    const [cart, setCart] = useState<CartItem[]>([]);
     const [customFieldsEnabled, setCustomFieldsEnabled] = useState(false);
     const [customFieldType, setCustomFieldType] = useState("text");
     const [labelNameErr, setLabelNameErr] = useState(false);
@@ -799,7 +797,7 @@ export default function NewPaymentLinkPage() {
                 {selectedTab === "payment" ?
                     <PaymentLinkPreview merchantName={merchantName} addedItems={addedItems} currency={currency} cta={cta} customFields={customFieldsEnabled ? customFields : []} requirePhone={collectedData.requirePhone} />
                     :
-                    <ConfirmationPagePreview useCustomPostPaymentMessage={useCustomMessage} customPostPaymentMessage={customMessage} showConfirmation={showConfirmation} merchantName={merchantName} addedItems={addedItems} currency={currency} cta={cta} customFields={customFieldsEnabled ? customFields : []} requirePhone={collectedData.requirePhone} />
+                    <PostPaymentPagePreview useCustomPostPaymentMessage={useCustomMessage} customPostPaymentMessage={customMessage} showConfirmation={showConfirmation} merchantName={merchantName} addedItems={addedItems} currency={currency} cta={cta} customFields={customFieldsEnabled ? customFields : []} requirePhone={collectedData.requirePhone} />
                 }
                 
                 {/* <Button onClick={() => addedItems.map(item => console.log(`Currency: ${currency} Price: ${item.price}`))}>click me</Button> */}
