@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import {
     Tabs,
@@ -39,7 +39,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import PostPaymentPagePreview from "@/components/payment-links/new/post-payment/post-payment-page-preview";
 import { Wallet } from "../wallets";
-import { truncateAddress } from "@/lib/utils";
+import { formatCryptoAmount, truncateAddress } from "@/lib/utils";
+import { calculateTotal } from "@/lib/cart-utils";
 
 export type Product = {
     id: string,
@@ -187,7 +188,9 @@ export default function NewPaymentLinkPage() {
     const [selectedProduct, setSelectedProduct] = useState<Product>();
     // items that the user has added to the payment link
     const [addedItems, setAddedItems] = useState<AddedItem[]>(new Array<AddedItem>());
-    const [cart, setCart] = useState<CartItem[]>([]);
+    const [cart, setCart] = useState<CartItem[]>(
+        addedItems.filter(i => i.isMain).map(addedItem => ({ addedItem: addedItem, quantity: addedItem.quantity }))
+    );
     const [customFieldsEnabled, setCustomFieldsEnabled] = useState(false);
     const [customFieldType, setCustomFieldType] = useState("text");
     const [labelNameErr, setLabelNameErr] = useState(false);
@@ -208,6 +211,41 @@ export default function NewPaymentLinkPage() {
     const [activeTab, setActiveTab] = useState<string>('payment');
     const [previewDevice, setPreviewDevice] = useState<'mobile' | 'desktop'>('desktop');
     const [urlError, setUrlError] = useState<string>('');
+
+    useEffect(() => {
+        setCart(prevCart =>
+            addedItems.map(addedItem => {
+                if (addedItem.isMain) {
+                    // For main items, keep their quantities the same
+                    return {
+                        addedItem,
+                        quantity: addedItem.quantity
+                    };
+                }
+
+                // Check if the item already exists in the cart
+                const existing = prevCart.find(c => c.addedItem.product.id === addedItem.product.id);
+                if (existing) {
+                    // If it exists, keep its quantity
+                    return {
+                        addedItem,
+                        // quantity: Math.max(existing.quantity, addedItem.quantity)
+                        quantity: addedItem.quantity
+                    };
+                }
+
+                // If it's not a main item and doesn't exist in the cart, return null
+                return null;
+            }).filter(item => item !== null) // Filter out null values
+        );
+    }, [addedItems]);
+
+    // Get products that are in the cart
+    const cartProducts = addedItems.filter(addedItem =>
+        cart.some(item => item.addedItem.product.id === addedItem.product.id && item.quantity > 0)
+    );
+    // Format the total amount
+    const totalAmount = `${formatCryptoAmount(calculateTotal(addedItems, cart), currency)}`;
 
     // URL validation function
     const validateUrl = (url: string) => {
@@ -795,11 +833,11 @@ export default function NewPaymentLinkPage() {
                         </>}
                 </div>
                 {selectedTab === "payment" ?
-                    <PaymentLinkPreview merchantName={merchantName} addedItems={addedItems} currency={currency} cta={cta} customFields={customFieldsEnabled ? customFields : []} requirePhone={collectedData.requirePhone} />
+                    <PaymentLinkPreview merchantName={merchantName} addedItems={addedItems} currency={currency} cta={cta} customFields={customFieldsEnabled ? customFields : []} requirePhone={collectedData.requirePhone} cart={cart} setCart={setCart} cartProducts={cartProducts} totalAmount={totalAmount} />
                     :
-                    <PostPaymentPagePreview useCustomPostPaymentMessage={useCustomMessage} customPostPaymentMessage={customMessage} showConfirmation={showConfirmation} merchantName={merchantName} addedItems={addedItems} currency={currency} cta={cta} customFields={customFieldsEnabled ? customFields : []} requirePhone={collectedData.requirePhone} />
+                    <PostPaymentPagePreview useCustomPostPaymentMessage={useCustomMessage} customPostPaymentMessage={customMessage} showConfirmation={showConfirmation} merchantName={merchantName} addedItems={addedItems} currency={currency} cta={cta} customFields={customFieldsEnabled ? customFields : []} requirePhone={collectedData.requirePhone} cart={cart} cartProducts={cartProducts} totalAmount={totalAmount} />
                 }
-                
+
                 {/* <Button onClick={() => addedItems.map(item => console.log(`Currency: ${currency} Price: ${item.price}`))}>click me</Button> */}
             </div>
         </div>

@@ -16,6 +16,7 @@ import { Label } from '@/components/ui/label';
 import { Plus, CreditCard, Info, Phone, User, XIcon } from 'lucide-react';
 import { AddedItem, CustomField } from '@/pages/payment-links/new-payment-link';
 import { formatCryptoAmount } from '@/lib/utils';
+import { addProduct, removeProduct, updateQuantity } from '@/lib/cart-utils';
 
 // Define types for our component
 // export interface CheckoutProduct {
@@ -30,7 +31,11 @@ interface PaymentLinkPreviewProps {
   currency?: string;
   cta?: string;
   customFields?: CustomField[];
-  requirePhone?: boolean
+  requirePhone?: boolean;
+  cart: CartItem[];
+  setCart: (cart: CartItem[]) => void;
+  cartProducts: AddedItem[];
+  totalAmount: string;
 }
 
 export type CartItem = {
@@ -44,14 +49,15 @@ export default function PaymentLinkPreview({
   currency = '',
   cta = 'Pay',
   customFields = [],
-  requirePhone = false
+  requirePhone = false,
+  cart,
+  setCart,
+  cartProducts,
+  totalAmount,
 }: PaymentLinkPreviewProps) {
   // const [cart, setCart] = useState<CartItem[]>(
   //   addedItems.map(addedItem => ({ addedItem: addedItem, quantity: addedItem.isMain ? addedItem.quantity : 0 }))
   // );
-  const [cart, setCart] = useState<CartItem[]>(
-    addedItems.filter(i => i.isMain).map(addedItem => ({ addedItem: addedItem, quantity: addedItem.quantity }))
-  );
 
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'applepay'>('card');
 
@@ -71,79 +77,6 @@ export default function PaymentLinkPreview({
   //     })
   //   );
   // }, [addedItems]);
-
-  useEffect(() => {
-    setCart(prevCart =>
-      addedItems.map(addedItem => {
-        if (addedItem.isMain) {
-          // For main items, keep their quantities the same
-          return {
-            addedItem,
-            quantity: addedItem.quantity
-          };
-        }
-        
-        // Check if the item already exists in the cart
-        const existing = prevCart.find(c => c.addedItem.product.id === addedItem.product.id);
-        if (existing) {
-          // If it exists, keep its quantity
-          return {
-            addedItem,
-            // quantity: Math.max(existing.quantity, addedItem.quantity)
-            quantity: addedItem.quantity
-          };
-        } 
-        
-        // If it's not a main item and doesn't exist in the cart, return null
-        return null;
-      }).filter(item => item !== null) // Filter out null values
-    );
-  }, [addedItems]);
-
-  // Calculate the total price based on cart quantities
-  const calculateTotal = () => {
-    //const mainProducts = addedItems.filter(item => item.isMain);
-
-    return addedItems.reduce((total, item) => {
-      const cartItem = cart.find(c => c.addedItem.product.id === item.product.id);
-      return total + (cartItem ? cartItem.quantity * item.price : 0);
-    }, 0);
-  };
-
-  // Find main product if it exists
-  // const mainProduct = addedItems.find(p => p.isMain);
-
-  // Update quantity for a product
-  const updateQuantity = (addedItem: AddedItem, quantity: number) => {
-    setCart(prev => prev.map(item =>
-      item.addedItem.product.id === addedItem.product.id ? { ...item, quantity } : item
-    ));
-  };
-
-  const removeProduct = (addedItem: AddedItem) => {
-    setCart(cart.filter(i => i.addedItem.product.id !== addedItem.product.id));
-  }
-
-  // Add product to cart
-  const addProduct = (addedItem: AddedItem) => {
-    const existingItem = cart.find(item => item.addedItem.product.id === addedItem.product.id);
-    if (existingItem) {
-      updateQuantity(addedItem, existingItem.quantity + 1);
-    } else {
-      setCart([...cart, { addedItem: addedItem, quantity: addedItem.quantity }]);
-    }
-  };
-
-  // Format price with two decimal places
-
-  // Get products that are in the cart
-  const cartProducts = addedItems.filter(addedItem =>
-    cart.some(item => item.addedItem.product.id === addedItem.product.id && item.quantity > 0)
-  );
-
-  // Format the total amount
-  const totalAmount = `${formatCryptoAmount(calculateTotal(), currency)}`;
-  //formatPrice(calculateTotal());
 
   return (
     <div className="flex flex-col lg:flex-row gap-4 w-full max-w-6xl mx-auto">
@@ -195,7 +128,7 @@ export default function PaymentLinkPreview({
 
                   {/* Total Amount */}
                   <div className="text-4xl font-bold mb-6">{totalAmount}</div>
-
+                  
                   {/* Cart Items */}
                   <div className="space-y-5">
                     {cartProducts.filter(i => i.isMain).map((addedItem) => {
@@ -227,7 +160,7 @@ export default function PaymentLinkPreview({
                                   min="1"
                                   onChange={(e) => {
                                     const newQuantity = parseInt(e.target.value) || 1;
-                                    updateQuantity(addedItem, newQuantity);
+                                    updateQuantity(cart, setCart, addedItem, newQuantity);
                                   }}
                                   className="w-20 border border-gray-200 rounded px-2 py-1 text-sm text-slate-700"
                                 />
@@ -254,7 +187,7 @@ export default function PaymentLinkPreview({
                           <div>
                             <div className='flex items-center gap-x-4'>
                               {!addedItem.isMain &&
-                                <Button variant="link" className='w-1 h-1' onClick={() => removeProduct(addedItem)}>
+                                <Button variant="link" className='w-1 h-1' onClick={() => removeProduct(cart, setCart, addedItem)}>
                                   <XIcon className='h-4 w-4 text-white'/>
                                 </Button>
                               }
@@ -279,7 +212,7 @@ export default function PaymentLinkPreview({
                                   min="1"
                                   onChange={(e) => {
                                     const newQuantity = parseInt(e.target.value) || 1;
-                                    updateQuantity(addedItem, newQuantity);
+                                    updateQuantity(cart, setCart, addedItem, newQuantity);
                                   }}
                                   className="w-20 border border-gray-200 rounded px-2 py-1 text-sm text-slate-700"
                                 />
@@ -327,7 +260,7 @@ export default function PaymentLinkPreview({
                               variant="ghost"
                               className="mt-2 text-white hover:bg-slate-500"
                               size="sm"
-                              onClick={() => addProduct(item)}
+                              onClick={() => addProduct(cart, setCart, item)}
                             >
                               <Plus className="h-4 w-4 mr-1" /> Add
                             </Button>

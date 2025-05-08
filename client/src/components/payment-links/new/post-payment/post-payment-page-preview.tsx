@@ -35,6 +35,9 @@ interface PaymentLinkPreviewProps {
     requirePhone?: boolean;
     useCustomPostPaymentMessage: boolean
     customPostPaymentMessage: string
+    cart: CartItem[]
+    cartProducts: AddedItem[]
+    totalAmount: string
 }
 
 type CartItem = {
@@ -45,76 +48,15 @@ type CartItem = {
 export default function PostPaymentPagePreview({
     showConfirmation = false,
     merchantName = '',
-    addedItems = [],
     currency = '',
-    cta = 'Pay',
-    customFields = [],
-    requirePhone = false,
     useCustomPostPaymentMessage = false,
-    customPostPaymentMessage = ""
+    customPostPaymentMessage = "",
+    cart,
+    cartProducts,
+    totalAmount
 }: PaymentLinkPreviewProps) {
-    const [cart, setCart] = useState<CartItem[]>(
-        addedItems.map(addedItem => ({ addedItem: addedItem, quantity: addedItem.isMain ? 1 : 0 }))
-    );
     const [paymentMethod, setPaymentMethod] = useState<'card' | 'applepay'>('card');
     const [previewDevice, setPreviewDevice] = useState<'mobile' | 'desktop'>('desktop');
-
-    // sync cart with addedItems
-    useEffect(() => {
-        setCart(prevCart =>
-            addedItems.map(addedItem => {
-                // Try to find the item in the previous cart
-                const existing = prevCart.find(c => c.addedItem.product.id === addedItem.product.id);
-                // for items that are already in the cart, keep their quantities the same
-                // else, set their quantity to 1 (for main products) or 0 (for recommended)
-                return {
-                    addedItem,
-                    quantity: existing ? existing.quantity : (addedItem.isMain ? 1 : 0),
-                };
-            })
-        );
-    }, [addedItems]);
-
-    // Calculate the total price based on cart quantities
-    const calculateTotal = () => {
-        //const mainProducts = addedItems.filter(item => item.isMain);
-
-        return addedItems.reduce((total, item) => {
-            const cartItem = cart.find(c => c.addedItem.product.id === item.product.id);
-            return total + (cartItem ? cartItem.quantity * item.price : 0);
-        }, 0);
-    };
-
-    // Find main product if it exists
-    // const mainProduct = addedItems.find(p => p.isMain);
-
-    // Update quantity for a product
-    const updateQuantity = (addedItem: AddedItem, quantity: number) => {
-        setCart(prev => prev.map(item =>
-            item.addedItem.product.id === addedItem.product.id ? { ...item, quantity } : item
-        ));
-    };
-
-    // Add product to cart
-    const addProduct = (addedItem: AddedItem) => {
-        const existingItem = cart.find(item => item.addedItem.product.id === addedItem.product.id);
-        if (existingItem) {
-            updateQuantity(addedItem, existingItem.quantity + 1);
-        } else {
-            setCart([...cart, { addedItem: addedItem, quantity: 1 }]);
-        }
-    };
-
-    // Format price with two decimal places
-
-    // Get products that are in the cart
-    const cartProducts = addedItems.filter(addedItem =>
-        cart.some(item => item.addedItem.product.id === addedItem.product.id && item.quantity > 0)
-    );
-
-    // Format the total amount
-    const totalAmount = `${formatCryptoAmount(calculateTotal(), currency)}`;
-    //formatPrice(calculateTotal());
 
     return showConfirmation ?
         <div className="flex flex-col lg:flex-row gap-4 w-full max-w-6xl mx-auto">
@@ -314,7 +256,7 @@ export default function PostPaymentPagePreview({
                                             <div className="border border-gray-300 rounded-lg p-4 max-w-md mx-auto">
                                                 <div className="flex justify-between items-center">
                                                     <h2 className="font-medium text-lg">{merchantName}</h2>
-                                                    <span className="text-slate-800">{formatCryptoAmount(44.44, currency)}</span>
+                                                    <span className="text-slate-800">{totalAmount}</span>
                                                 </div>
                                                 <hr className="my-2 border-dashed" />
 
