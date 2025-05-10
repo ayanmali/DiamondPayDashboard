@@ -6,6 +6,10 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
+export function xor(a: boolean, b: boolean): boolean {
+  return !!a !== !!b;
+}
+
 export function formatCurrency(amount: string | number, currency = "USD"): string {
   const numAmount = typeof amount === "string" ? parseFloat(amount) : amount;
   

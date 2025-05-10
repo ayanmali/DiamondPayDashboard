@@ -16,7 +16,7 @@ import { Link } from "wouter";
 function LandingPage() {
   const [titleNumber, setTitleNumber] = useState(0);
   const titles = useMemo(
-    () => ["ultra-fast", "low-fee", "cross-border", "secure"],
+    () => ["ultra-fast", "low-fee", "cross-border", "secure", "user-friendly"],
     []
   );
 
@@ -78,7 +78,7 @@ function LandingPage() {
             <p className="text-lg md:text-xl leading-relaxed tracking-tight text-muted-foreground max-w-2xl text-center md:pt-2">
               Traditional payment infrastructure comes with too much hassle,
               between high fees, long delays, and frozen accounts.
-              Our goal is to streamline payment infrastructure by leveraging the power of
+              Our goal is to streamline payments by leveraging the power of
               stablecoins to bring financial control back into the hands of business owners, charities, and creators.
             </p>
           </div>

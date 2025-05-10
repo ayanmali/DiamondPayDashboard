@@ -87,7 +87,7 @@ export default function PostPaymentPagePreview({
                                             d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
                                         />
                                     </svg>
-                                    buy.diamondpay.dev
+                                    buy.tryplexus.dev
                                 </div>
                                 <button className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">
                                     Use your domain
@@ -267,7 +267,7 @@ export default function PostPaymentPagePreview({
                                             </div>
 
                                             <div className='pt-5 text-muted-foreground w-full flex items-center justify-center'>
-                                                <span className='text-center text-xs'>Powered by DiamondPay</span>
+                                                <span className='text-center text-xs'>Powered by Plexus</span>
                                             </div>
                                             <div className='text-muted-foreground w-full flex items-center justify-center'>
                                                 <span className='text-center text-xs'>Terms  Privacy</span>

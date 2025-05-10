@@ -72,7 +72,7 @@ export type AddedItem = {
     isMain: boolean // whether the product is a main product or recommended product
 };
 
-const merchantName = "Ilion";
+const merchantName = "Plexus";
 const MAX_LABEL_NAME_LENGTH = 30;
 const MAX_LABEL_DEFAULT_VALUE_LENGTH = 50;
 const MIN_LABEL_NAME_LENGTH = 1;

@@ -17,6 +17,7 @@ import { Plus, CreditCard, Info, Phone, User, XIcon } from 'lucide-react';
 import { AddedItem, CustomField } from '@/pages/payment-links/new-payment-link';
 import { formatCryptoAmount } from '@/lib/utils';
 import { addProduct, removeProduct, updateQuantity } from '@/lib/cart-utils';
+import EVMWalletConnection from '@/components/wallet-connections/EVMWalletConnections/EVMWalletConnectionOptions';
 
 // Define types for our component
 // export interface CheckoutProduct {
@@ -60,7 +61,7 @@ export default function PaymentLinkPreview({
   // );
 
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'applepay'>('card');
-
+  const [showWalletConnect, setShowWalletConnect] = useState(false);
   // sync cart with addedItems
   // useEffect(() => {
   //   setCart(prevCart =>
@@ -107,7 +108,7 @@ export default function PaymentLinkPreview({
                       d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"
                     />
                   </svg>
-                  buy.diamondpay.dev
+                  buy.tryplexus.dev
                 </div>
                 <button className="text-xs bg-gray-200 text-gray-700 px-2 py-1 rounded">
                   Use your domain
@@ -516,7 +517,9 @@ export default function PaymentLinkPreview({
                         </div> */}
 
                       </div>
-
+                      
+                      <EVMWalletConnection />
+                      
                       {/* Pay Button */}
                       <Button
                         className="w-full bg-green-600 hover:bg-green-700 text-white"
@@ -525,7 +528,7 @@ export default function PaymentLinkPreview({
                       </Button>
 
                       <div className='pt-5 text-muted-foreground w-full flex items-center justify-center'>
-                        <span className='text-center text-xs'>Powered by DiamondPay</span>
+                        <span className='text-center text-xs'>Powered by Plexus</span>
                       </div>
                       <div className='text-muted-foreground w-full flex items-center justify-center'>
                         <span className='text-center text-xs'>Terms  Privacy</span>

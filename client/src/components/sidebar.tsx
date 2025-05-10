@@ -116,7 +116,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             <div className="h-8 w-8 bg-primary rounded-md flex items-center justify-center">
               <BoltIcon className="h-5 w-5 text-white" />
             </div>
-            <h1 className="text-xl font-medium">Ilion</h1>
+            <h1 className="text-xl font-medium">Plexus</h1>
           </div>
           {isMobile && (
             <Button 
