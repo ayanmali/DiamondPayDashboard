@@ -39,9 +39,11 @@ import { createColumns } from "@/components/payment-links/create-columns"
 import { camelCaseToRegular } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
 import { Link } from "wouter"
+import { Wallet } from "../wallets"
 
 export type PaymentLink = {
-    name: string
+    name: string,
+    wallet: Wallet,
     amount: number,
     currency: string
     status: string, // active or deactivated
@@ -49,6 +51,69 @@ export type PaymentLink = {
     description: string,
     url: string
 }
+
+export const testWallets: Wallet[] = [
+    {
+        id: "1",
+        name: "MyWallet",
+        address: "0x123456789",
+        status: "active",
+        walletType: "EVM",
+        balances: [
+            {
+                token: {
+                    name: "USDC",
+                    ticker: "USDC",
+                    chain: "Base",
+                    address: "0x123456789",
+                    decimals: 6
+                },
+                amount: 100.50,
+                usdAmount: 69
+            }
+        ]
+    },
+    {
+        id: "2",
+        name: "OtherWallet",
+        address: "0x987654321",
+        status: "active",
+        walletType: "EVM",
+        balances: [
+            {
+                token: {
+                    name: "USDC",
+                    ticker: "USDC",
+                    chain: "Base",
+                    address: "0x123456789",
+                    decimals: 6
+                },
+                amount: 42.24,
+                usdAmount: 69
+            }
+        ]
+    },
+    {
+        id: "3",
+        name: "TradingWallet",
+        address: "0x91142069000",
+        status: "archived",
+        walletType: "EVM",
+        balances: [
+            {
+                token: {
+                    name: "USDC",
+                    ticker: "USDC",
+                    chain: "Base",
+                    address: "0x123456789",
+                    decimals: 6
+                },
+                amount: 42.00,
+                usdAmount: 69
+            }
+        ]
+    },
+]
 
 const data: PaymentLink[] = [
     {
@@ -59,6 +124,7 @@ const data: PaymentLink[] = [
         status: "Active",
         url: "www.ww.com",
         description: "say my name.",
+        wallet: testWallets[0]
     },
     {
         name: "Grass",
@@ -68,6 +134,7 @@ const data: PaymentLink[] = [
         status: "Deactivated",
         url: "www.ww.com",
         description: "1 to the 2 to the 3, ABQ what up biatch, leave it at the tone",
+        wallet: testWallets[1]
     },
 ]
 

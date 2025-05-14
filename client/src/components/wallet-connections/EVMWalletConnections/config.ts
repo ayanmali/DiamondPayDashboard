@@ -1,11 +1,13 @@
 import { http, createConfig } from 'wagmi'
-import { base } from 'wagmi/chains'
+// import { base, optimism, arbitrum, polygon } from 'wagmi/chains'
+import { base, optimism, arbitrum, polygon } from 'wagmi/chains'
+
 import { metaMask, walletConnect, coinbaseWallet } from 'wagmi/connectors'
 
 const projectId = import.meta.env.VITE_WALLETCONNECT_ID;
 
 export const config = createConfig({
-  chains: [base], // Only include Base chain for now
+  chains: [base, optimism, arbitrum, polygon], // Only include Base chain for now
   connectors: [
     metaMask({
       headless: false,
@@ -29,5 +31,8 @@ export const config = createConfig({
   transports: {
     //[mainnet.id]: http(),
     [base.id]: http(),
+    [optimism.id]: http(),
+    [arbitrum.id]: http(),
+    [polygon.id]: http(),
   },
 })

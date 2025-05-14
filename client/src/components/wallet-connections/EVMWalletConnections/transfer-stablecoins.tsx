@@ -1,7 +1,7 @@
 /* Sending stablecoins to another wallet */
 
 //import { useSimulateContract } from 'wagmi'
-import erc20Abi from './erc-20-abi.ts'
+import erc20Abi from '../../../abis/erc-20-abi.ts'
 
 import { useAccount, useSwitchChain } from 'wagmi';
 import { writeContract, waitForTransactionReceipt } from '@wagmi/core'

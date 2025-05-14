@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -18,6 +18,7 @@ import { AddedItem, CustomField } from '@/pages/payment-links/new-payment-link';
 import { formatCryptoAmount } from '@/lib/utils';
 import { addProduct, removeProduct, updateQuantity } from '@/lib/cart-utils';
 import EVMWalletConnection from '@/components/wallet-connections/EVMWalletConnections/EVMWalletConnectionOptions';
+import { CurrentConfig } from '@/components/wallet-connections/EVMWalletConnections/uniswap/uniswap-config';
 
 // Define types for our component
 // export interface CheckoutProduct {
@@ -62,6 +63,13 @@ export default function PaymentLinkPreview({
 
   const [paymentMethod, setPaymentMethod] = useState<'card' | 'applepay'>('card');
   const [showWalletConnect, setShowWalletConnect] = useState(false);
+
+  // for quotes
+  // const [outputAmount, setOutputAmount] = useState<string>()
+  // const onQuote = useCallback(async () => {
+  //   setOutputAmount(await quote())
+  // }, [])  
+  
   // sync cart with addedItems
   // useEffect(() => {
   //   setCart(prevCart =>
@@ -518,8 +526,12 @@ export default function PaymentLinkPreview({
 
                       </div>
                       
-                      <EVMWalletConnection />
-                      
+                      <EVMWalletConnection paymentObject={null} />
+                      <span>{`Quote input amount: ${CurrentConfig.tokens.amountIn} ${CurrentConfig.tokens.in.symbol}`}</span>
+                      {/* <span>{`Quote output amount: ${outputAmount} ${CurrentConfig.tokens.out.symbol}`}</span> */}
+                      {/* <Button onClick={onQuote}>
+                        Get Quote
+                      </Button> */}
                       {/* Pay Button */}
                       <Button
                         className="w-full bg-green-600 hover:bg-green-700 text-white"

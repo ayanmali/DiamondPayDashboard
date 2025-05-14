@@ -39,6 +39,7 @@ import { createColumns } from "@/components/invoices/create-columns"
 import { camelCaseToRegular } from "@/lib/utils"
 import { useToast } from "@/hooks/use-toast"
 import { Link } from "wouter"
+import { Wallet } from "../wallets"
 
 export type Invoice = {
     invoiceNumber: string
@@ -52,7 +53,71 @@ export type Invoice = {
     createdDate: Date,
     datePaid: Date
     description: string,
+    wallet: Wallet
 }
+
+export const testWallets: Wallet[] = [
+    {
+        id: "1",
+        name: "MyWallet",
+        address: "0x123456789",
+        status: "active",
+        walletType: "EVM",
+        balances: [
+            {
+                token: {
+                    name: "USDC",
+                    ticker: "USDC",
+                    chain: "Base",
+                    address: "0x123456789",
+                    decimals: 6
+                },
+                amount: 100.50,
+                usdAmount: 69
+            }
+        ]
+    },
+    {
+        id: "2",
+        name: "OtherWallet",
+        address: "0x987654321",
+        status: "active",
+        walletType: "EVM",
+        balances: [
+            {
+                token: {
+                    name: "USDC",
+                    ticker: "USDC",
+                    chain: "Base",
+                    address: "0x123456789",
+                    decimals: 6
+                },
+                amount: 42.24,
+                usdAmount: 69
+            }
+        ]
+    },
+    {
+        id: "3",
+        name: "TradingWallet",
+        address: "0x91142069000",
+        status: "archived",
+        walletType: "EVM",
+        balances: [
+            {
+                token: {
+                    name: "USDC",
+                    ticker: "USDC",
+                    chain: "Base",
+                    address: "0x123456789",
+                    decimals: 6
+                },
+                amount: 42.00,
+                usdAmount: 69
+            }
+        ]
+    },
+]
 
 const data: Invoice[] = [
     {
@@ -67,6 +132,7 @@ const data: Invoice[] = [
         currency: "USDC",
         status: "Paid",
         description: "say my name.",
+        wallet: testWallets[0]
     },
     {
         invoiceNumber: "id",
@@ -80,6 +146,7 @@ const data: Invoice[] = [
         currency: "EURC",
         status: "Draft",
         description: "yeah mr white yeah science",
+        wallet: testWallets[1]
     },
     {
         invoiceNumber: "id",
@@ -93,6 +160,7 @@ const data: Invoice[] = [
         currency: "USDC",
         status: "Outstanding",
         description: "don't drink and drive... but if you do, call me",
+        wallet: testWallets[2]
     },
     {
         invoiceNumber: "id",
@@ -106,6 +174,7 @@ const data: Invoice[] = [
         currency: "USDT",
         status: "Overdue",
         description: "look at me hector",
+        wallet: testWallets[0]
     },
 ]
 

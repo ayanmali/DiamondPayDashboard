@@ -89,7 +89,9 @@ export const testWallets: Wallet[] = [
                 token: {
                     name: "USDC",
                     ticker: "USDC",
-                    chain: "Base"
+                    chain: "Base",
+                    address: "0x123456789",
+                    decimals: 6
                 },
                 amount: 100.50,
                 usdAmount: 69
@@ -107,7 +109,9 @@ export const testWallets: Wallet[] = [
                 token: {
                     name: "USDC",
                     ticker: "USDC",
-                    chain: "Base"
+                    chain: "Base",
+                    address: "0x123456789",
+                    decimals: 6
                 },
                 amount: 42.24,
                 usdAmount: 69
@@ -125,7 +129,9 @@ export const testWallets: Wallet[] = [
                 token: {
                     name: "USDC",
                     ticker: "USDC",
-                    chain: "Base"
+                    chain: "Base",
+                    address: "0x123456789",
+                    decimals: 6
                 },
                 amount: 42.00,
                 usdAmount: 69

@@ -73,9 +73,9 @@ export type Wallet = {
   balances: Balance[]
 }
 
-type Balance = {
+export type Balance = {
   token: Token,
-  amount: number
+  amount: number | string
   usdAmount: number
 }
 
@@ -83,6 +83,8 @@ export type Token = {
   name: string // base ETH, USDC, etc
   ticker: string // WETH, USDC, etc
   chain: string // base, polygon, etc
+  address: `0x${string}`
+  decimals: number
 }
 
 interface WalletsData {

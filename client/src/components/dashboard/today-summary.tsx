@@ -22,7 +22,7 @@ import { BarChartWithLabels } from "../ui/barchart";
 import { useState } from "react";
 import { Bar } from "recharts";
 
-type Chains = 'All chains' | 'Base' | 'Polygon';
+type Chains = 'All chains' | 'Base' | 'Polygon' | 'Optimism' | 'Arbitrum'
 type Currency = 'USD' | 'EUR' | 'All currencies'
 
 export default function TodaySummary() {
