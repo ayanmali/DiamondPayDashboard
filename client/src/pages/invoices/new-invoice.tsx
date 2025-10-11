@@ -1,0 +1,570 @@
+import React, { useState, ChangeEvent } from "react";
+import {
+    Select,
+    SelectTrigger,
+    SelectValue,
+    SelectContent,
+    SelectItem
+} from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { CustomerCombobox } from "../../components/invoices/customer-combobox";
+import { Customer } from "@/pages/customers/customers";
+import { formatCryptoAmount, formatDate, truncateAddress } from "@/lib/utils";
+import { Link } from "wouter";
+import PaymentLinkProductSelector from "@/components/payment-links/new/payment-page/select-products";
+import { AddedItem, testWallets } from "../payment-links/new-payment-link";
+import { InfoTooltip } from "@/components/tooltips/info-tooltip";
+import { Wallet } from "../wallets";
+import { AddNewCustomer } from "@/components/customers/add-new-customer";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Label } from "@/components/ui/label";
+
+// Types
+interface LineItem {
+    desc: string;
+    qty: number;
+    price: number;
+}
+
+interface DueOption {
+    value: string;
+    label: string;
+}
+
+interface CustomFields {
+    memo: string;
+    footer: string;
+    fields: Record<string, string>;
+}
+
+interface InvoicePreviewProps {
+    customer: Customer | null;
+    currency: string;
+    //dueDate: DueOption;
+    dateDue: Date
+    items: AddedItem[];
+    customFields: CustomFields;
+}
+
+const todayDateStr = new Date().toISOString().split("T")[0];
+
+const sampleCustomersData: Customer[] = [
+    {
+      name: "Walter",
+      id: "id",
+      email: "walter@heisenberg.com",
+      joinedDate: new Date(2025, 1, 30),
+      paymentMethod: "0x93awfegegegg42t24gf2t24t24g3rg24t4ef13r2ty35hjyk754tf5g",
+      totalSpent: 911.00,
+      orders: 20,
+      lastPaymentDate: new Date(2025, 4, 20),
+      description: "hartwell",
+      defaultCurrency: "USDC"
+    },
+    {
+      name: "Jesse",
+      id: "id",
+      email: "jesse@capncook.com",
+      joinedDate: new Date(2025, 3, 13),
+      paymentMethod: "0xA5J...9R7",
+      totalSpent: 420.00,
+      orders: 14,
+      lastPaymentDate: new Date(2025, 3, 18),
+      description: "b!tch",
+      defaultCurrency: "USDC"
+    },
+    {
+      name: "Saul",
+      id: "id",
+      email: "saul@sgassociates.com",
+      joinedDate: new Date(2025, 2, 20),
+      paymentMethod: "0xXI9...7RY",
+      totalSpent: 69.00,
+      orders: 4,
+      lastPaymentDate: new Date(2025, 4, 25),
+      description: "did you know you have rights?",
+      defaultCurrency: "EURC"
+    },
+    {
+      name: "Hank",
+      id: "id",
+      email: "hank@schraderbrau.com",
+      joinedDate: new Date(2025, 1, 10),
+      paymentMethod: "0x7U6...JF9",
+      totalSpent: 100.00,
+      orders: 7,
+      lastPaymentDate: new Date(2025, 1, 11),
+      description: "asac",
+      defaultCurrency: "USDT"
+    },
+    {
+      name: "Mike",
+      id: "id",
+      email: "mike@lospollos.com",
+      joinedDate: new Date(2025, 2, 29),
+      paymentMethod: "0xG89...0D2",
+      totalSpent: 42.00,
+      orders: 48,
+      lastPaymentDate: new Date(2025, 4, 1),
+      description: "for the chicken man",
+      defaultCurrency: "EURC"
+    },
+  ]
+
+// Invoice Preview Component
+const InvoicePreview: React.FC<InvoicePreviewProps> = ({
+    customer,
+    currency,
+    //dueDate,
+    dateDue,
+    items,
+    customFields
+}) => {
+    const total = items.reduce(
+        (sum, item) => {
+            return currency 
+            ? sum + item.price * item.quantity
+            : sum + item.product.amount * item.quantity;
+        }, 0
+    );
+
+    return (
+        <div className="p-6 bg-white rounded shadow w-full">
+            <h2 className="text-2xl font-bold mb-4">Invoice</h2>
+            <div className="mb-4">
+                {/* Invoice Number */}
+                <div className="flex items-center gap-x-1">
+                        <span className="font-semibold">Invoice number:</span>
+                        <span>EXAMPLE-0001</span>
+                        {/* {formatDate(new Date()) || " —"} */}
+                </div>
+
+                {/* Date issued */}
+                <div className="flex items-center gap-x-1">
+                    <span className="font-semibold">Date Issued:</span>
+                    {formatDate(new Date()) || " —"}
+                </div>
+
+                {/* Date due */}
+                <div className="flex items-center gap-x-1">
+                    <span className="font-semibold">Date Due:</span>
+                    {formatDate(dateDue) || " —"}
+                </div>
+
+                {/* Vendor and customer info */}
+                <div className="flex justify-between mt-8">
+                    {/* Vendor Info */}
+                    <div className="flex flex-col space-y-1">
+                        <p className="font-semibold">Vendor Name</p>
+                        <p>vendor@email.com</p>
+                    </div>
+
+                    {/* Customer Info */}
+                    <div className="flex flex-col space-y-1 text-right">
+                        <p className="font-semibold">Bill to</p>
+                        <p>{customer?.name}</p>
+                        <p>{customer?.email}</p>
+                    </div>
+                </div>
+
+                <div className="font-semibold text-xl mt-5">
+                    {currency ? formatCryptoAmount(total, currency) : "0 USDC"} due {formatDate(dateDue)}
+                </div>
+
+                <div className="font-medium mt-5 mb-16">
+                    Pay online
+                </div>
+
+                {customFields.memo && <div className="my-3">{customFields.memo}</div>}
+
+                {Object.entries(customFields.fields).map(([key, value]) => (
+                    Object.entries(customFields.fields).length > 0 && <div key={key}><strong>{key}:</strong> {value}</div>
+                ))}
+            </div>
+            <table className="w-full text-left border-collapse">
+                <thead>
+                    <tr>
+                        <th className="font-semibold">Item</th>
+                        <th className="text-right font-semibold">Qty</th>
+                        <th className="text-right font-semibold">Unit Price</th>
+                        <th className="text-right font-semibold">Amount</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {items.map((item, idx) => (
+                        <tr key={idx}>
+                            <td>{item.product.name}</td>
+                            <td className="text-right">{item.quantity}</td>
+                            <td className="text-right">{currency ? formatCryptoAmount(item.price, currency) : formatCryptoAmount(item.product.amount, item.product.currency)}</td>
+                            <td className="text-right">{currency ? formatCryptoAmount((item.price * item.quantity), currency) : formatCryptoAmount(item.product.amount * item.quantity, item.product.currency)}</td>
+                        </tr>
+                    ))}
+                </tbody>
+                <tfoot>
+                    <tr>
+                        <td colSpan={3} className="text-right font-semibold">Total</td>
+                        <td className="text-right font-semibold">{formatCryptoAmount(total, currency)}</td>
+                    </tr>
+                </tfoot>
+            </table>
+            {customFields.footer && <div className="my-3">{customFields.footer}</div>}
+        </div>
+    );
+};
+
+function InvoiceHeader() {
+    return (
+        <header className="fixed top-0 left-0 right-0 z-50 flex items-center justify-between px-4 h-14 border-b bg-background">
+            {/* Left section with close button and title */}
+            <div className="flex items-center gap-3">
+                <Link href="/invoices">
+                    <button className="p-2 hover:bg-gray-100 rounded-md">
+                        <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                            <path d="M12.5 3.5L3.5 12.5M3.5 3.5L12.5 12.5" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+                        </svg>
+                    </button>
+                </Link>
+                <h1 className="text-base font-normal">Create invoice</h1>
+            </div>
+
+            {/* Right section with actions */}
+            <div className="flex items-center gap-3">
+                {/* <button className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-md">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <path d="M8 3V13M3 8H13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round"/>
+                    </svg>
+                    Feedback?
+                </button> */}
+
+                <button className="flex items-center gap-2 px-3 py-1.5 text-sm text-gray-600 hover:bg-gray-100 rounded-md border border-solid">
+                    Hide preview
+                </button>
+
+                <button className="px-4 py-1.5 bg-[#7C3AED] text-white rounded-md text-sm font-medium hover:bg-[#6D28D9]">
+                    Send invoice
+                </button>
+            </div>
+        </header>
+    );
+}
+
+// Main Invoice Page
+const NewInvoicePage: React.FC = () => {
+    const [customer, setCustomer] = useState<Customer | null>(null);
+    const [newCustomerOpen, setNewCustomerOpen] = useState(false);
+    const [currency, setCurrency] = useState<string>("");
+    const [addedItems, setAddedItems] = useState<AddedItem[]>(new Array<AddedItem>());
+    const [wallet, setWallet] = useState<Wallet>(testWallets[0]);
+    const [dueOption, setDueOption] = useState<string>("");
+    const [customDate, setCustomDate] = useState<string>("");
+    const [scheduleSend, setScheduleSend] = useState(false);
+    const [scheduleDate, setScheduleDate] = useState<Date>(new Date());
+    const [items, setItems] = useState<LineItem[]>([{ desc: "", qty: 1, price: 0 }]);
+    const [memo, setMemo] = useState<string>("");
+    const [footer, setFooter] = useState<string>("");
+    const [fields, setFields] = useState<Record<string, string>>({});
+
+    const dueOptions: DueOption[] = [
+        { value: 'today', label: 'Today' },
+        { value: 'tomorrow', label: 'Tomorrow' },
+        { value: '7', label: 'In 7 days' },
+        { value: '14', label: 'In 14 days' },
+        { value: '30', label: 'In 30 days' },
+        { value: '45', label: 'In 45 days' },
+        { value: '60', label: 'In 60 days' },
+        { value: '90', label: 'In 90 days' },
+        { value: 'custom', label: 'Custom' }
+    ];
+
+    const addItem = () => {
+        setItems(prev => [...prev, { desc: "", qty: 1, price: 0 }]);
+    };
+
+    const updateItem = (index: number, key: keyof LineItem, value: string) => {
+        setItems(prev => {
+            const copy = [...prev];
+            copy[index] = {
+                ...copy[index],
+                [key]: key === 'qty' || key === 'price' ? Number(value) : value
+            } as LineItem;
+            return copy;
+        });
+    };
+
+    const removeItem = (index: number) => {
+        setItems(prev => prev.filter((_, i) => i !== index));
+    };
+
+    const addField = () => {
+        setFields(prev => ({ ...prev, '': '' }));
+    };
+
+    const updateField = (key: string, value: string) => {
+        setFields(prev => ({ ...prev, [key]: value }));
+    };
+
+    const removeField = (key: string) => {
+        setFields(prev => {
+            const updated = { ...prev };
+            delete updated[key];
+            return updated;
+        });
+    };
+
+    const handleDateChange = (e: ChangeEvent<HTMLInputElement>) => {
+        setCustomDate(e.target.value);
+    };
+
+    const getDateDue = (): Date => {
+        let dateSent: Date;
+        if (scheduleSend) {
+            dateSent = scheduleDate;
+        } else {
+            dateSent = new Date();
+        }
+        switch (dueOption) {
+            case "today":
+                return dateSent;
+            case "tomorrow":
+                return new Date(dateSent.getFullYear(), dateSent.getMonth(), dateSent.getDate() + 1);
+            case "7":
+            case "14":
+            case "30":
+            case "45":
+            case "60":
+            case "90":
+                return new Date(dateSent.getFullYear(), dateSent.getMonth(), dateSent.getDate() + Number(dueOption));
+            case "custom":
+                if (customDate) {
+                    const [year, month, day] = customDate.split('-').map(Number);
+                    return new Date(year, month - 1, day);
+                }
+                return dateSent;
+            default:
+                return dateSent;
+        }
+    };
+
+    return (
+        <>
+        <InvoiceHeader/>
+        <div className="flex gap-8 pl-5 pt-20 pr-5">
+            {/* Left form */}
+            <div className="w-1/2 bg-gray-50 p-6 rounded">
+                <h1 className="text-2xl font-bold mb-4">Create Invoice</h1>
+
+                {/* Customer */}
+                <div className="mb-4">
+                    <label className="block font-medium mb-1">Customer</label>
+                    {/* <Input
+                        placeholder="Select customer"
+                        value={customer}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => setCustomer(e.target.value)}
+                    /> */}
+                    <CustomerCombobox customers={sampleCustomersData} onSelect={setCustomer} setCurrency={setCurrency} newCustomerOpen={newCustomerOpen} setNewCustomerOpen={setNewCustomerOpen}/>
+
+                </div>
+
+                {newCustomerOpen && <AddNewCustomer open={newCustomerOpen} onOpenChange={setNewCustomerOpen}/>}
+
+                {/* Currency */}
+                <div className="mb-4">
+                    <label className="block font-medium mb-1">Currency</label>
+                    <Select
+                        disabled={!customer}
+                        onValueChange={(v: string) => setCurrency(v)}
+                        value={currency}
+                    >
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select currency" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            <SelectItem value="USDC">USDC</SelectItem>
+                            <SelectItem value="USDT">USDT</SelectItem>
+                            <SelectItem value="EURC">EURC</SelectItem>
+                        </SelectContent>
+                    </Select>
+                </div>
+
+                <div className="mb-8">
+                                <div className="flex items-center">
+                                    <h3 className="text-base font-medium">Select wallet</h3>
+                                    <InfoTooltip text="The wallet in which you will receive payment." />
+                                </div>
+
+                                <Select
+                                    value={wallet.name}
+                                    onValueChange={v =>
+                                        setWallet(
+                                            testWallets.find(w => w.name === v) as Wallet
+                                        )
+                                    }
+                                    defaultValue={wallet.name}
+                                >
+                                    <SelectTrigger className="w-full mt-2">
+                                        <SelectValue placeholder="Select wallet" />
+                                    </SelectTrigger>
+
+                                    <SelectContent>
+                                        {testWallets.map(w => (
+                                            <SelectItem key={w.id} value={w.name}>
+                                                <div>
+                                                    <div className="font-medium">{w.name}</div>
+                                                    <div className="text-sm text-gray-500">{truncateAddress(w.address)}</div>
+                                                </div>
+                                            </SelectItem>
+                                        ))}
+                                    </SelectContent>
+                                </Select>
+                                <span className="text-sm text-muted-foreground">
+                                    {wallet.walletType === "EVM" ? "This invoice will accept payments from any EVM blockchain (Base, Polygon, Optimism, etc.)."
+                                        : wallet.walletType === "SOL" ? "This invoice will accept payment only on the Solana network." : ""}
+                                </span>
+
+
+                            </div>
+
+                {/* Due Date */}
+                <div className="mb-5">
+                    <label className="block font-medium mb-1">Due Date</label>
+                    <Select
+                        onValueChange={(v: string) => setDueOption(v)}
+                        value={dueOption}
+                    >
+                        <SelectTrigger>
+                            <SelectValue placeholder="Select due" />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {dueOptions.map(opt => (
+                                <SelectItem key={opt.value} value={opt.value}>
+                                    {opt.label}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
+                    {dueOption === 'custom' && (
+                        <div className="mt-2">
+                            <Input
+                                type="date"
+                                min={scheduleSend ? scheduleDate.toISOString().split("T")[0] : todayDateStr}
+                                value={customDate}
+                                onChange={handleDateChange}
+                                
+                            />
+                        </div>
+                    )}
+                    {dueOption !== 'custom' && dueOption !== '' &&
+                        <Label className="text-sm text-muted-foreground">
+                            {`This invoice will be due on ${formatDate(getDateDue())}${!scheduleSend ? "." : ","} 
+                            ${scheduleSend ? 
+                             (dueOption === 'today' ? 'the same day the invoice is finalized and sent.' :
+                             dueOption === 'tomorrow' ? 'the day after the invoice is finalized and sent.' :
+                             `${dueOption} days after the invoice is finalized and sent.`): ""}`}
+                        </Label>
+                    }
+                    
+                </div>
+
+                {/* Schedule Send */}
+                <div className="mb-4">
+                    <div className="flex items-center space-x-2">
+                        <Checkbox 
+                            id="schedule-send" 
+                            checked={scheduleSend}
+                            onCheckedChange={(checked) => setScheduleSend(checked as boolean)}
+                        />
+                        <label
+                            htmlFor="schedule-send"
+                            className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+                        >
+                            Schedule send date
+                        </label>
+                    </div>
+                    {scheduleSend && (
+                        <div className="mt-2">
+                            <Input
+                                type="date"
+                                min={todayDateStr}
+                                value={scheduleDate.toISOString().split('T')[0]}
+                                onChange={(e) => setScheduleDate(new Date(e.target.value))}
+                            />
+                        </div>
+                    )}
+                </div>
+
+                {/* Line Items */}
+                <div className="mb-4">
+                    <PaymentLinkProductSelector addedItems={addedItems} setAddedItems={setAddedItems} currency={currency} isMain={true} invoice={true}/>
+                </div>
+
+                {/* Custom Fields */}
+                <div className="mb-4">
+                    <h2 className="font-medium mb-3">Custom Fields</h2>
+                    {/* <Checkbox checked onCheckedChange={() => { }} className="mb-2">Memo</Checkbox> */}
+                    <h3 className="font-normal text-sm mb-1">Memo</h3>
+                    <Input
+                        placeholder="Thanks for your business!"
+                        value={memo}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => setMemo(e.target.value)}
+                        className="mb-2"
+                    />
+
+                    <div className="pt-2 pb-2"></div>
+
+                    <h3 className="font-normal text-sm mb-1">Footer</h3>
+                    {/* <Checkbox checked onCheckedChange={() => { }} className="mb-2">Footer</Checkbox> */}
+                    <Input
+                        placeholder="Thanks for your business!"
+                        value={footer}
+                        onChange={(e: ChangeEvent<HTMLInputElement>) => setFooter(e.target.value)}
+                        className="mb-2"
+                    />
+
+                    {Object.entries(fields).map(([key, val], i) => (
+                        <div key={i} className="flex gap-2 mb-2">
+                            <Input
+                                placeholder="Key"
+                                value={key}
+                                onChange={(e: ChangeEvent<HTMLInputElement>) => {
+                                    const newKey = e.target.value;
+                                    const newFields = { ...fields };
+                                    delete newFields[key];
+                                    newFields[newKey] = val;
+                                    setFields(newFields);
+                                }}
+                            />
+                            <Input
+                                placeholder="Value"
+                                value={val}
+                                onChange={(e: ChangeEvent<HTMLInputElement>) => updateField(key, e.target.value)}
+                            />
+                            <Button variant="ghost" onClick={() => removeField(key)}>✕</Button>
+                        </div>
+                    ))}
+                    <Button onClick={addField} variant="link" className="mt-2">
+                        Add custom field
+                    </Button>
+                </div>
+
+                {/* Save */}
+                <Button className="w-full mt-4">Send invoice</Button>
+            </div>
+
+            {/* Preview */}
+            <div className="w-1/2">
+                <InvoicePreview
+                    customer={customer}
+                    currency={currency}
+                    //dueDate={dueOptions.find(o => o.value === dueOption) || { value: '', label: '' }}
+                    dateDue={getDateDue()}
+                    items={addedItems}
+                    customFields={{ memo, footer, fields }}
+                />
+            </div>
+        </div>
+        </>
+    );
+};
+
+export default NewInvoicePage;

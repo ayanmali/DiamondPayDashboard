@@ -99,6 +99,36 @@ export class MemStorage implements IStorage {
     };
     this.wallets.set(ethWallet.id, ethWallet);
 
+    const solWallet: Wallet = {
+      id: 3,
+      userId: 1,
+      currency: 'SOL',
+      address: '0x35fm3c0...',
+      balance: '0.69',
+      updatedAt: new Date(),
+    };
+    this.wallets.set(solWallet.id, solWallet);
+
+    const optWallet: Wallet = {
+      id: 4,
+      userId: 1,
+      currency: 'ETH',
+      address: '0x35fm3c0...',
+      balance: '911.00',
+      updatedAt: new Date(),
+    };
+    this.wallets.set(optWallet.id, optWallet);
+
+    const baseWallet: Wallet = {
+      id: 5,
+      userId: 1,
+      currency: 'ETH',
+      address: '0x35fm3c0...',
+      balance: '420.00',
+      updatedAt: new Date(),
+    };
+    this.wallets.set(baseWallet.id, baseWallet);
+
     // Create a test customer
     const testCustomer: Customer = {
       id: 1,

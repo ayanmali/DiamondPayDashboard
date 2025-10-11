@@ -9,15 +9,18 @@ import {
   HomeIcon, 
   WalletIcon, 
   ArrowLeftRightIcon, 
-  ThumbsUp, 
   UsersIcon, 
-  LinkIcon, 
-  ShoppingCartIcon, 
+  LinkIcon,  
   FileTextIcon, 
-  GiftIcon, 
   BoltIcon,
-  XIcon
+  XIcon,
+  ClockIcon,
+  Clock
 } from "lucide-react";
+import { IoCubeOutline } from "react-icons/io5";
+import {
+  PiHandCoins
+} from "react-icons/pi"
 
 interface SidebarProps {
   isOpen: boolean;
@@ -113,7 +116,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             <div className="h-8 w-8 bg-primary rounded-md flex items-center justify-center">
               <BoltIcon className="h-5 w-5 text-white" />
             </div>
-            <h1 className="text-xl font-semibold">CryptoFlow</h1>
+            <h1 className="text-xl font-medium">Plexus</h1>
           </div>
           {isMobile && (
             <Button 
@@ -127,7 +130,7 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
         </div>
         
         <nav className="flex-1 px-3 py-4 space-y-1">
-          <SidebarItem href="/" icon={<HomeIcon />} onClick={handleItemClick}>
+          <SidebarItem href="/dashboard" icon={<HomeIcon />} onClick={handleItemClick}>
             Dashboard
           </SidebarItem>
           
@@ -139,18 +142,22 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             Transactions
           </SidebarItem>
           
-          <SidebarItem href="/token-transfers" icon={<ThumbsUp />} onClick={handleItemClick}>
-            Token Transfers
+          <SidebarItem href="/wallet-activity" icon={<Clock className=""/>} onClick={handleItemClick}>
+            Wallet Activity
           </SidebarItem>
           
           <SidebarItem href="/customers" icon={<UsersIcon />} onClick={handleItemClick}>
             Customers
           </SidebarItem>
+
+          <SidebarItem href="/products" icon={<IoCubeOutline className="h-6 w-6"/>} onClick={handleItemClick}>
+            Product Catalogue
+          </SidebarItem>
           
           <div className="pt-4 pb-2">
             <div className="flex items-center px-4">
               <h3 className="text-xs font-semibold uppercase tracking-wider text-gray-medium">
-                Payment Tools
+                Payments
               </h3>
             </div>
           </div>
@@ -159,17 +166,17 @@ export default function Sidebar({ isOpen, setIsOpen }: SidebarProps) {
             Payment Links
           </SidebarItem>
           
-          <SidebarItem href="/checkout-integrations" icon={<ShoppingCartIcon />} onClick={handleItemClick}>
+          {/* <SidebarItem href="/checkout-integrations" icon={<ShoppingCartIcon />} onClick={handleItemClick}>
             Checkout Integrations
-          </SidebarItem>
+          </SidebarItem> */}
           
           <SidebarItem href="/invoices" icon={<FileTextIcon />} onClick={handleItemClick}>
             Invoices
           </SidebarItem>
           
-          <SidebarItem href="/donations" icon={<GiftIcon />} onClick={handleItemClick}>
+          {/* <SidebarItem href="/donations" icon={<GiftIcon />} onClick={handleItemClick}>
             Donations
-          </SidebarItem>
+          </SidebarItem> */}
         </nav>
         
         <div className="p-4 border-t border-border">
