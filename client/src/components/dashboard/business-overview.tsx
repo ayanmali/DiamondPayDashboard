@@ -89,7 +89,6 @@ export default function BusinessOverview() {
               </SelectContent>
             </Select>
           </div>
-        </div>
       </CardHeader>
       
       <CardContent className="p-6">
